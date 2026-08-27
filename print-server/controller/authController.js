@@ -188,6 +188,42 @@ const resetPasswordController = async (req, res) => {
   }
 };
 
+const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is required" });
+    }
+
+    const response = await authService.sendOtpService(email);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log("error:", error);
+    return res.status(500).json({ success: false, messsage: error.message });
+  }
+};
+
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required",
+      });
+    }
+
+    const response = await authService.verifyOtpService(email, otp);
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log("error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   saveEmployeeController,
   getAllEmployeeController,
@@ -195,4 +231,6 @@ module.exports = {
   deleteEmployeeController,
   loginController,
   resetPasswordController,
+  sendOtp,
+  verifyOtp,
 };

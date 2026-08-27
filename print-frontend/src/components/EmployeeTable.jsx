@@ -202,7 +202,7 @@ const EmployeeTable = () => {
                             : "bg-red-100 text-red-700"
                         }`}
                       >
-                        {employee?.status || "Active"}
+                        {employee?.emp_status}
                       </span>
                     </td>
 

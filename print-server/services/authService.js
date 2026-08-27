@@ -2,6 +2,9 @@ const pool = require("../config/db");
 const moment = require("moment-timezone");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { sendEmail } = require("../utils/emailUtils");
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const saveEmployeeService = async (data) => {
   const {
@@ -242,6 +245,73 @@ const resetPasswordService = async (emp_id, new_password) => {
   }
 };
 
+const sendOtpService = async (email) => {
+  if (!emailRegex.test(email)) {
+    throw new Error("Invalid email address");
+  }
+
+  const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  await pool.query("delete from otp_collection where otp_email = ?", [email]);
+
+  await pool.query(
+    "insert into otp_collection (otp_email, otp, created_at) values (?,?,?)",
+    [email, otp, createdAt],
+  );
+
+  const emailResponse = await sendEmail({
+    to: email,
+    bcc: "developerjyotiadvertiser@gmail.com",
+    subject: "Email verification OTP",
+    html: `<div style="font-family: Arial, sans-serif;">
+                <h2>Email Verification</h2>
+                <p>Your verification code is:</p>
+                <h1 style="letter-spacing:5px;">${otp}</h1>
+                <p>This OTP is valid for 10 minutes.</p>
+            </div>`,
+  });
+
+  if (!emailResponse.success) {
+    await pool.query("DELETE FROM otp_collection WHERE otp_email = ?", [email]);
+
+    throw new Error(emailResponse.error || "Failed to send OTP");
+  }
+
+  return {
+    success: true,
+    message: "OTP sent successfully.",
+  };
+};
+
+const verifyOtpService = async (email, otp) => {
+  const [rows] = await pool.query(
+    `select * from otp_collection where otp_email = ? order by otp_id desc limit 1`,
+    [email],
+  );
+
+  if (rows.length === 0) {
+    throw new Error("otp not found");
+  }
+
+  const otpData = rows[0];
+
+  if (Number(otpData.otp) !== Number(otp)) {
+    throw new Error("Invalid OTP");
+  }
+
+  await pool.query("delete from otp_collection where otp_id = ?", [
+    otpData.otp_id,
+  ]);
+
+  return {
+    success: true,
+    verified: true,
+    message: "Email verified successfully",
+  };
+};
+
 module.exports = {
   saveEmployeeService,
   getAllEmployeesService,
@@ -249,4 +319,6 @@ module.exports = {
   deleteEmployeeService,
   loginService,
   resetPasswordService,
+  sendOtpService,
+  verifyOtpService,
 };

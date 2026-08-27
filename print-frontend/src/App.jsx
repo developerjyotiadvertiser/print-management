@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import UserPrint from "./pages/UserPrint";
 import AdminDashboard from "./pages/AdminDashboard";
 import LoginPage from "./pages/LoginPage";
+// import LocationGuard from "./components/LocationGuard";
 
 const App = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -15,6 +16,7 @@ const App = () => {
     <>
       <Toaster />
       <ScrollToTop />
+      {/* <LocationGuard> */}
       {user && <Navbar />}
       <Routes>
         <Route
@@ -46,6 +48,7 @@ const App = () => {
           }
         />
       </Routes>
+      {/* </LocationGuard> */}
     </>
   );
 };

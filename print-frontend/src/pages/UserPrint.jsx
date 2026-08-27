@@ -14,6 +14,7 @@ import AddPrintModel from "../components/PopupWindows/AddPrintModel";
 import UpdatePrintModel from "../components/PopupWindows/UpdatePrintModel";
 import * as XLSX from "xlsx";
 import EmployeeTable from "../components/EmployeeTable";
+import MediaTypeTable from "../components/MediaTypeTable";
 
 const UserPrint = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -125,18 +126,35 @@ const UserPrint = () => {
       return;
     }
 
-    const excelData = filteredPrintRecords.map((print, index) => ({
-      "Sr. No.": index + 1,
-      Creative: print?.creative || "-",
-      "Print Date": print?.print_date || "-",
-      "Media Type": print?.media_type || "-",
-      Width: print?.width || "-",
-      Height: print?.height || "-",
-      Unit: print?.size_unit || "-",
-      Quantity: print?.quantity || 0,
-      "Total Area (Sq.Ft)": print?.total_area || 0,
-      Remarks: print?.remarks || "-",
-    }));
+    const excelData = filteredPrintRecords.map((print, index) => {
+      const totalArea = parseFloat(
+        String(print?.total_area ?? 0).replace(/,/g, ""),
+      );
+
+      return {
+        "Sr. No.": index + 1,
+        Creative: print?.creative || "-",
+        "Print Date": print?.print_date || "-",
+        "Media Type": print?.media_type || "-",
+        Width: print?.width || "-",
+        Height: print?.height || "-",
+        Unit: print?.size_unit || "-",
+        Quantity: Number(print?.quantity) || 0,
+
+        // IMPORTANT: use converted number
+        "Total Area (Sq.Ft)": isNaN(totalArea) ? 0 : totalArea,
+
+        Remarks: print?.remarks || "-",
+      };
+    });
+
+    console.log(
+      "Excel Data:",
+      excelData.map((item) => ({
+        totalArea: item["Total Area (Sq.Ft)"],
+        type: typeof item["Total Area (Sq.Ft)"],
+      })),
+    );
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
 
@@ -157,11 +175,10 @@ const UserPrint = () => {
 
     XLSX.utils.book_append_sheet(workbook, worksheet, "Print Records");
 
-    const fileName = `Print_Records_${
-      new Date().toISOString().split("T")[0]
-    }.xlsx`;
-
-    XLSX.writeFile(workbook, fileName);
+    XLSX.writeFile(
+      workbook,
+      `Print_Records_${new Date().toISOString().split("T")[0]}.xlsx`,
+    );
 
     toast.success("Excel file downloaded successfully");
   };
@@ -183,32 +200,12 @@ const UserPrint = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Refresh */}
-            <button
-              onClick={getAllPrintData}
-              disabled={loading}
-              className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition"
-            >
-              <FiRefreshCw className={loading ? "animate-spin" : ""} />
-              Refresh
-            </button>
-
-            {/* Download Excel */}
-            <button
-              onClick={downloadExcel}
-              disabled={filteredPrintRecords.length === 0}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition"
-            >
-              <FiDownload />
-              Download Excel
-            </button>
-
             {/* Add New Record */}
             <button
               onClick={() => {
                 setAddModel(true);
               }}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 transition cursor-pointer"
+              className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 text-xl transition cursor-pointer"
             >
               <FiPlus />
               Add New Record
@@ -216,9 +213,9 @@ const UserPrint = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
           {/* Search */}
-          <div className="relative">
+          <div className="relative lg:col-span-2">
             <FiSearch
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               size={18}
@@ -237,7 +234,7 @@ const UserPrint = () => {
           <select
             value={mediaTypeFilter}
             onChange={(e) => setMediaTypeFilter(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
           >
             <option value="">All Media Types</option>
 
@@ -247,17 +244,6 @@ const UserPrint = () => {
               </option>
             ))}
           </select>
-
-          {/* Unit */}
-          {/* <select
-            value={unitFilter}
-            onChange={(e) => setUnitFilter(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200"
-          >
-            <option value="">All Units</option>
-            <option value="feet">Feet</option>
-            <option value="inch">Inch</option>
-          </select> */}
 
           {/* Start Date */}
           <input
@@ -275,18 +261,33 @@ const UserPrint = () => {
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200"
           />
 
-          <button
-            onClick={() => {
-              setSearch("");
-              setMediaTypeFilter("");
-              setUnitFilter("");
-              setStartDate("");
-              setEndDate("");
-            }}
-            className="px-4 py-2.5 border border-red-200 text-white bg-red-500 rounded-lg hover:bg-red-600 transition cursor-pointer"
-          >
-            Clear Filters
-          </button>
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setSearch("");
+                setMediaTypeFilter("");
+                setUnitFilter("");
+                setStartDate("");
+                setEndDate("");
+              }}
+              className="flex-1 px-4 py-2.5 border border-red-200 text-white bg-red-500 rounded-lg hover:bg-red-600 transition whitespace-nowrap"
+            >
+              Clear
+            </button>
+
+            <button
+              onClick={getAllPrintData}
+              disabled={loading}
+              title="Refresh Data"
+              className="w-11 h-11 shrink-0 flex items-center justify-center border border-gray-300 rounded-lg text-white bg-green-600 hover:bg-green-700 transition disabled:opacity-50"
+            >
+              <FiRefreshCw
+                size={19}
+                className={loading ? "animate-spin" : ""}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Table */}
@@ -436,10 +437,22 @@ const UserPrint = () => {
             </tbody>
           </table>
         </div>
+        <div className="flex justify-end mt-2">
+          {/* Download Excel */}
+          <button
+            onClick={downloadExcel}
+            disabled={filteredPrintRecords.length === 0}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition"
+          >
+            <FiDownload />
+            Excel
+          </button>
+        </div>
       </div>
 
       <br />
       {/* <EmployeeTable /> */}
+      {/* <MediaTypeTable /> */}
 
       <UpdatePrintModel
         isOpen={updateModel}

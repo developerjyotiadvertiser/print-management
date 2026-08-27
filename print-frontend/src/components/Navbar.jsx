@@ -6,6 +6,8 @@ import { HiOutlineMenuAlt3, HiOutlineX } from "react-icons/hi";
 import logo from "../assets/logo.png";
 import { clearUser } from "../../redux/admin/adminSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { SiOpenmediavault } from "react-icons/si";
+import MediaMasterModel from "./PopupWindows/MediaMasterModel";
 
 const navItems = [{ name: "HOME", path: "/" }];
 
@@ -16,6 +18,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [masterModel, setMasterModel] = useState(false);
 
   const filteredNavItems = user?.user?.emp_role === "employee" ? [] : navItems;
 
@@ -46,29 +49,30 @@ const Navbar = () => {
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
-        scrolled
-          ? "bg-transparent backdrop-blur-md shadow-xl"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="mx-auto max-w-8xl">
-        <div
-          className={`relative flex items-center justify-between px-5 md:px-8 lg:px-10 py-3 overflow-hidden transition-all duration-300 lg:rounded-none lg:bg-white lg:shadow-none`}
-        >
-          {/* Logo */}
-          <Link to="/">
-            <img
-              src={logo}
-              alt="Jyoti Advertisers Logo"
-              className="h-11 md:h-14 w-auto object-contain"
-            />
-          </Link>
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
+          scrolled
+            ? "bg-transparent backdrop-blur-md shadow-xl"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="mx-auto max-w-8xl">
+          <div
+            className={`relative flex items-center justify-between px-5 md:px-8 lg:px-10 py-3 overflow-hidden transition-all duration-300 lg:rounded-none lg:bg-white lg:shadow-none`}
+          >
+            {/* Logo */}
+            <Link to="/">
+              <img
+                src={logo}
+                alt="Jyoti Advertisers Logo"
+                className="h-11 md:h-14 w-auto object-contain"
+              />
+            </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {/* <ul className="flex items-center gap-8">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-4">
+              {/* <ul className="flex items-center gap-8">
               {filteredNavItems.map((item) => (
                 <li key={item.name}>
                   <NavLink
@@ -97,57 +101,70 @@ const Navbar = () => {
               ))}
             </ul> */}
 
+              {user?.user?.emp_role !== "employee" && (
+                <>
+                  <button
+                    onClick={() => {
+                      setMasterModel(true);
+                    }}
+                    className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+                  >
+                    + Media
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={logoutHandler}
+                className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+              >
+                Logout
+              </button>
+            </nav>
+
+            {/* Mobile Button */}
             <button
-              onClick={logoutHandler}
-              className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+              onClick={() => setMenuOpen(true)}
+              className={`lg:hidden transition-colors duration-300 text-black`}
             >
-              Logout
+              <HiOutlineMenuAlt3 className="text-3xl" />
             </button>
-          </nav>
-
-          {/* Mobile Button */}
-          <button
-            onClick={() => setMenuOpen(true)}
-            className={`lg:hidden transition-colors duration-300 text-black`}
-          >
-            <HiOutlineMenuAlt3 className="text-3xl" />
-          </button>
+          </div>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <>
-            {/* Overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-            />
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {menuOpen && (
+            <>
+              {/* Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMenuOpen(false)}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              />
 
-            {/* Drawer */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ duration: 0.35 }}
-              className="fixed top-0 right-0 h-screen w-80 max-w-[90%] bg-white shadow-2xl"
-            >
-              <div className="flex items-center justify-between border-b border-black/60 p-6">
-                <img src={logo} alt="logo" className="h-12 object-contain" />
+              {/* Drawer */}
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ duration: 0.35 }}
+                className="fixed top-0 right-0 h-screen w-80 max-w-[90%] bg-white shadow-2xl"
+              >
+                <div className="flex items-center justify-between border-b border-black/60 p-6">
+                  <img src={logo} alt="logo" className="h-12 object-contain" />
 
-                <button
-                  onClick={() => setMenuOpen(false)}
-                  className="text-black"
-                >
-                  <HiOutlineX className="text-3xl" />
-                </button>
-              </div>
+                  <button
+                    onClick={() => setMenuOpen(false)}
+                    className="text-black"
+                  >
+                    <HiOutlineX className="text-3xl" />
+                  </button>
+                </div>
 
-              {/* <nav className="mt-6">
+                {/* <nav className="mt-6">
                 {filteredNavItems.map((item, index) => (
                   <motion.div
                     key={item.name}
@@ -171,19 +188,39 @@ const Navbar = () => {
                   </motion.div>
                 ))}
               </nav> */}
-              <div className="px-6 mt-8">
-                <button
-                  onClick={logoutHandler}
-                  className="w-full rounded-lg bg-red-600 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-                >
-                  Logout
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </header>
+                {user?.user?.emp_role !== "employee" && (
+                  <>
+                    <div className="px-6 mt-8">
+                      <button
+                        onClick={() => {
+                          setMasterModel(true);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-white bg-[#1465ec] hover:bg-blue-600 transition cursor-pointer"
+                      >
+                        + Media
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                <div className="px-6 mt-8">
+                  <button
+                    onClick={logoutHandler}
+                    className="w-full rounded-lg bg-red-600 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </header>
+      <MediaMasterModel
+        isOpen={masterModel}
+        onClose={() => setMasterModel(false)}
+      />
+    </>
   );
 };
 

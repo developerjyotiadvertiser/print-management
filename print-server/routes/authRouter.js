@@ -11,5 +11,7 @@ router.delete(
 );
 router.post("/login", authController.loginController);
 router.put("/reset-password", authController.resetPasswordController);
+router.post("/send-otp", authController.sendOtp);
+router.post("/verify-otp", authController.verifyOtp);
 
 module.exports = router;
