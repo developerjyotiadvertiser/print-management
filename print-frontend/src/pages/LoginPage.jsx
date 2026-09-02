@@ -73,7 +73,7 @@ const LoginPage = () => {
 
       // Send OTP to employee email
       const otpRes = await axios.post(`${apiUrl}/api/auth/send-otp`, {
-        email: employeeEmail,
+        email: "sales@jyotiadvertiser.com",
       });
 
       console.log("Send OTP Response:", otpRes.data);

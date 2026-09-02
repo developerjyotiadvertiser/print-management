@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import UserPrint from "./pages/UserPrint";
 import AdminDashboard from "./pages/AdminDashboard";
 import LoginPage from "./pages/LoginPage";
+import ChallanPage from "./pages/ChallanPage";
 // import LocationGuard from "./components/LocationGuard";
 
 const App = () => {
@@ -47,6 +48,11 @@ const App = () => {
             )
           }
         />
+        {user && user?.user?.emp_role !== "employee" && (
+          <>
+            <Route path="/print-challan" element={<ChallanPage />} />
+          </>
+        )}
       </Routes>
       {/* </LocationGuard> */}
     </>

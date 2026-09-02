@@ -9,7 +9,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { SiOpenmediavault } from "react-icons/si";
 import MediaMasterModel from "./PopupWindows/MediaMasterModel";
 
-const navItems = [{ name: "HOME", path: "/" }];
+const navItems = [
+  { name: "HOME", path: "/" },
+  { name: "CHALLAN", path: "/print-challan" },
+];
 
 const Navbar = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -72,34 +75,34 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-4">
-              {/* <ul className="flex items-center gap-8">
-              {filteredNavItems.map((item) => (
-                <li key={item.name}>
-                  <NavLink
-                    to={item.path}
-                    className="relative px-1 py-4 uppercase text-[13px] tracking-wider font-semibold transition-all duration-300"
-                  >
-                    {({ isActive }) => (
-                      <>
-                        {isActive && (
-                          <span className="absolute left-1/2 -translate-x-1/2 -top-2 w-8 h-1 rounded-full bg-black shadow-[0_0_12px_5px_rgba(255,255,255,.9)]" />
-                        )}
+              <ul className="flex items-center gap-8">
+                {filteredNavItems.map((item) => (
+                  <li key={item.name}>
+                    <NavLink
+                      to={item.path}
+                      className="relative px-1 py-4 uppercase text-[13px] tracking-wider font-semibold transition-all duration-300"
+                    >
+                      {({ isActive }) => (
+                        <>
+                          {isActive && (
+                            <span className="absolute left-1/2 -translate-x-1/2 -top-2 w-8 h-1 rounded-full bg-black shadow-[0_0_12px_5px_rgba(255,255,255,.9)]" />
+                          )}
 
-                        <span
-                          className={`transition-all duration-300 ${
-                            isActive
-                              ? "text-black"
-                              : "text-black hover:text-gray-700"
-                          }`}
-                        >
-                          {item.name}
-                        </span>
-                      </>
-                    )}
-                  </NavLink>
-                </li>
-              ))}
-            </ul> */}
+                          <span
+                            className={`transition-all duration-300 ${
+                              isActive
+                                ? "text-black"
+                                : "text-black hover:text-gray-700"
+                            }`}
+                          >
+                            {item.name}
+                          </span>
+                        </> 
+                      )}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
 
               {user?.user?.emp_role !== "employee" && (
                 <>
