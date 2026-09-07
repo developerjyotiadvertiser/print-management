@@ -31,7 +31,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -42,15 +41,12 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
   // -----------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "emp_phone") {
       const phone = value.replace(/\D/g, "").slice(0, 10);
-
       setFormData((prev) => ({
         ...prev,
         [name]: phone,
       }));
-
       return;
     }
 
@@ -68,7 +64,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
 
     try {
       setLoading(true);
-
       const response = await axios.post(
         `${apiUrl}/api/auth/add-employee`,
         formData,
@@ -120,7 +115,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
             {/* Check In */}
             <div>
               <label className="block mb-1 font-semibold">Name*</label>
-
               <input
                 type="text"
                 name="emp_name"
@@ -134,7 +128,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
 
             <div>
               <label className="block mb-1 font-semibold">Email*</label>
-
               <input
                 type="email"
                 name="emp_email"
@@ -148,7 +141,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
 
             <div>
               <label className="block mb-1 font-semibold">Phone*</label>
-
               <input
                 type="text"
                 name="emp_phone"
@@ -165,7 +157,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
               <label className="block mb-2 font-medium text-gray-700">
                 Password*
               </label>
-
               <div className="relative">
                 <input
                   type={showPass ? "text" : "password"}
@@ -189,7 +180,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
 
             <div>
               <label className="block mb-1 font-semibold">Role</label>
-
               <select
                 name="emp_role"
                 value={formData.emp_role}
@@ -205,7 +195,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
 
             <div>
               <label className="block mb-1 font-semibold">Designation*</label>
-
               <input
                 type="text"
                 name="emp_designation"
@@ -220,7 +209,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
             {/* Status */}
             <div>
               <label className="block mb-1 font-semibold">Status*</label>
-
               <select
                 name="emp_status"
                 value={formData.emp_status}
@@ -244,7 +232,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
               >
                 Cancel
               </button>
-
               <button
                 type="submit"
                 disabled={loading}

@@ -5,7 +5,6 @@ import { IoClose } from "react-icons/io5";
 
 const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
   const modalRef = useRef();
-
   const [formData, setFormData] = useState({
     client_name: "",
     client_contact: "",
@@ -15,13 +14,11 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
     pincode: "",
   });
   const [loading, setLoading] = useState(false);
-
   const apiUrl = import.meta.env.VITE_API_URL;
 
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         onClose();
@@ -29,7 +26,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -37,15 +33,12 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "client_contact") {
       const phone = value.replace(/\D/g, "").slice(0, 10);
-
       setFormData((prev) => ({
         ...prev,
         [name]: phone,
       }));
-
       return;
     }
 
@@ -60,7 +53,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
 
     try {
       setLoading(true);
-
       const response = await axios.post(
         `${apiUrl}/api/client/save-client`,
         formData,
@@ -68,10 +60,8 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         // Refresh media type list
         await getAllClientData();
-
         setFormData({
           client_name: "",
           client_contact: "",
@@ -84,7 +74,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
       }
     } catch (error) {
       console.log(error);
-
       toast.error(error.response?.data?.message || "Failed to add client");
     } finally {
       setLoading(false);
@@ -104,7 +93,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
           <h2 className="text-xl font-semibold text-blue-800">
             Add New Client
           </h2>
-
           <button
             type="button"
             onClick={onClose}
@@ -122,7 +110,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Name *
             </label>
-
             <input
               type="text"
               name="client_name"
@@ -139,7 +126,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Contact *
             </label>
-
             <input
               type="tel"
               name="client_contact"
@@ -156,7 +142,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Address *
             </label>
-
             <textarea
               name="client_address"
               value={formData.client_address}
@@ -174,7 +159,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 PAN Number
               </label>
-
               <input
                 type="text"
                 name="pan_number"
@@ -189,7 +173,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 GST Number
               </label>
-
               <input
                 type="text"
                 name="gst_number"
@@ -206,7 +189,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Pincode *
             </label>
-
             <input
               type="text"
               name="pincode"

@@ -10,10 +10,8 @@ const UpdateMediaTypeModel = ({
   selected,
 }) => {
   const modalRef = useRef();
-
   const [mtName, setMtName] = useState("");
   const [loading, setLoading] = useState(false);
-
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -23,7 +21,6 @@ const UpdateMediaTypeModel = ({
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         onClose();
@@ -31,7 +28,6 @@ const UpdateMediaTypeModel = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -39,7 +35,6 @@ const UpdateMediaTypeModel = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!mtName.trim()) {
       toast.error("Please enter media type name");
       return;
@@ -47,7 +42,6 @@ const UpdateMediaTypeModel = ({
 
     try {
       setLoading(true);
-
       const response = await axios.put(
         `${apiUrl}/api/media/update-media/${selected?.mt_id}`,
         {
@@ -58,15 +52,12 @@ const UpdateMediaTypeModel = ({
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         // Refresh media type list
         await getAllMediaTypes();
         setMtName("");
         onClose();
       }
     } catch (error) {
-      console.log(error);
-
       toast.error(error.response?.data?.message || "Failed to add media type.");
     } finally {
       setLoading(false);
@@ -86,7 +77,6 @@ const UpdateMediaTypeModel = ({
           <h2 className="text-xl font-semibold text-blue-800">
             Update Media Type
           </h2>
-
           <button
             type="button"
             onClick={onClose}
@@ -103,7 +93,6 @@ const UpdateMediaTypeModel = ({
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Media Type Name *
             </label>
-
             <input
               type="text"
               value={mtName}
@@ -124,7 +113,6 @@ const UpdateMediaTypeModel = ({
             >
               Cancel
             </button>
-
             <button
               type="submit"
               disabled={loading}

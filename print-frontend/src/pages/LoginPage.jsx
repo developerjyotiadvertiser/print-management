@@ -112,7 +112,7 @@ const LoginPage = () => {
       setLoading(true);
 
       const res = await axios.post(`${apiUrl}/api/auth/verify-otp`, {
-        email,
+        email: "sales@jyotiadvertiser.com",
         otp,
       });
 

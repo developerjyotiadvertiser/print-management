@@ -8,6 +8,7 @@ const savePrintService = async (data) => {
     width,
     height,
     size_unit,
+    quality_print,
     quantity,
     total_area,
     remarks,
@@ -15,8 +16,8 @@ const savePrintService = async (data) => {
   const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
   const sql = `
         INSERT INTO print_records
-        (creative, media_type, print_date, width, height, size_unit, quantity, total_area, 	remarks, print_created_at)
-        VALUES (?, ?, ?, ?,?,?,?,?,?, ?)
+        (creative, media_type, print_date, width, height, size_unit, quality_print, quantity, total_area, 	remarks, print_created_at)
+        VALUES (?, ?, ?, ?,?,?,?,?,?, ?, ?)
     `;
   const [result] = await pool.query(sql, [
     creative,
@@ -25,6 +26,7 @@ const savePrintService = async (data) => {
     width,
     height,
     size_unit,
+    quality_print,
     quantity,
     total_area,
     remarks,
@@ -82,6 +84,11 @@ const updatePrintService = async (print_id, data) => {
   if (data.size_unit !== undefined) {
     fields.push("size_unit = ?");
     values.push(data.size_unit);
+  }
+
+  if (data.quality_print !== undefined) {
+    fields.push("quality_print = ?");
+    values.push(data.quality_print);
   }
 
   if (data.quantity !== undefined) {

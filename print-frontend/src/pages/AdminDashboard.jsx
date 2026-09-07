@@ -13,9 +13,6 @@ import { useSelector } from "react-redux";
 import AddPrintModel from "../components/PopupWindows/AddPrintModel";
 import UpdatePrintModel from "../components/PopupWindows/UpdatePrintModel";
 import * as XLSX from "xlsx";
-import EmployeeTable from "../components/EmployeeTable";
-import MediaTypeTable from "../components/MediaTypeTable";
-import { SiOpenmediavault } from "react-icons/si";
 import MediaMasterModel from "../components/PopupWindows/MediaMasterModel";
 
 const AdminDashboard = () => {
@@ -27,7 +24,6 @@ const AdminDashboard = () => {
   const [selected, setSelected] = useState();
   const [addModel, setAddModel] = useState(false);
   const [masterModel, setMasterModel] = useState(false);
-
   const [search, setSearch] = useState("");
   const [mediaTypeFilter, setMediaTypeFilter] = useState("");
   const [unitFilter, setUnitFilter] = useState("");
@@ -42,11 +38,7 @@ const AdminDashboard = () => {
   const getAllPrintData = async () => {
     try {
       setLoading(true);
-
       const response = await axios.get(`${apiUrl}/api/print/get-all-print`);
-
-      console.log(response?.data?.data?.data);
-
       if (response.data?.data?.success) {
         setPrintRecords(response?.data?.data?.data || []);
       } else {
@@ -66,24 +58,19 @@ const AdminDashboard = () => {
   const filteredPrintRecords = useMemo(() => {
     return printRecords.filter((print) => {
       const searchValue = search.toLowerCase();
-
       const matchesSearch =
         !search ||
         print?.media_type?.toLowerCase().includes(searchValue) ||
         print?.remarks?.toLowerCase().includes(searchValue) ||
         print?.creative?.toLowerCase().includes(searchValue);
-
       const matchesMediaType =
         !mediaTypeFilter || print?.media_type === mediaTypeFilter;
-
       const matchesUnit = !unitFilter || print?.size_unit === unitFilter;
-
       const printDate = print?.print_date
         ? new Date(print.print_date).toISOString().split("T")[0]
         : "";
 
       const matchesStartDate = !startDate || printDate >= startDate;
-
       const matchesEndDate = !endDate || printDate <= endDate;
 
       return (
@@ -96,8 +83,6 @@ const AdminDashboard = () => {
     });
   }, [printRecords, search, mediaTypeFilter, unitFilter, startDate, endDate]);
 
-  console.log("filteredPrintRecords", filteredPrintRecords);
-
   const mediaTypes = [
     ...new Set(printRecords.map((print) => print?.media_type).filter(Boolean)),
   ];
@@ -109,7 +94,6 @@ const AdminDashboard = () => {
     );
 
     if (!confirmDelete) return;
-
     try {
       await axios.delete(`${apiUrl}/api/print/delete-print/${id}`);
 
@@ -117,7 +101,6 @@ const AdminDashboard = () => {
       setPrintRecords((prev) =>
         prev.filter((employee) => employee.print_id !== id),
       );
-
       toast.success("Print record deleted successfully");
     } catch (error) {
       console.error("Error deleting print record:", error);
@@ -136,14 +119,18 @@ const AdminDashboard = () => {
         String(print?.total_area ?? 0).replace(/,/g, ""),
       );
 
+      const width = parseFloat(String(print?.width ?? 0).replace(/,/g, ""));
+      const height = parseFloat(String(print?.height ?? 0).replace(/,/g, ""));
+
       return {
         "Sr. No.": index + 1,
         Creative: print?.creative || "-",
         "Print Date": print?.print_date || "-",
         "Media Type": print?.media_type || "-",
-        Width: print?.width || "-",
-        Height: print?.height || "-",
+        Width: isNaN(width) ? 0 : width,
+        Height: isNaN(height) ? 0 : height,
         Unit: print?.size_unit || "-",
+        quality_print: print?.quality_print || "-",
         Quantity: Number(print?.quantity) || 0,
 
         // IMPORTANT: use converted number
@@ -153,18 +140,10 @@ const AdminDashboard = () => {
       };
     });
 
-    console.log(
-      "Excel Data:",
-      excelData.map((item) => ({
-        totalArea: item["Total Area (Sq.Ft)"],
-        type: typeof item["Total Area (Sq.Ft)"],
-      })),
-    );
-
     const worksheet = XLSX.utils.json_to_sheet(excelData);
-
     worksheet["!cols"] = [
       { wch: 10 },
+      { wch: 15 },
       { wch: 15 },
       { wch: 15 },
       { wch: 25 },
@@ -177,14 +156,11 @@ const AdminDashboard = () => {
     ];
 
     const workbook = XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(workbook, worksheet, "Print Records");
-
     XLSX.writeFile(
       workbook,
       `Print_Records_${new Date().toISOString().split("T")[0]}.xlsx`,
     );
-
     toast.success("Excel file downloaded successfully");
   };
 
@@ -197,7 +173,6 @@ const AdminDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Print Work Details
             </h2>
-
             <p className="text-sm text-gray-500 mt-1">
               Showing {filteredPrintRecords.length} of {printRecords.length}{" "}
               records
@@ -225,7 +200,6 @@ const AdminDashboard = () => {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               size={18}
             />
-
             <input
               type="text"
               placeholder="Search creative, media or remarks..."
@@ -242,7 +216,6 @@ const AdminDashboard = () => {
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
           >
             <option value="">All Media Types</option>
-
             {mediaTypes.map((media) => (
               <option key={media} value={media}>
                 {media}
@@ -307,27 +280,23 @@ const AdminDashboard = () => {
                   Creative
                 </th>
                 <th className="px-5 py-3 font-semibold text-gray-600">Date</th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Media Type
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">Width</th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Height
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">Unit</th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Quantity
                 </th>
-
+                <th className="px-5 py-3 font-semibold text-gray-600">
+                  Quality Print
+                </th>
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Total Area
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Remarks
                 </th>
@@ -362,62 +331,43 @@ const AdminDashboard = () => {
                     key={print?.print_id || index}
                     className="hover:bg-gray-50 transition"
                   >
-                    {/* Sr No */}
                     <td className="px-5 py-4 text-gray-500">{index + 1}</td>
-
-                    {/* Media Type */}
                     <td className="px-5 py-4 font-medium text-gray-800">
                       {print?.creative || "-"}
                     </td>
-
-                    {/* Media Type */}
                     <td className="px-5 py-4 font-medium text-gray-800">
                       {print?.print_date || "-"}
                     </td>
-
-                    {/* Media Type */}
                     <td className="px-5 py-4 font-medium text-gray-800">
                       {print?.media_type || "-"}
                     </td>
-
-                    {/* Width */}
                     <td className="px-5 py-4 text-gray-600">
                       {print?.width || "-"}
                     </td>
-
-                    {/* Height */}
                     <td className="px-5 py-4 text-gray-600">
                       {print?.height || "-"}
                     </td>
-
-                    {/* Size Unit */}
                     <td className="px-5 py-4">
                       <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 capitalize">
                         {print?.size_unit || "-"}
                       </span>
                     </td>
-
-                    {/* Quantity */}
                     <td className="px-5 py-4 text-gray-600">
                       {print?.quantity || 0}
                     </td>
-
-                    {/* Total Area */}
+                    <td className="px-5 py-4 text-gray-600">
+                      {print?.quality_print || "-"}
+                    </td>
                     <td className="px-5 py-4 font-medium text-gray-800">
                       {print?.total_area ? `${print.total_area} Sq.Ft` : "-"}
                     </td>
-
-                    {/* Remarks */}
                     <td className="px-5 py-4 text-gray-600 max-w-xs">
                       <p className="truncate" title={print?.remarks}>
                         {print?.remarks || "-"}
                       </p>
                     </td>
-
-                    {/* Actions */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
-                        {/* Update */}
                         <button
                           onClick={() => handleUpdate(print)}
                           className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
@@ -425,8 +375,6 @@ const AdminDashboard = () => {
                         >
                           <FiEdit size={16} />
                         </button>
-
-                        {/* Delete */}
                         <button
                           onClick={() => handleDelete(print?.print_id)}
                           className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
@@ -443,7 +391,6 @@ const AdminDashboard = () => {
           </table>
         </div>
         <div className="flex justify-end mt-2">
-          {/* Download Excel */}
           <button
             onClick={downloadExcel}
             disabled={filteredPrintRecords.length === 0}

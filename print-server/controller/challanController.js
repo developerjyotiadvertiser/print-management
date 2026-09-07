@@ -2,39 +2,14 @@ const challanService = require("../services/challanService");
 
 const saveChallanController = async (req, res) => {
   try {
-    const {
-      ch_client_id,
-      ch_print_id,
-      ch_date,
-      ch_description,
-      ch_creative,
-      ch_height,
-      ch_width,
-      ch_quantity,
-      ch_area,
-      ch_delivered_to,
-      ch_phone,
-      ch_remark,
-    } = req.body;
+    const data = req.body;
 
-    await challanService.saveChallanService({
-      ch_client_id,
-      ch_print_id,
-      ch_date,
-      ch_description,
-      ch_creative,
-      ch_height,
-      ch_width,
-      ch_quantity,
-      ch_area,
-      ch_delivered_to,
-      ch_phone,
-      ch_remark,
-    });
+    const result = await challanService.saveChallanService(data);
 
     res.status(201).json({
       success: true,
       message: "Challan Record Saved Successfully.",
+      data: result,
     });
   } catch (error) {
     console.error(error);

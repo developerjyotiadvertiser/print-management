@@ -2,32 +2,28 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiOutlineMenuAlt3, HiOutlineX } from "react-icons/hi";
-
 import logo from "../assets/logo.png";
 import { clearUser } from "../../redux/admin/adminSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { SiOpenmediavault } from "react-icons/si";
 import MediaMasterModel from "./PopupWindows/MediaMasterModel";
 
-const navItems = [
-  { name: "HOME", path: "/" },
-  { name: "CHALLAN", path: "/print-challan" },
-];
+// const navItems = [
+//   { name: "HOME", path: "/" },
+//   { name: "CHALLAN", path: "/print-challan" },
+// ];
 
 const Navbar = () => {
   const user = useSelector((state) => state?.user?.currentUser);
-  console.log(user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [masterModel, setMasterModel] = useState(false);
 
-  const filteredNavItems = user?.user?.emp_role === "employee" ? [] : navItems;
+  // const filteredNavItems = user?.user?.emp_role === "employee" ? [] : navItems;
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
-
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -37,9 +33,7 @@ const Navbar = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 80);
     };
-
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -72,10 +66,9 @@ const Navbar = () => {
                 className="h-11 md:h-14 w-auto object-contain"
               />
             </Link>
-
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-4">
-              <ul className="flex items-center gap-8">
+              {/* <ul className="flex items-center gap-8">
                 {filteredNavItems.map((item) => (
                   <li key={item.name}>
                     <NavLink
@@ -97,15 +90,24 @@ const Navbar = () => {
                           >
                             {item.name}
                           </span>
-                        </> 
+                        </>
                       )}
                     </NavLink>
                   </li>
                 ))}
-              </ul>
+              </ul> */}
 
               {user?.user?.emp_role !== "employee" && (
                 <>
+                  <div></div>
+                  <button
+                    onClick={() => {
+                      navigate("/print-challan");
+                    }}
+                    className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
+                  >
+                    + Challan
+                  </button>
                   <button
                     onClick={() => {
                       setMasterModel(true);
@@ -191,6 +193,22 @@ const Navbar = () => {
                   </motion.div>
                 ))}
               </nav> */}
+
+                {user?.user?.emp_role !== "employee" && (
+                  <>
+                    <div className="px-6 mt-8">
+                      <button
+                        onClick={() => {
+                          navigate("/print-challan");
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 transition cursor-pointer"
+                      >
+                        + Challan
+                      </button>
+                    </div>
+                  </>
+                )}
+
                 {user?.user?.emp_role !== "employee" && (
                   <>
                     <div className="px-6 mt-8">

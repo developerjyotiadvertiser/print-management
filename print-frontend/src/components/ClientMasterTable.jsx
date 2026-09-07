@@ -23,9 +23,7 @@ const ClientMasterTable = () => {
   const getAllClientData = async () => {
     try {
       setLoading(true);
-
       const { data } = await axios.get(`${apiUrl}/api/client/get-all-client`);
-
       setEmployees(data?.data?.data || []);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -34,13 +32,9 @@ const ClientMasterTable = () => {
     }
   };
 
-  console.log("clients", employees);
-
   useEffect(() => {
     getAllClientData();
   }, []);
-
-  console.log("media type", employees);
 
   // Delete employee
   const handleDelete = async (id) => {
@@ -49,12 +43,9 @@ const ClientMasterTable = () => {
     );
 
     if (!confirmDelete) return;
-
     try {
       await axios.delete(`${apiUrl}/api/client/delete-client/${id}`);
-
       getAllClientData();
-
       alert("Client data deleted successfully");
     } catch (error) {
       console.error("Error deleting client data:", error);
@@ -86,31 +77,24 @@ const ClientMasterTable = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Sr. No.
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Client Name
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Contact
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Address
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   PAN Number
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   GST Number
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Pincode
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Action
                 </th>
@@ -220,7 +204,6 @@ const ClientMasterTable = () => {
         getAllClientData={getAllClientData}
         selected={selected}
       />
-
       <AddClientModal
         isOpen={isClientModalOpen}
         onClose={() => setIsClientModalOpen(false)}

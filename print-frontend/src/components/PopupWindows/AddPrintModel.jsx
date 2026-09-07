@@ -12,43 +12,20 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
     width: "",
     height: "",
     size_unit: "",
+    quality_print: "",
     quantity: 1,
     total_area: "",
     remarks: "",
   });
 
   const [isMediaTypeModalOpen, setIsMediaTypeModalOpen] = useState(false);
-
   const [mediaTypes, setMediaTypes] = useState([]);
-
   const apiUrl = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(false);
-
-  // -----------------------------------------
-  // Close modal when clicking outside
-  // -----------------------------------------
-  // useEffect(() => {
-  //   if (!isOpen) return;
-
-  //   const handleClickOutside = (e) => {
-  //     if (modalRef.current && !modalRef.current.contains(e.target)) {
-  //       onClose();
-  //     }
-  //   };
-
-  //   document.addEventListener("mousedown", handleClickOutside);
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [isOpen, onClose]);
 
   const getAllMediaTypes = async () => {
     try {
       const { data } = await axios.get(`${apiUrl}/api/media/get-all-media`);
-
-      console.log("response", data?.data?.data);
-
       setMediaTypes(data.data?.data);
     } catch (error) {
       console.log(error);
@@ -62,12 +39,9 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
     }
   }, [isOpen]);
 
-  // -----------------------------------------
   // Calculate total area in Sq.Ft
-  // -----------------------------------------
   useEffect(() => {
     const { width, height, size_unit, quantity } = formData;
-
     if (!width || !height || !size_unit || !quantity) {
       setFormData((prev) => ({
         ...prev,
@@ -93,27 +67,20 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
     }));
   }, [formData.width, formData.height, formData.size_unit, formData.quantity]);
 
-  // -----------------------------------------
   // Handle form changes
-  // -----------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // -----------------------------------------
   // Submit
-  // -----------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       const response = await axios.post(
         `${apiUrl}/api/print/save-print`,
         formData,
@@ -121,24 +88,21 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         setFormData({
           creative: "",
           media_type: "",
           width: "",
           height: "",
           size_unit: "",
+          quality_print: "",
           quantity: 1,
           total_area: "",
           remarks: "",
         });
-
         onClose();
       }
       getAllPrintData();
     } catch (error) {
-      console.log(error);
-
       toast.error(
         error.response?.data?.message || "Failed to add print record.",
       );
@@ -161,7 +125,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             <h2 className="text-3xl font-semibold text-blue-800 tracking-wide">
               Save Print Record
             </h2>
-
             <button
               type="button"
               onClick={onClose}
@@ -179,7 +142,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             {/* Creative */}
             <div className="lg:col-span-4 md:col-span-2">
               <label className="block mb-1 font-semibold">Creative*</label>
-
               <input
                 type="text"
                 name="creative"
@@ -194,7 +156,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             {/* Media Type */}
             <div className="lg:col-span-2 md:col-span-1">
               <label className="block mb-1 font-semibold">Media Type *</label>
-
               <select
                 name="media_type"
                 value={formData.media_type}
@@ -203,14 +164,12 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
                 <option value="">Select Media Type</option>
-
                 {mediaTypes?.map((item) => (
                   <option key={item?.mt_id} value={item?.mt_name}>
                     {item?.mt_name}
                   </option>
                 ))}
               </select>
-
               <button
                 type="button"
                 onClick={() => setIsMediaTypeModalOpen(true)}
@@ -221,9 +180,8 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             </div>
 
             {/* Size Unit */}
-            <div className="lg:col-span-2 md:col-span-1">
+            <div className="lg:col-span-1 md:col-span-1">
               <label className="block mb-1 font-semibold">Size Unit *</label>
-
               <select
                 name="size_unit"
                 value={formData.size_unit}
@@ -237,10 +195,25 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
               </select>
             </div>
 
+            {/* Quality print */}
+            <div className="lg:col-span-1 md:col-span-1">
+              <label className="block mb-1 font-semibold">
+                Printing Profile*
+              </label>
+              <input
+                type="text"
+                name="quality_print"
+                value={formData.quality_print}
+                onChange={handleChange}
+                required
+                placeholder="Pass/Density"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
             {/* Width */}
             <div>
               <label className="block mb-1 font-semibold">Width *</label>
-
               <input
                 type="number"
                 name="width"
@@ -257,7 +230,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             {/* Height */}
             <div>
               <label className="block mb-1 font-semibold">Height *</label>
-
               <input
                 type="number"
                 name="height"
@@ -274,7 +246,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             {/* Quantity */}
             <div>
               <label className="block mb-1 font-semibold">Quantity *</label>
-
               <input
                 type="number"
                 name="quantity"
@@ -291,12 +262,11 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
               <label className="block mb-1 font-semibold">
                 Total Area (Sq.Ft)
               </label>
-
               <input
                 type="number"
                 name="total_area"
                 value={formData.total_area}
-                readOnly
+                onChange={handleChange}
                 className="w-full border border-gray-200 bg-gray-100 rounded-lg px-4 py-2.5 focus:outline-none"
               />
             </div>
@@ -304,7 +274,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             {/* Remarks */}
             <div className="lg:col-span-4 md:col-span-2">
               <label className="block mb-1 font-semibold">Remarks</label>
-
               <textarea
                 name="remarks"
                 value={formData.remarks}
@@ -325,7 +294,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
               >
                 Cancel
               </button>
-
               <button
                 type="submit"
                 disabled={loading}

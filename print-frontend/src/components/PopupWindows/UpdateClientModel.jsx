@@ -5,7 +5,6 @@ import { IoClose } from "react-icons/io5";
 
 const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
   const modalRef = useRef();
-
   const [formData, setFormData] = useState({
     client_name: "",
     client_contact: "",
@@ -15,13 +14,11 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
     pincode: "",
   });
   const [loading, setLoading] = useState(false);
-
   const apiUrl = import.meta.env.VITE_API_URL;
 
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         onClose();
@@ -29,7 +26,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -49,15 +45,12 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "client_contact") {
       const phone = value.replace(/\D/g, "").slice(0, 10);
-
       setFormData((prev) => ({
         ...prev,
         [name]: phone,
       }));
-
       return;
     }
 
@@ -69,10 +62,8 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       const response = await axios.put(
         `${apiUrl}/api/client/update-client/${selected?.client_id}`,
         formData,
@@ -80,14 +71,10 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-
-        // Refresh media type list
         await getAllClientData();
         onClose();
       }
     } catch (error) {
-      console.log(error);
-
       toast.error(error.response?.data?.message || "Failed to update client");
     } finally {
       setLoading(false);
@@ -107,7 +94,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
           <h2 className="text-xl font-semibold text-blue-800">
             Add New Client
           </h2>
-
           <button
             type="button"
             onClick={onClose}
@@ -125,7 +111,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Name *
             </label>
-
             <input
               type="text"
               name="client_name"
@@ -142,7 +127,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Contact *
             </label>
-
             <input
               type="tel"
               name="client_contact"
@@ -159,7 +143,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Address *
             </label>
-
             <textarea
               name="client_address"
               value={formData.client_address}
@@ -177,7 +160,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 PAN Number
               </label>
-
               <input
                 type="text"
                 name="pan_number"
@@ -192,7 +174,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 GST Number
               </label>
-
               <input
                 type="text"
                 name="gst_number"
@@ -209,7 +190,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Pincode *
             </label>
-
             <input
               type="text"
               name="pincode"
@@ -232,7 +212,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
             >
               Cancel
             </button>
-
             <button
               type="submit"
               disabled={loading}

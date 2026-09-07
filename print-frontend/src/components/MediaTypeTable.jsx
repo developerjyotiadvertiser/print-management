@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FiPlus, FiEdit, FiTrash2, FiRefreshCw } from "react-icons/fi";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import UpdateMediaTypeModel from "./PopupWindows/UpdateMediaTypeModel";
 import AddMediaTypeModal from "./PopupWindows/AddMediaTypeModal";
@@ -23,9 +23,7 @@ const MediaTypeTable = () => {
   const getAllMediaTypes = async () => {
     try {
       setLoading(true);
-
       const { data } = await axios.get(`${apiUrl}/api/media/get-all-media`);
-
       setEmployees(data?.data?.data || []);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -38,21 +36,15 @@ const MediaTypeTable = () => {
     getAllMediaTypes();
   }, []);
 
-  console.log("media type", employees);
-
   // Delete employee
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this media type?",
     );
-
     if (!confirmDelete) return;
-
     try {
       await axios.delete(`${apiUrl}/api/media/delete-media/${id}`);
-
       getAllMediaTypes();
-
       alert("Media type deleted successfully");
     } catch (error) {
       console.error("Error deleting media type:", error);
@@ -65,12 +57,6 @@ const MediaTypeTable = () => {
       <div className="p-1 bg-white rounded-xl shadow-sm w-full">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            {/* <h2 className="text-xl font-semibold text-gray-800">
-              Media Type Details
-            </h2> */}
-          </div>
-
           <div className="flex items-center gap-2 mb-1">
             <button
               type="button"
@@ -90,11 +76,9 @@ const MediaTypeTable = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Sr. No.
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Media Type
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Action
                 </th>
@@ -124,13 +108,11 @@ const MediaTypeTable = () => {
                 employees?.map((employee, index) => (
                   <tr key={index} className="hover:bg-gray-50 transition">
                     <td className="px-5 py-4 text-gray-500">{index + 1}</td>
-
                     <td className="px-5 py-4">
                       <div className="font-medium text-gray-800">
                         {employee?.mt_name || "-"}
                       </div>
                     </td>
-
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
                         {/* Update */}
@@ -141,7 +123,6 @@ const MediaTypeTable = () => {
                         >
                           <FiEdit size={16} />
                         </button>
-
                         {user?.user?.emp_role !== "employee" && (
                           <>
                             {/* Delete */}
@@ -170,7 +151,6 @@ const MediaTypeTable = () => {
         getAllMediaTypes={getAllMediaTypes}
         selected={selected}
       />
-
       <AddMediaTypeModal
         isOpen={isMediaTypeModalOpen}
         onClose={() => setIsMediaTypeModalOpen(false)}

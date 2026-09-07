@@ -25,8 +25,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
     }
   }, [selected]);
 
-  console.log("selected", selected);
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
@@ -43,38 +41,28 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
     };
   }, [isOpen, onClose]);
 
-  // -----------------------------------------
   // Handle form changes
-  // -----------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "emp_phone") {
       const phone = value.replace(/\D/g, "").slice(0, 10);
-
       setFormData((prev) => ({
         ...prev,
         [name]: phone,
       }));
-
       return;
     }
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // -----------------------------------------
   // Submit
-  // -----------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       const response = await axios.put(
         `${apiUrl}/api/auth/update-employee/${selected?.emp_id}`,
         formData,
@@ -108,7 +96,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
                 Add New Employee
               </h2>
             </div>
-
             <button
               type="button"
               onClick={onClose}
@@ -126,7 +113,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
             {/* Check In */}
             <div>
               <label className="block mb-1 font-semibold">Name*</label>
-
               <input
                 type="text"
                 name="emp_name"
@@ -140,7 +126,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
 
             <div>
               <label className="block mb-1 font-semibold">Email*</label>
-
               <input
                 type="email"
                 name="emp_email"
@@ -151,10 +136,8 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
             <div>
               <label className="block mb-1 font-semibold">Phone*</label>
-
               <input
                 type="text"
                 name="emp_phone"
@@ -169,7 +152,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
 
             <div>
               <label className="block mb-1 font-semibold">Role</label>
-
               <select
                 name="emp_role"
                 value={formData.emp_role}
@@ -185,7 +167,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
 
             <div>
               <label className="block mb-1 font-semibold">Designation*</label>
-
               <input
                 type="text"
                 name="emp_designation"
@@ -200,7 +181,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
             {/* Status */}
             <div>
               <label className="block mb-1 font-semibold">Status*</label>
-
               <select
                 name="emp_status"
                 value={formData.emp_status}
@@ -224,7 +204,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
               >
                 Cancel
               </button>
-
               <button
                 type="submit"
                 disabled={loading}

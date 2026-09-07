@@ -23,9 +23,7 @@ const EmployeeTable = () => {
   const getEmployees = async () => {
     try {
       setLoading(true);
-
       const response = await axios.get(`${apiUrl}/api/auth/get-employee`);
-
       if (response.data?.success) {
         setEmployees(response.data.data || []);
       } else {
@@ -49,15 +47,11 @@ const EmployeeTable = () => {
     );
 
     if (!confirmDelete) return;
-
     try {
       await axios.delete(`${apiUrl}/api/auth/delete-employee/${emp_id}`);
-
-      // Remove deleted employee from UI
       setEmployees((prev) =>
         prev.filter((employee) => employee.emp_id !== emp_id),
       );
-
       alert("Employee deleted successfully");
     } catch (error) {
       console.error("Error deleting employee:", error);
@@ -74,7 +68,6 @@ const EmployeeTable = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Employees Details
             </h2>
-
             <p className="text-sm text-gray-500 mt-1">
               Total Employees: {employees.length}
             </p>
@@ -114,27 +107,16 @@ const EmployeeTable = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Sr. No.
                 </th>
-
-                {/* <th className="px-5 py-3 font-semibold text-gray-600">
-                  Employee ID
-                </th> */}
-
                 <th className="px-5 py-3 font-semibold text-gray-600">Name</th>
-
-                {/* <th className="px-5 py-3 font-semibold text-gray-600">Email</th> */}
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Mobile
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Designation
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Status
                 </th>
-
                 {user?.user?.emp_role === "admin" && (
                   <>
                     <th className="px-5 py-3 font-semibold text-gray-600 text-center">
@@ -171,29 +153,17 @@ const EmployeeTable = () => {
                     className="hover:bg-gray-50 transition"
                   >
                     <td className="px-5 py-4 text-gray-500">{index + 1}</td>
-
-                    {/* <td className="px-5 py-4 font-medium text-gray-800">
-                      {employee?.emp_id}
-                    </td> */}
-
                     <td className="px-5 py-4">
                       <div className="font-medium text-gray-800">
                         {employee?.emp_name || "-"}
                       </div>
                     </td>
-
-                    {/* <td className="px-5 py-4 text-gray-600">
-                      {employee?.emp_email || "-"}
-                    </td> */}
-
                     <td className="px-5 py-4 text-gray-600">
                       {employee?.emp_phone || "-"}
                     </td>
-
                     <td className="px-5 py-4 text-gray-600">
                       {employee?.emp_designation || "-"}
                     </td>
-
                     <td className="px-5 py-4">
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
@@ -205,7 +175,6 @@ const EmployeeTable = () => {
                         {employee?.emp_status}
                       </span>
                     </td>
-
                     {user?.user?.emp_role !== "employee" && (
                       <>
                         <td className="px-5 py-4">
@@ -218,7 +187,6 @@ const EmployeeTable = () => {
                             >
                               <FiEdit size={16} />
                             </button>
-
                             {/* Delete */}
                             <button
                               onClick={() => handleDelete(employee.emp_id)}

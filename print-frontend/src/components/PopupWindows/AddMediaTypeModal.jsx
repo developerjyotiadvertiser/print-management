@@ -10,16 +10,13 @@ const AddMediaTypeModal = ({
   onMediaTypeAdded,
 }) => {
   const modalRef = useRef();
-
   const [mtName, setMtName] = useState("");
   const [loading, setLoading] = useState(false);
-
   const apiUrl = import.meta.env.VITE_API_URL;
 
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         onClose();
@@ -27,7 +24,6 @@ const AddMediaTypeModal = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -35,7 +31,6 @@ const AddMediaTypeModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!mtName.trim()) {
       toast.error("Please enter media type name");
       return;
@@ -43,7 +38,6 @@ const AddMediaTypeModal = ({
 
     try {
       setLoading(true);
-
       const response = await axios.post(`${apiUrl}/api/media/save-media`, {
         mt_name: mtName,
         mt_status: "active",
@@ -51,21 +45,15 @@ const AddMediaTypeModal = ({
 
       if (response.data.success) {
         toast.success(response.data.message);
-
-        // Refresh media type list
         await getAllMediaTypes();
-
-        // Optional: automatically select newly created media type
         if (onMediaTypeAdded) {
           onMediaTypeAdded(response.data.data);
         }
-
         setMtName("");
         onClose();
       }
     } catch (error) {
       console.log(error);
-
       toast.error(error.response?.data?.message || "Failed to add media type.");
     } finally {
       setLoading(false);
@@ -75,7 +63,7 @@ const AddMediaTypeModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div
         ref={modalRef}
         className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
@@ -85,7 +73,6 @@ const AddMediaTypeModal = ({
           <h2 className="text-xl font-semibold text-blue-800">
             Add Media Type
           </h2>
-
           <button
             type="button"
             onClick={onClose}
@@ -102,7 +89,6 @@ const AddMediaTypeModal = ({
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Media Type Name *
             </label>
-
             <input
               type="text"
               value={mtName}
@@ -123,7 +109,6 @@ const AddMediaTypeModal = ({
             >
               Cancel
             </button>
-
             <button
               type="submit"
               disabled={loading}
