@@ -1,9 +1,51 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import MediaTypeTable from "../MediaTypeTable";
 
 const MediaMasterModel = ({ isOpen, onClose }) => {
   const modalRef = useRef();
+  const [loading, setLoading] = useState(false);
+
+  // CLOSE MODAL
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, loading]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
+
   if (!isOpen) return null;
 
   return (

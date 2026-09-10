@@ -16,21 +16,6 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // Close when clicking outside
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleClickOutside = (e) => {
-      if (modalRef.current && !modalRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
   useEffect(() => {
     setFormData({
       ...formData,
@@ -80,6 +65,46 @@ const UpdateClientModel = ({ isOpen, onClose, getAllClientData, selected }) => {
       setLoading(false);
     }
   };
+
+  // CLOSE MODAL
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, loading]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
 
   if (!isOpen) return null;
 

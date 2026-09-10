@@ -16,20 +16,52 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // Close when clicking outside
+  const handleClose = () => {
+    if (loading) return;
+
+    setFormData({
+      client_name: "",
+      client_contact: "",
+      client_address: "",
+      pan_number: "",
+      gst_number: "",
+      pincode: "",
+    });
+
+    onClose();
+  };
+
   useEffect(() => {
     if (!isOpen) return;
+
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
-        onClose();
+        handleClose();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, loading]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,7 +92,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-        // Refresh media type list
         await getAllClientData();
         setFormData({
           client_name: "",
@@ -73,7 +104,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
         onClose();
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Failed to add client");
     } finally {
       setLoading(false);
@@ -105,7 +135,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Client Name */}
           <div className="mt-4">
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Name *
@@ -121,7 +150,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             />
           </div>
 
-          {/* Client Contact */}
           <div className="mt-4">
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Contact *
@@ -137,7 +165,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             />
           </div>
 
-          {/* Client Address */}
           <div className="mt-4">
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Client Address *
@@ -153,7 +180,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             />
           </div>
 
-          {/* PAN + GST */}
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-semibold text-gray-700">
@@ -184,7 +210,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
             </div>
           </div>
 
-          {/* Pincode */}
           <div className="mt-4">
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Pincode *

@@ -4,8 +4,6 @@ import toast from "react-hot-toast";
 import { IoClose } from "react-icons/io5";
 
 const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
-  if (!isOpen) return null;
-
   const modalRef = useRef();
   const [showPass, setShowPass] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,24 +19,47 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(false);
 
+  // CLOSE MODAL
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  // Close when clicking outside
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
-        onClose();
+        handleClose();
       }
     };
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, loading]);
 
-  // -----------------------------------------
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
+
   // Handle form changes
-  // -----------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "emp_phone") {
@@ -56,12 +77,9 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
     }));
   };
 
-  // -----------------------------------------
   // Submit
-  // -----------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
       const response = await axios.post(
@@ -83,6 +101,8 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -97,7 +117,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 Add New Employee
               </h2>
             </div>
-
             <button
               type="button"
               onClick={onClose}
@@ -112,7 +131,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 text-sm"
           >
-            {/* Check In */}
             <div>
               <label className="block mb-1 font-semibold">Name*</label>
               <input
@@ -125,7 +143,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
             <div>
               <label className="block mb-1 font-semibold">Email*</label>
               <input
@@ -138,7 +155,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
             <div>
               <label className="block mb-1 font-semibold">Phone*</label>
               <input
@@ -152,7 +168,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 maxLength={10}
               />
             </div>
-
             <div>
               <label className="block mb-2 font-medium text-gray-700">
                 Password*
@@ -177,7 +192,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 </button>
               </div>
             </div>
-
             <div>
               <label className="block mb-1 font-semibold">Role</label>
               <select
@@ -192,7 +206,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 <option value="manager">Manager</option>
               </select>
             </div>
-
             <div>
               <label className="block mb-1 font-semibold">Designation*</label>
               <input
@@ -205,8 +218,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
-            {/* Status */}
             <div>
               <label className="block mb-1 font-semibold">Status*</label>
               <select
@@ -221,8 +232,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
                 <option value="inactive">Inactive</option>
               </select>
             </div>
-
-            {/* Buttons */}
             <div className="col-span-full flex justify-end gap-3 pt-4">
               <button
                 type="button"

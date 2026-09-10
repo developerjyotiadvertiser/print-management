@@ -55,52 +55,42 @@ const updatePrintService = async (print_id, data) => {
   const values = [];
 
   const updateAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
-
   if (data.creative !== undefined) {
     fields.push("creative = ?");
     values.push(data.creative);
   }
-
   if (data.media_type !== undefined) {
     fields.push("media_type = ?");
     values.push(data.media_type);
   }
-
   if (data.print_date !== undefined) {
     fields.push("print_date = ?");
     values.push(data.print_date);
   }
-
   if (data.width !== undefined) {
     fields.push("width = ?");
     values.push(data.width);
   }
-
   if (data.height !== undefined) {
     fields.push("height = ?");
     values.push(data.height);
   }
-
   if (data.size_unit !== undefined) {
     fields.push("size_unit = ?");
     values.push(data.size_unit);
   }
-
   if (data.quality_print !== undefined) {
     fields.push("quality_print = ?");
     values.push(data.quality_print);
   }
-
   if (data.quantity !== undefined) {
     fields.push("quantity = ?");
     values.push(data.quantity);
   }
-
   if (data.total_area !== undefined) {
     fields.push("total_area = ?");
     values.push(data.total_area);
   }
-
   if (data.remarks !== undefined) {
     fields.push("remarks = ?");
     values.push(data.remarks);
@@ -114,9 +104,7 @@ const updatePrintService = async (print_id, data) => {
   // Always update print_updated_at
   fields.push("print_updated_at = ?");
   values.push(updateAt);
-
   values.push(print_id);
-
   const sql = `
     UPDATE print_records
     SET ${fields.join(", ")}
@@ -124,7 +112,6 @@ const updatePrintService = async (print_id, data) => {
   `;
 
   const [result] = await pool.query(sql, values);
-
   return result;
 };
 
@@ -136,7 +123,6 @@ const deletePrintService = async (print_id) => {
     `;
 
     const [result] = await pool.query(sql, [print_id]);
-
     return result;
   } catch (error) {
     throw error;

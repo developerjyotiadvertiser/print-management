@@ -61,21 +61,6 @@ const UpdateChallanModel = ({
     });
   }, [isOpen, selected]);
 
-  // Close when clicking outside
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleClickOutside = (e) => {
-      if (modalRef.current && !modalRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
   // Client selection
   const handleClientChange = (e) => {
     const value = e.target.value;
@@ -87,7 +72,7 @@ const UpdateChallanModel = ({
       setFormData((prev) => ({
         ...prev,
         ch_client_id: value,
-        ch_phone: selectedClient.client_phone || "",
+        ch_phone: selectedClient.client_contact || "",
         pan_number: selectedClient.pan_number || "",
         gst_number: selectedClient.gst_number || "",
         pincode: selectedClient.pincode || "",
@@ -337,6 +322,46 @@ const UpdateChallanModel = ({
     }
   };
 
+  // CLOSE MODAL
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, loading]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
+
   if (!isOpen) return null;
 
   return (
@@ -452,13 +477,13 @@ const UpdateChallanModel = ({
                   name="ch_delivered_to"
                   value={formData.ch_delivered_to}
                   onChange={handleChange}
-                  placeholder="Enter delivered person/place"
+                  placeholder="Enter Person/Place"
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
 
               {/* Remark */}
-              <div className="md:col-span-4">
+              {/* <div className="md:col-span-4">
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Remark
                 </label>
@@ -470,7 +495,7 @@ const UpdateChallanModel = ({
                   rows={3}
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
-              </div>
+              </div> */}
             </div>
 
             {/* PRINTS */}

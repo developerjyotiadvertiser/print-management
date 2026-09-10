@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "MyCustomFont";
+  src: url("./assets/candara-font-family/Candara_Bold.ttf") format("truetype");
+  font-weight: 400;
+}
+
+.font-custom {
+  font-family: "MyCustomFont", ubuntu;
+}
+
 @media print {
   @page {
     size: A4 portrait;

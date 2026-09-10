@@ -29,6 +29,8 @@ const AdminDashboard = () => {
   const [unitFilter, setUnitFilter] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
   const handleUpdate = (data) => {
     setUpdateModel(true);
@@ -83,6 +85,53 @@ const AdminDashboard = () => {
     });
   }, [printRecords, search, mediaTypeFilter, unitFilter, startDate, endDate]);
 
+  const totalPages = Math.ceil(filteredPrintRecords.length / recordsPerPage);
+
+  const paginatedPrintRecords = useMemo(() => {
+    const startIndex = (currentPage - 1) * recordsPerPage;
+    return filteredPrintRecords.slice(startIndex, startIndex + recordsPerPage);
+  }, [filteredPrintRecords, currentPage]);
+
+  // Reset page when filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, mediaTypeFilter, unitFilter, startDate, endDate]);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        pages.push(1, 2, 3, 4, 5, "...", totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(
+          1,
+          "...",
+          totalPages - 4,
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        );
+      } else {
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages,
+        );
+      }
+    }
+
+    return pages;
+  };
+
   const mediaTypes = [
     ...new Set(printRecords.map((print) => print?.media_type).filter(Boolean)),
   ];
@@ -123,7 +172,7 @@ const AdminDashboard = () => {
       const height = parseFloat(String(print?.height ?? 0).replace(/,/g, ""));
 
       return {
-        "Sr. No.": index + 1,
+        "Print ID": print?.print_id,
         Creative: print?.creative || "-",
         "Print Date": print?.print_date || "-",
         "Media Type": print?.media_type || "-",
@@ -274,7 +323,7 @@ const AdminDashboard = () => {
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-5 py-3 font-semibold text-gray-600">
-                  Sr. No.
+                  Print ID
                 </th>
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Creative
@@ -326,12 +375,15 @@ const AdminDashboard = () => {
                   </td>
                 </tr>
               ) : (
-                filteredPrintRecords?.map((print, index) => (
+                paginatedPrintRecords?.map((print, index) => (
                   <tr
                     key={print?.print_id || index}
                     className="hover:bg-gray-50 transition"
                   >
-                    <td className="px-5 py-4 text-gray-500">{index + 1}</td>
+                    <td className="px-5 py-4 text-gray-500">
+                      {/* {(currentPage - 1) * recordsPerPage + index + 1} */}
+                      {print?.print_id}
+                    </td>
                     <td className="px-5 py-4 font-medium text-gray-800">
                       {print?.creative || "-"}
                     </td>
@@ -389,6 +441,82 @@ const AdminDashboard = () => {
               )}
             </tbody>
           </table>
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-4 border-t border-gray-200">
+              {/* Showing records */}
+              <p className="text-sm text-gray-500">
+                Showing{" "}
+                <span className="font-medium text-gray-700">
+                  {(currentPage - 1) * recordsPerPage + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-medium text-gray-700">
+                  {Math.min(
+                    currentPage * recordsPerPage,
+                    filteredPrintRecords.length,
+                  )}
+                </span>{" "}
+                of{" "}
+                <span className="font-medium text-gray-700">
+                  {filteredPrintRecords.length}
+                </span>{" "}
+                records
+              </p>
+
+              {/* Pagination */}
+              <div className="flex items-center gap-1">
+                {/* Previous */}
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg
+                   hover:bg-gray-50 disabled:opacity-40
+                   disabled:cursor-not-allowed transition"
+                >
+                  Previous
+                </button>
+
+                {/* Page Numbers */}
+                {getPageNumbers().map((page, index) =>
+                  page === "..." ? (
+                    <span
+                      key={`dots-${index}`}
+                      className="px-2 py-2 text-gray-500"
+                    >
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-[38px] px-3 py-2 text-sm rounded-lg border transition ${
+                        currentPage === page
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+
+                {/* Next */}
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg
+                   hover:bg-gray-50 disabled:opacity-40
+                   disabled:cursor-not-allowed transition"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex justify-end mt-2">
           <button

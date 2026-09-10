@@ -4,8 +4,6 @@ import toast from "react-hot-toast";
 import { IoClose } from "react-icons/io5";
 
 const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
-  if (!isOpen) return null;
-
   const modalRef = useRef();
   const [formData, setFormData] = useState({
     emp_name: "",
@@ -24,22 +22,6 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
       setFormData({ ...selected });
     }
   }, [selected]);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (modalRef.current && !modalRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClose]);
 
   // Handle form changes
   const handleChange = (e) => {
@@ -81,6 +63,48 @@ const UpdateEmployeeModel = ({ isOpen, onClose, getEmployees, selected }) => {
       setLoading(false);
     }
   };
+
+  // CLOSE MODAL
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, loading]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
+
+  if (!isOpen) return null;
 
   return (
     <>

@@ -151,21 +151,15 @@ const ChallanPage = () => {
 
     try {
       await axios.delete(`${apiUrl}/api/Challan/delete-Challan/${id}`);
-
       await getAllChallanData();
-
       toast.success("Challan deleted successfully");
     } catch (error) {
       console.error("Error deleting challan:", error);
-
       toast.error("Failed to delete challan");
     }
   };
 
-  // =====================================================
   // EXCEL DOWNLOAD
-  // =====================================================
-
   const downloadExcel = () => {
     if (filteredChallanRecords.length === 0) {
       toast.error("No records available to download");
@@ -173,7 +167,6 @@ const ChallanPage = () => {
     }
 
     const excelData = [];
-
     filteredChallanRecords.forEach((challan, challanIndex) => {
       const prints = Array.isArray(challan?.prints) ? challan.prints : [];
 
@@ -215,11 +208,9 @@ const ChallanPage = () => {
         const width = parseFloat(
           String(print?.pci_width ?? 0).replace(/,/g, ""),
         );
-
         const height = parseFloat(
           String(print?.pci_height ?? 0).replace(/,/g, ""),
         );
-
         const totalArea = parseFloat(
           String(print?.pci_area ?? 0).replace(/,/g, ""),
         );
@@ -227,9 +218,7 @@ const ChallanPage = () => {
         excelData.push({
           // Show Sr No only on first print row of each challan
           "Sr. No.": printIndex === 0 ? challanIndex + 1 : "",
-
           "Challan ID": challan?.ch_id || "-",
-
           // Client details
           Client: challan?.client_name || "-",
           "Client Contact": challan?.client_contact || "-",
@@ -237,24 +226,17 @@ const ChallanPage = () => {
           "PAN Number": challan?.pan_number || "-",
           "GST Number": challan?.gst_number || "-",
           Pincode: challan?.pincode || "-",
-
           // Challan details
           Date: challan?.ch_date || "-",
-
           // Print details
           "Print ID": print?.pci_print_id || "-",
           Description: print?.pci_description || "-",
           Creative: print?.pci_creative || "-",
-
           Width: isNaN(width) ? 0 : width,
           Height: isNaN(height) ? 0 : height,
-
           Unit: print?.pci_size_unit || "-",
-
           Quantity: Number(print?.pci_quantity) || 0,
-
           "Total Area (Sq.Ft)": isNaN(totalArea) ? 0 : totalArea,
-
           // Delivery details
           "Delivered To": challan?.ch_delivered_to || "-",
           Phone: challan?.ch_phone || "-",
@@ -290,14 +272,11 @@ const ChallanPage = () => {
     ];
 
     const workbook = XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(workbook, worksheet, "Challan Records");
-
     XLSX.writeFile(
       workbook,
       `Challan_Records_${new Date().toISOString().split("T")[0]}.xlsx`,
     );
-
     toast.success("Excel file downloaded successfully");
   };
 
@@ -313,13 +292,11 @@ const ChallanPage = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Challan Records
             </h2>
-
             <p className="text-sm text-gray-500 mt-1">
               Showing {filteredChallanRecords.length} of {ChallanRecords.length}{" "}
               challans
             </p>
           </div>
-
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setMasterModel(true)}
@@ -328,7 +305,6 @@ const ChallanPage = () => {
               <FiPlus />
               Client Master
             </button>
-
             <button
               onClick={() => setAddModel(true)}
               className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 transition cursor-pointer"
@@ -339,19 +315,14 @@ const ChallanPage = () => {
           </div>
         </div>
 
-        {/* =====================================================
-            FILTERS
-        ===================================================== */}
-
+        {/* FILTERS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
           {/* Search */}
-
           <div className="relative lg:col-span-2">
             <FiSearch
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               size={18}
             />
-
             <input
               type="text"
               placeholder="Search challan..."
@@ -360,27 +331,18 @@ const ChallanPage = () => {
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
             />
           </div>
-
-          {/* Start Date */}
-
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200"
           />
-
-          {/* End Date */}
-
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200"
           />
-
-          {/* Actions */}
-
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -407,10 +369,7 @@ const ChallanPage = () => {
           </div>
         </div>
 
-        {/* =====================================================
-    TABLE
-===================================================== */}
-
+        {/* TABLE */}
         <div className="overflow-x-auto border border-gray-200 rounded-lg">
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -418,37 +377,28 @@ const ChallanPage = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Sr. No.
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Challan ID
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Client
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">Date</th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">Phone</th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Delivered To
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Remarks
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Actions
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Print Challan
                 </th>
               </tr>
             </thead>
-
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
@@ -474,45 +424,29 @@ const ChallanPage = () => {
                     key={challan?.ch_id || index}
                     className="hover:bg-gray-50 transition"
                   >
-                    {/* Sr. No. */}
                     <td className="px-5 py-4 text-gray-500">{index + 1}</td>
-
-                    {/* Challan ID */}
                     <td className="px-5 py-4 font-semibold text-blue-700">
                       {challan?.ch_id || "-"}
                     </td>
-
-                    {/* Client */}
                     <td className="px-5 py-4 font-medium text-gray-800">
                       {challan?.client_name || "-"}
                     </td>
-
-                    {/* Date */}
                     <td className="px-5 py-4 text-gray-600">
                       {challan?.ch_date || "-"}
                     </td>
-
-                    {/* Phone */}
                     <td className="px-5 py-4 text-gray-600">
                       {challan?.ch_phone || "-"}
                     </td>
-
-                    {/* Delivered To */}
                     <td className="px-5 py-4 text-gray-600">
                       {challan?.ch_delivered_to || "-"}
                     </td>
-
-                    {/* Remarks */}
                     <td className="px-5 py-4 text-gray-600 max-w-xs">
                       <p className="truncate" title={challan?.ch_remark || ""}>
                         {challan?.ch_remark || "-"}
                       </p>
                     </td>
-
-                    {/* Actions */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
-                        {/* Update */}
                         <button
                           onClick={() => handleUpdate(challan)}
                           className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
@@ -520,8 +454,6 @@ const ChallanPage = () => {
                         >
                           <FiEdit size={16} />
                         </button>
-
-                        {/* Delete */}
                         <button
                           onClick={() => handleDelete(challan?.ch_id)}
                           className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
@@ -531,8 +463,6 @@ const ChallanPage = () => {
                         </button>
                       </div>
                     </td>
-
-                    {/* Print Challan */}
                     <td className="px-5 py-4 text-center">
                       <button
                         type="button"
@@ -550,10 +480,7 @@ const ChallanPage = () => {
           </table>
         </div>
 
-        {/* =====================================================
-            EXCEL
-        ===================================================== */}
-
+        {/* EXCEL */}
         <div className="flex justify-end mt-2">
           <button
             onClick={downloadExcel}
@@ -566,10 +493,7 @@ const ChallanPage = () => {
         </div>
       </div>
 
-      {/* =====================================================
-          UPDATE
-      ===================================================== */}
-
+      {/* UPDATE */}
       <UpdateChallanModel
         isOpen={updateModel}
         onClose={() => setUpdateModel(false)}
@@ -579,10 +503,7 @@ const ChallanPage = () => {
         printRecords={printRecords}
       />
 
-      {/* =====================================================
-          ADD
-      ===================================================== */}
-
+      {/*  ADD */}
       <AddChallanModel
         isOpen={addModel}
         onClose={() => setAddModel(false)}
@@ -591,19 +512,13 @@ const ChallanPage = () => {
         printRecords={printRecords}
       />
 
-      {/* =====================================================
-          CLIENT MASTER
-      ===================================================== */}
-
+      {/* CLIENT MASTER */}
       <ClientMasterModel
         isOpen={masterModel}
         onClose={() => setMasterModel(false)}
       />
 
-      {/* =====================================================
-          PRINT
-      ===================================================== */}
-
+      {/* PRINT */}
       <ChallanPrint
         isOpen={challanPrintModel}
         onClose={() => setChallanPrintModel(false)}

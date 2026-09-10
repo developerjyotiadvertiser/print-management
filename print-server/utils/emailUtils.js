@@ -31,15 +31,11 @@ const sendEmail = async ({
       attachments,
     });
 
-    console.log("Email sent:", info.messageId);
-
     return {
       success: true,
       messageId: info.messageId,
     };
   } catch (error) {
-    console.error("Email Error:", error);
-
     return {
       success: false,
       error: error.message,

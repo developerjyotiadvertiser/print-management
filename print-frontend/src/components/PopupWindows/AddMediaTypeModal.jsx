@@ -14,20 +14,45 @@ const AddMediaTypeModal = ({
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // CLOSE MODAL
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
+
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
-        onClose();
+        handleClose();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, loading]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +78,6 @@ const AddMediaTypeModal = ({
         onClose();
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Failed to add media type.");
     } finally {
       setLoading(false);
@@ -99,7 +123,6 @@ const AddMediaTypeModal = ({
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
-
           <div className="mt-6 flex justify-end gap-3">
             <button
               type="button"

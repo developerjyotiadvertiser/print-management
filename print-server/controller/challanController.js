@@ -3,17 +3,13 @@ const challanService = require("../services/challanService");
 const saveChallanController = async (req, res) => {
   try {
     const data = req.body;
-
     const result = await challanService.saveChallanService(data);
-
     res.status(201).json({
       success: true,
       message: "Challan Record Saved Successfully.",
       data: result,
     });
   } catch (error) {
-    console.error(error);
-
     res.status(500).json({
       success: false,
       message: error.message,
@@ -24,14 +20,12 @@ const saveChallanController = async (req, res) => {
 const getAllChallanController = async (req, res) => {
   try {
     const employees = await challanService.getAllChallanService();
-
     res.status(201).json({
       success: true,
       message: "Fetched Challan details successfully.",
       data: employees,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -42,7 +36,6 @@ const getAllChallanController = async (req, res) => {
 const updateChallanController = async (req, res) => {
   try {
     const { challan_id } = req.params;
-
     const result = await challanService.updateChallanService(
       challan_id,
       req.body,
@@ -70,7 +63,6 @@ const updateChallanController = async (req, res) => {
 const deleteChallanController = async (req, res) => {
   try {
     const { challan_id } = req.params;
-
     const result = await challanService.deleteChallanService(
       challan_id,
       req.body,

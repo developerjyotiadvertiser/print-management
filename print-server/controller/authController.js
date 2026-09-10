@@ -46,8 +46,6 @@ const saveEmployeeController = async (req, res) => {
       message: "Employee details saved successfully.",
     });
   } catch (error) {
-    console.error(error);
-
     res.status(500).json({
       success: false,
       message: error.message,
@@ -58,14 +56,12 @@ const saveEmployeeController = async (req, res) => {
 const getAllEmployeeController = async (req, res) => {
   try {
     const employees = await authService.getAllEmployeesService();
-
     res.status(201).json({
       success: true,
       message: "Fethced employee details successfully.",
       data: employees,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -76,9 +72,7 @@ const getAllEmployeeController = async (req, res) => {
 const updateEmployeeController = async (req, res) => {
   try {
     const { emp_id } = req.params;
-
     const result = await authService.updateEmployeeService(emp_id, req.body);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
@@ -101,16 +95,13 @@ const updateEmployeeController = async (req, res) => {
 const deleteEmployeeController = async (req, res) => {
   try {
     const { emp_id } = req.params;
-
     const result = await authService.deleteEmployeeService(emp_id, req.body);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
         message: "Employee not found.",
       });
     }
-
     return res.status(200).json({
       success: true,
       message: "Employee deleted successfully.",
@@ -136,7 +127,6 @@ const loginController = async (req, res) => {
     }
 
     const result = await authService.loginService(emp_phone, emp_password);
-
     if (!result.success) {
       return res.status(401).json({
         success: false,
@@ -151,8 +141,6 @@ const loginController = async (req, res) => {
       user: result.user,
     });
   } catch (error) {
-    console.error(error);
-
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -163,7 +151,6 @@ const loginController = async (req, res) => {
 const resetPasswordController = async (req, res) => {
   try {
     const { emp_id, new_password } = req.body;
-
     if (!emp_id || !new_password) {
       return res.status(400).json({
         success: false,
@@ -172,15 +159,12 @@ const resetPasswordController = async (req, res) => {
     }
 
     const result = await authService.resetPasswordService(emp_id, new_password);
-
     if (!result.success) {
       return res.status(404).json(result);
     }
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error(error);
-
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -200,7 +184,6 @@ const sendOtp = async (req, res) => {
     const response = await authService.sendOtpService(email);
     return res.status(200).json(response);
   } catch (error) {
-    console.log("error:", error);
     return res.status(500).json({ success: false, messsage: error.message });
   }
 };
@@ -216,10 +199,8 @@ const verifyOtp = async (req, res) => {
     }
 
     const response = await authService.verifyOtpService(email, otp);
-
     return res.status(200).json(response);
   } catch (error) {
-    console.log("error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };

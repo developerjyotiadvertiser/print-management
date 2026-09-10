@@ -7,17 +7,13 @@ import toast from "react-hot-toast";
 
 const LoginPage = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [otpSent, setOtpSent] = useState(false);
   const [email, setEmail] = useState("");
   const [loginData, setLoginData] = useState(null);
@@ -26,7 +22,6 @@ const LoginPage = () => {
   // Verify Employee ID + Password, then send OTP
   const handleLogin = async (e) => {
     e.preventDefault();
-
     if (!phone || !password) {
       toast.error("Please enter Employee ID and Password");
       return;
@@ -34,29 +29,15 @@ const LoginPage = () => {
 
     try {
       setLoading(true);
-
-      // First verify employee credentials
       const loginRes = await axios.post(`${apiUrl}/api/auth/login`, {
         emp_phone: phone,
         emp_password: password,
       });
 
-      console.log("Login Response:", loginRes.data);
-
       if (!loginRes.data?.success) {
         toast.error(loginRes.data?.message || "Invalid credentials");
         return;
       }
-
-      /*
-        IMPORTANT:
-        Adjust this according to your login API response.
-
-        Possible examples:
-        loginRes.data.user.email
-        loginRes.data.data.email
-        loginRes.data.email
-      */
 
       const employeeEmail =
         loginRes.data?.user?.emp_email ||
@@ -68,15 +49,10 @@ const LoginPage = () => {
         return;
       }
 
-      // Save login response temporarily
       setLoginData(loginRes.data);
-
-      // Send OTP to employee email
       const otpRes = await axios.post(`${apiUrl}/api/auth/send-otp`, {
         email: "sales@jyotiadvertiser.com",
       });
-
-      console.log("Send OTP Response:", otpRes.data);
 
       if (!otpRes.data?.success) {
         toast.error(otpRes.data?.message || "Failed to send OTP");
@@ -85,11 +61,8 @@ const LoginPage = () => {
 
       setEmail(employeeEmail);
       setOtpSent(true);
-
       toast.success(otpRes.data?.message || "OTP sent successfully");
     } catch (error) {
-      console.error("Login Error:", error);
-
       toast.error(
         error.response?.data?.message || error.message || "Login failed",
       );
@@ -102,21 +75,16 @@ const LoginPage = () => {
   // Verify OTP and complete login
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-
     if (!otp) {
       toast.error("Please enter OTP");
       return;
     }
-
     try {
       setLoading(true);
-
       const res = await axios.post(`${apiUrl}/api/auth/verify-otp`, {
         email: "sales@jyotiadvertiser.com",
         otp,
       });
-
-      console.log("Verify OTP Response:", res.data);
 
       if (!res.data?.success) {
         toast.error(res.data?.message || "Invalid OTP");
@@ -125,13 +93,9 @@ const LoginPage = () => {
 
       // OTP verified successfully
       dispatch(setUser(loginData));
-
       toast.success("Login successfully");
-
       navigate("/dashboard");
     } catch (error) {
-      console.error("OTP Verification Error:", error);
-
       toast.error(
         error.response?.data?.message ||
           error.message ||
@@ -146,7 +110,6 @@ const LoginPage = () => {
   const handleResendOtp = async () => {
     try {
       setLoading(true);
-
       const res = await axios.post(`${apiUrl}/api/auth/send-otp`, {
         email,
       });
@@ -181,11 +144,9 @@ const LoginPage = () => {
             alt="Logo"
             className="w-40 mx-auto"
           />
-
           <h2 className="text-3xl font-bold text-red-900 mt-4">
             {otpSent ? "Verify OTP" : "Welcome Back"}
           </h2>
-
           <p className="text-gray-500 mt-2">
             {otpSent
               ? "Enter the OTP sent to your registered email"
@@ -196,12 +157,10 @@ const LoginPage = () => {
         {/* LOGIN FORM */}
         {!otpSent && (
           <form className="mt-8 space-y-5" onSubmit={handleLogin}>
-            {/* Employee ID */}
             <div>
               <label className="block mb-2 font-medium text-gray-700">
                 Employee ID
               </label>
-
               <input
                 type="text"
                 placeholder="Enter Employee ID"
@@ -211,13 +170,10 @@ const LoginPage = () => {
                 className="w-full h-12 border rounded-xl px-4 outline-none focus:border-yellow-600 disabled:bg-gray-100"
               />
             </div>
-
-            {/* Password */}
             <div>
               <label className="block mb-2 font-medium text-gray-700">
                 Password
               </label>
-
               <div className="relative">
                 <input
                   type={showPass ? "text" : "password"}
@@ -227,7 +183,6 @@ const LoginPage = () => {
                   disabled={loading}
                   className="w-full h-12 border rounded-xl px-4 pr-20 outline-none focus:border-yellow-600 disabled:bg-gray-100"
                 />
-
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
@@ -237,7 +192,6 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-
             <button
               type="submit"
               disabled={loading}
@@ -255,7 +209,6 @@ const LoginPage = () => {
               <label className="block mb-2 font-medium text-gray-700">
                 Enter OTP
               </label>
-
               <input
                 type="text"
                 inputMode="numeric"
@@ -270,7 +223,6 @@ const LoginPage = () => {
                 className="w-full h-14 border rounded-xl px-4 text-center text-xl tracking-[0.4em] outline-none focus:border-yellow-600 disabled:bg-gray-100"
               />
             </div>
-
             <button
               type="submit"
               disabled={loading || otp.length !== 6}
@@ -278,7 +230,6 @@ const LoginPage = () => {
             >
               {loading ? "Verifying..." : "Verify & Login"}
             </button>
-
             <div className="flex items-center justify-between">
               <button
                 type="button"
@@ -288,7 +239,6 @@ const LoginPage = () => {
               >
                 ← Back
               </button>
-
               <button
                 type="button"
                 onClick={handleResendOtp}
@@ -300,7 +250,6 @@ const LoginPage = () => {
             </div>
           </form>
         )}
-
         <p className="text-center text-gray-400 mt-8 text-sm">
           Print Management System
         </p>

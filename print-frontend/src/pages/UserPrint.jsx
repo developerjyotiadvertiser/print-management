@@ -3,7 +3,6 @@ import axios from "axios";
 import {
   FiPlus,
   FiEdit,
-  FiTrash2,
   FiRefreshCw,
   FiDownload,
   FiSearch,
@@ -13,8 +12,6 @@ import { useSelector } from "react-redux";
 import AddPrintModel from "../components/PopupWindows/AddPrintModel";
 import UpdatePrintModel from "../components/PopupWindows/UpdatePrintModel";
 import * as XLSX from "xlsx";
-import EmployeeTable from "../components/EmployeeTable";
-import MediaTypeTable from "../components/MediaTypeTable";
 
 const UserPrint = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -24,7 +21,6 @@ const UserPrint = () => {
   const [updateModel, setUpdateModel] = useState(false);
   const [selected, setSelected] = useState();
   const [addModel, setAddModel] = useState(false);
-
   const [search, setSearch] = useState("");
   const [mediaTypeFilter, setMediaTypeFilter] = useState("");
   const [unitFilter, setUnitFilter] = useState("");
@@ -39,10 +35,7 @@ const UserPrint = () => {
   const getAllPrintData = async () => {
     try {
       setLoading(true);
-
       const response = await axios.get(`${apiUrl}/api/print/get-all-print`);
-
-      console.log(response?.data?.data?.data);
 
       if (response.data?.data?.success) {
         setPrintRecords(response?.data?.data?.data || []);
@@ -63,26 +56,19 @@ const UserPrint = () => {
   const filteredPrintRecords = useMemo(() => {
     return printRecords.filter((print) => {
       const searchValue = search.toLowerCase();
-
       const matchesSearch =
         !search ||
         print?.media_type?.toLowerCase().includes(searchValue) ||
         print?.remarks?.toLowerCase().includes(searchValue) ||
         print?.creative?.toLowerCase().includes(searchValue);
-
       const matchesMediaType =
         !mediaTypeFilter || print?.media_type === mediaTypeFilter;
-
       const matchesUnit = !unitFilter || print?.size_unit === unitFilter;
-
       const printDate = print?.print_date
         ? new Date(print.print_date).toISOString().split("T")[0]
         : "";
-
       const matchesStartDate = !startDate || printDate >= startDate;
-
       const matchesEndDate = !endDate || printDate <= endDate;
-
       return (
         matchesSearch &&
         matchesMediaType &&
@@ -102,9 +88,7 @@ const UserPrint = () => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this record?",
     );
-
     if (!confirmDelete) return;
-
     try {
       await axios.delete(`${apiUrl}/api/print/delete-print/${id}`);
 
@@ -112,7 +96,6 @@ const UserPrint = () => {
       setPrintRecords((prev) =>
         prev.filter((employee) => employee.print_id !== id),
       );
-
       toast.success("Print record deleted successfully");
     } catch (error) {
       console.error("Error deleting print record:", error);
@@ -125,41 +108,33 @@ const UserPrint = () => {
       toast.error("No records available to download");
       return;
     }
-
     const excelData = filteredPrintRecords.map((print, index) => {
       const totalArea = parseFloat(
         String(print?.total_area ?? 0).replace(/,/g, ""),
       );
-
+      const width = parseFloat(String(print?.width ?? 0).replace(/,/g, ""));
+      const height = parseFloat(String(print?.height ?? 0).replace(/,/g, ""));
       return {
         "Sr. No.": index + 1,
         Creative: print?.creative || "-",
         "Print Date": print?.print_date || "-",
         "Media Type": print?.media_type || "-",
-        Width: print?.width || "-",
-        Height: print?.height || "-",
+        Width: isNaN(width) ? 0 : width,
+        Height: isNaN(height) ? 0 : height,
         Unit: print?.size_unit || "-",
+        quality_print: print?.quality_print || "-",
         Quantity: Number(print?.quantity) || 0,
 
         // IMPORTANT: use converted number
         "Total Area (Sq.Ft)": isNaN(totalArea) ? 0 : totalArea,
-
         Remarks: print?.remarks || "-",
       };
     });
 
-    console.log(
-      "Excel Data:",
-      excelData.map((item) => ({
-        totalArea: item["Total Area (Sq.Ft)"],
-        type: typeof item["Total Area (Sq.Ft)"],
-      })),
-    );
-
     const worksheet = XLSX.utils.json_to_sheet(excelData);
-
     worksheet["!cols"] = [
       { wch: 10 },
+      { wch: 15 },
       { wch: 15 },
       { wch: 15 },
       { wch: 25 },
@@ -172,14 +147,11 @@ const UserPrint = () => {
     ];
 
     const workbook = XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(workbook, worksheet, "Print Records");
-
     XLSX.writeFile(
       workbook,
       `Print_Records_${new Date().toISOString().split("T")[0]}.xlsx`,
     );
-
     toast.success("Excel file downloaded successfully");
   };
 
@@ -192,7 +164,6 @@ const UserPrint = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Print Work Details
             </h2>
-
             <p className="text-sm text-gray-500 mt-1">
               Showing {filteredPrintRecords.length} of {printRecords.length}{" "}
               records
@@ -320,6 +291,10 @@ const UserPrint = () => {
                 </th>
 
                 <th className="px-5 py-3 font-semibold text-gray-600">
+                  Quality Print
+                </th>
+
+                <th className="px-5 py-3 font-semibold text-gray-600">
                   Total Area
                 </th>
 
@@ -395,6 +370,10 @@ const UserPrint = () => {
                     {/* Quantity */}
                     <td className="px-5 py-4 text-gray-600">
                       {print?.quantity || 0}
+                    </td>
+
+                    <td className="px-5 py-4 text-gray-600">
+                      {print?.quality_print || "-"}
                     </td>
 
                     {/* Total Area */}

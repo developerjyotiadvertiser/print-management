@@ -111,6 +111,46 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
     }
   };
 
+  // CLOSE MODAL
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, loading]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
+
   if (!isOpen) return null;
 
   return (
@@ -139,7 +179,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 text-gray-700 text-sm"
           >
-            {/* Creative */}
             <div className="lg:col-span-4 md:col-span-2">
               <label className="block mb-1 font-semibold">Creative*</label>
               <input
@@ -152,8 +191,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-200 bg-white rounded-lg px-4 py-2.5 focus:outline-none"
               />
             </div>
-
-            {/* Media Type */}
             <div className="lg:col-span-2 md:col-span-1">
               <label className="block mb-1 font-semibold">Media Type *</label>
               <select
@@ -178,8 +215,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 + Add New Media Type
               </button>
             </div>
-
-            {/* Size Unit */}
             <div className="lg:col-span-1 md:col-span-1">
               <label className="block mb-1 font-semibold">Size Unit *</label>
               <select
@@ -194,8 +229,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 <option value="inch">Inch</option>
               </select>
             </div>
-
-            {/* Quality print */}
             <div className="lg:col-span-1 md:col-span-1">
               <label className="block mb-1 font-semibold">
                 Printing Profile*
@@ -210,8 +243,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
-            {/* Width */}
             <div>
               <label className="block mb-1 font-semibold">Width *</label>
               <input
@@ -226,8 +257,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
-            {/* Height */}
             <div>
               <label className="block mb-1 font-semibold">Height *</label>
               <input
@@ -242,8 +271,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
-            {/* Quantity */}
             <div>
               <label className="block mb-1 font-semibold">Quantity *</label>
               <input
@@ -256,8 +283,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
-            {/* Total Area */}
             <div>
               <label className="block mb-1 font-semibold">
                 Total Area (Sq.Ft)
@@ -270,8 +295,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-200 bg-gray-100 rounded-lg px-4 py-2.5 focus:outline-none"
               />
             </div>
-
-            {/* Remarks */}
             <div className="lg:col-span-4 md:col-span-2">
               <label className="block mb-1 font-semibold">Remarks</label>
               <textarea
@@ -283,8 +306,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
               />
             </div>
-
-            {/* Buttons */}
             <div className="col-span-full flex justify-end gap-3 pt-3">
               <button
                 type="button"

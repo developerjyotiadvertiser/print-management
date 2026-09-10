@@ -3,7 +3,6 @@ const mediaService = require("../services/mediaService");
 const saveMediaController = async (req, res) => {
   try {
     const { mt_name, mt_status } = req.body;
-
     await mediaService.saveMediaService({
       mt_name,
       mt_status,
@@ -14,8 +13,6 @@ const saveMediaController = async (req, res) => {
       message: "Media Record Saved Successfully.",
     });
   } catch (error) {
-    console.error(error);
-
     res.status(500).json({
       success: false,
       message: error.message,
@@ -26,14 +23,12 @@ const saveMediaController = async (req, res) => {
 const getAllMediaController = async (req, res) => {
   try {
     const employees = await mediaService.getAllMediaService();
-
     res.status(201).json({
       success: true,
       message: "Fetched Media details successfully.",
       data: employees,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -44,9 +39,7 @@ const getAllMediaController = async (req, res) => {
 const updateMediaController = async (req, res) => {
   try {
     const { mt_id } = req.params;
-
     const result = await mediaService.updateMediaService(mt_id, req.body);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
@@ -69,9 +62,7 @@ const updateMediaController = async (req, res) => {
 const deleteMediaController = async (req, res) => {
   try {
     const { mt_id } = req.params;
-
     const result = await mediaService.deleteMediaService(mt_id, req.body);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,

@@ -3,29 +3,17 @@ const moment = require("moment-timezone");
 
 const saveChallanService = async (data) => {
   const { ch_client_id, ch_delivered_to, ch_phone, ch_remark, prints } = data;
-
-  // Validate client
   if (!ch_client_id) {
     throw new Error("Client ID is required");
   }
-
-  // Validate prints
   if (!Array.isArray(prints) || prints.length === 0) {
     throw new Error("At least one print is required");
   }
 
   const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
-
   const connection = await pool.getConnection();
-
   try {
-    // Start transaction
     await connection.beginTransaction();
-
-    // =====================================================
-    // 1. SAVE CHALLAN
-    // =====================================================
-
     const challanSql = `
       INSERT INTO print_challan (
         ch_client_id,
@@ -48,10 +36,6 @@ const saveChallanService = async (data) => {
     ]);
 
     const ch_id = challanResult.insertId;
-
-    // =====================================================
-    // 2. SAVE ALL PRINT ITEMS
-    // =====================================================
 
     const printSql = `
       INSERT INTO print_challan_items (
@@ -84,22 +68,13 @@ const saveChallanService = async (data) => {
       ]);
     }
 
-    // =====================================================
-    // 3. COMMIT TRANSACTION
-    // =====================================================
-
     await connection.commit();
-
     return {
       ch_id,
       print_count: prints.length,
     };
   } catch (error) {
-    // If anything fails, undo everything
     await connection.rollback();
-
-    console.error("Save Challan Service Error:", error);
-
     throw error;
   } finally {
     connection.release();
@@ -172,23 +147,16 @@ const getAllChallanService = async () => {
       data: rows,
     };
   } catch (error) {
-    console.error("Get All Challan Service Error:", error);
     throw error;
   }
 };
 
 const updateChallanService = async (challan_id, data) => {
   const connection = await pool.getConnection();
-
   const updateAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
 
   try {
     await connection.beginTransaction();
-
-    // ==========================================
-    // UPDATE CHALLAN / PARENT TABLE
-    // ==========================================
-
     const fields = [];
     const values = [];
 
@@ -196,22 +164,18 @@ const updateChallanService = async (challan_id, data) => {
       fields.push("ch_client_id = ?");
       values.push(data.ch_client_id);
     }
-
     if (data.ch_date !== undefined) {
       fields.push("ch_date = ?");
       values.push(data.ch_date);
     }
-
     if (data.ch_delivered_to !== undefined) {
       fields.push("ch_delivered_to = ?");
       values.push(data.ch_delivered_to);
     }
-
     if (data.ch_phone !== undefined) {
       fields.push("ch_phone = ?");
       values.push(data.ch_phone);
     }
-
     if (data.ch_remark !== undefined) {
       fields.push("ch_remark = ?");
       values.push(data.ch_remark);
@@ -221,9 +185,7 @@ const updateChallanService = async (challan_id, data) => {
     if (fields.length > 0) {
       fields.push("ch_updated_at = ?");
       values.push(updateAt);
-
       values.push(challan_id);
-
       const sql = `
         UPDATE print_challan
         SET ${fields.join(", ")}
@@ -233,10 +195,6 @@ const updateChallanService = async (challan_id, data) => {
       await connection.query(sql, values);
     }
 
-    // ==========================================
-    // UPDATE PRINT ITEMS
-    // ==========================================
-
     if (Array.isArray(data.prints)) {
       for (const print of data.prints) {
         if (!print.pci_id) {
@@ -245,54 +203,44 @@ const updateChallanService = async (challan_id, data) => {
 
         const itemFields = [];
         const itemValues = [];
-
         if (print.pci_print_id !== undefined) {
           itemFields.push("pci_print_id = ?");
           itemValues.push(print.pci_print_id);
         }
-
         if (print.pci_description !== undefined) {
           itemFields.push("pci_description = ?");
           itemValues.push(print.pci_description);
         }
-
         if (print.pci_creative !== undefined) {
           itemFields.push("pci_creative = ?");
           itemValues.push(print.pci_creative);
         }
-
         if (print.pci_height !== undefined) {
           itemFields.push("pci_height = ?");
           itemValues.push(print.pci_height);
         }
-
         if (print.pci_width !== undefined) {
           itemFields.push("pci_width = ?");
           itemValues.push(print.pci_width);
         }
-
         if (print.pci_quantity !== undefined) {
           itemFields.push("pci_quantity = ?");
           itemValues.push(print.pci_quantity);
         }
-
         if (print.pci_size_unit !== undefined) {
           itemFields.push("pci_size_unit = ?");
           itemValues.push(print.pci_size_unit);
         }
-
         if (print.pci_area !== undefined) {
           itemFields.push("pci_area = ?");
           itemValues.push(print.pci_area);
         }
-
         if (itemFields.length === 0) {
           continue;
         }
 
         itemFields.push("pci_updated_at = ?");
         itemValues.push(updateAt);
-
         itemValues.push(print.pci_id);
 
         const itemSql = `
@@ -303,13 +251,11 @@ const updateChallanService = async (challan_id, data) => {
         `;
 
         itemValues.push(challan_id);
-
         await connection.query(itemSql, itemValues);
       }
     }
 
     await connection.commit();
-
     return {
       success: true,
       message: "Challan updated successfully",
@@ -317,8 +263,6 @@ const updateChallanService = async (challan_id, data) => {
     };
   } catch (error) {
     await connection.rollback();
-
-    console.error("Update Challan Service Error:", error);
     throw error;
   } finally {
     connection.release();
@@ -327,38 +271,29 @@ const updateChallanService = async (challan_id, data) => {
 
 const deleteChallanService = async (challan_id) => {
   const connection = await pool.getConnection();
-
   try {
     await connection.beginTransaction();
-
-    // 1. Delete all challan items
     const deleteItemsSql = `
       DELETE FROM print_challan_items
       WHERE pci_ch_id = ?
     `;
 
     await connection.query(deleteItemsSql, [challan_id]);
-
-    // 2. Delete the challan
     const deleteChallanSql = `
       DELETE FROM print_challan
       WHERE ch_id = ?
     `;
 
     const [result] = await connection.query(deleteChallanSql, [challan_id]);
-
-    // If challan does not exist
     if (result.affectedRows === 0) {
       await connection.rollback();
       throw new Error("Challan not found");
     }
 
     await connection.commit();
-
     return result;
   } catch (error) {
     await connection.rollback();
-    console.error("Delete Challan Service Error:", error);
     throw error;
   } finally {
     connection.release();

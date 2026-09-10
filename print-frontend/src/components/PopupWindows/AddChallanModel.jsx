@@ -12,8 +12,6 @@ const AddChallanModel = ({
   employees,
 }) => {
   const modalRef = useRef();
-
-  // CLIENT / CHALLAN DETAILS
   const initialFormData = {
     ch_client_id: "",
     ch_delivered_to: "",
@@ -25,7 +23,6 @@ const AddChallanModel = ({
     prints: [],
   };
 
-  // SINGLE PRINT FORM
   const initialPrint = {
     pci_print_id: "",
     pci_description: "",
@@ -45,7 +42,6 @@ const AddChallanModel = ({
 
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         if (!loading) {
@@ -55,13 +51,11 @@ const AddChallanModel = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose, loading]);
 
-  // CALCULATE PRINT AREA
   useEffect(() => {
     const { pci_width, pci_height, pci_size_unit, pci_quantity } = currentPrint;
 
@@ -82,7 +76,6 @@ const AddChallanModel = ({
     let widthInFeet = Number(pci_width);
     let heightInFeet = Number(pci_height);
     const quantity = Number(pci_quantity);
-
     if (
       !Number.isFinite(widthInFeet) ||
       !Number.isFinite(heightInFeet) ||
@@ -91,7 +84,6 @@ const AddChallanModel = ({
       return;
     }
 
-    // Convert inches to feet
     if (pci_size_unit === "inch") {
       widthInFeet = widthInFeet / 12;
       heightInFeet = heightInFeet / 12;
@@ -116,11 +108,13 @@ const AddChallanModel = ({
       (client) => String(client.client_id) === String(value),
     );
 
+    console.log("client", selectedClient);
+
     if (selectedClient) {
       setFormData((prev) => ({
         ...prev,
         ch_client_id: value,
-        ch_phone: selectedClient.client_phone || "",
+        ch_phone: selectedClient.client_contact || "",
         pan_number: selectedClient.pan_number || "",
         gst_number: selectedClient.gst_number || "",
         pincode: selectedClient.pincode || "",
@@ -141,7 +135,6 @@ const AddChallanModel = ({
   const handleChallanChange = (e) => {
     const { name, value } = e.target;
 
-    // Phone
     if (name === "ch_phone") {
       const phone = value.replace(/\D/g, "").slice(0, 10);
       setFormData((prev) => ({
@@ -160,8 +153,6 @@ const AddChallanModel = ({
   // PRINT FIELD CHANGE
   const handlePrintChange = (e) => {
     const { name, value } = e.target;
-
-    // Print ID
     if (name === "pci_print_id") {
       const selectedPrint = printRecords?.find(
         (print) => String(print.print_id) === String(value),
@@ -193,7 +184,6 @@ const AddChallanModel = ({
 
       return;
     }
-
     setCurrentPrint((prev) => ({
       ...prev,
       [name]: value,
@@ -202,31 +192,22 @@ const AddChallanModel = ({
 
   // ADD / UPDATE PRINT
   const handleAddPrint = () => {
-    // Print ID required
     if (!currentPrint.pci_print_id) {
       toast.error("Please select Print ID");
       return;
     }
-
-    // Size unit required
     if (!currentPrint.pci_size_unit) {
       toast.error("Please select Size Unit");
       return;
     }
-
-    // Description required
     if (!currentPrint.pci_description.trim()) {
       toast.error("Please enter Description");
       return;
     }
-
-    // Quantity required
     if (!currentPrint.pci_quantity || Number(currentPrint.pci_quantity) <= 0) {
       toast.error("Please enter valid Quantity");
       return;
     }
-
-    // UPDATE EXISTING PRINT
     if (editingIndex !== null) {
       setFormData((prev) => ({
         ...prev,
@@ -241,7 +222,6 @@ const AddChallanModel = ({
       return;
     }
 
-    // ADD NEW PRINT
     setFormData((prev) => ({
       ...prev,
       prints: [...prev.prints, { ...currentPrint }],
@@ -251,24 +231,20 @@ const AddChallanModel = ({
     toast.success("Print added");
   };
 
-  // EDIT PRINT
   const handleEditPrint = (index) => {
     const selectedPrint = formData.prints[index];
     setCurrentPrint({
       ...selectedPrint,
     });
-
     setEditingIndex(index);
   };
 
-  // REMOVE PRINT
   const handleRemovePrint = (index) => {
     setFormData((prev) => ({
       ...prev,
       prints: prev.prints.filter((_, i) => i !== index),
     }));
 
-    // If currently editing this item
     if (editingIndex === index) {
       setEditingIndex(null);
       setCurrentPrint(initialPrint);
@@ -284,14 +260,11 @@ const AddChallanModel = ({
   // SUBMIT CHALLAN
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Client validation
     if (!formData.ch_client_id) {
       toast.error("Please select Client");
       return;
     }
 
-    // Print validation
     if (!Array.isArray(formData.prints) || formData.prints.length === 0) {
       toast.error("Please add at least one print");
       return;
@@ -313,7 +286,6 @@ const AddChallanModel = ({
         onClose();
       }
     } catch (error) {
-      console.error(error);
       toast.error(error.response?.data?.message || "Failed to add challan");
     } finally {
       setLoading(false);
@@ -323,12 +295,27 @@ const AddChallanModel = ({
   // RESET
   const handleClose = () => {
     if (loading) return;
-
     setFormData(initialFormData);
     setCurrentPrint(initialPrint);
     setEditingIndex(null);
     onClose();
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape" && !loading) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, loading]);
 
   if (!isOpen) return null;
 
@@ -356,13 +343,11 @@ const AddChallanModel = ({
         {/* SCROLLABLE CONTENT */}
         <div className="overflow-y-auto px-6 py-5">
           <form onSubmit={handleSubmit}>
-            {/* CLIENT DETAILS */}
             <div className="mb-6">
               <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-800">
                 Client Details
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                {/* Client */}
                 <div>
                   <label className="mb-1 block text-sm font-semibold text-gray-700">
                     Client ID *
@@ -382,8 +367,6 @@ const AddChallanModel = ({
                     ))}
                   </select>
                 </div>
-
-                {/* PAN */}
                 <div>
                   <label className="mb-1 block text-sm font-semibold text-gray-700">
                     PAN Number
@@ -396,8 +379,6 @@ const AddChallanModel = ({
                     className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 uppercase"
                   />
                 </div>
-
-                {/* GST */}
                 <div>
                   <label className="mb-1 block text-sm font-semibold text-gray-700">
                     GST Number
@@ -410,8 +391,6 @@ const AddChallanModel = ({
                     className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 uppercase"
                   />
                 </div>
-
-                {/* Pincode */}
                 <div>
                   <label className="mb-1 block text-sm font-semibold text-gray-700">
                     Pincode
@@ -424,8 +403,6 @@ const AddChallanModel = ({
                     className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5"
                   />
                 </div>
-
-                {/* Phone */}
                 <div>
                   <label className="mb-1 block text-sm font-semibold text-gray-700">
                     Phone *
@@ -441,8 +418,6 @@ const AddChallanModel = ({
                     className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
-
-                {/* Delivered To */}
                 <div className="md:col-span-2">
                   <label className="mb-1 block text-sm font-semibold text-gray-700">
                     Delivered To *
@@ -453,13 +428,11 @@ const AddChallanModel = ({
                     value={formData.ch_delivered_to}
                     onChange={handleChallanChange}
                     required
-                    placeholder="Enter delivered person/place"
+                    placeholder="Enter Person/Place"
                     className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
-
-                {/* Remark */}
-                <div className="md:col-span-4">
+                {/* <div className="md:col-span-4">
                   <label className="mb-1 block text-sm font-semibold text-gray-700">
                     Remark
                   </label>
@@ -471,11 +444,9 @@ const AddChallanModel = ({
                     rows={2}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
-
-            {/* PRINT DETAILS */}
             <div className="mb-6">
               <div className="mb-4 flex items-center justify-between border-b pb-2">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -486,11 +457,8 @@ const AddChallanModel = ({
                   {formData.prints.length !== 1 ? "s" : ""}
                 </span>
               </div>
-
-              {/* Print Form */}
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                  {/* Print ID */}
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Print ID *
@@ -510,8 +478,6 @@ const AddChallanModel = ({
                       ))}
                     </select>
                   </div>
-
-                  {/* Creative */}
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Creative
@@ -525,8 +491,6 @@ const AddChallanModel = ({
                       className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
-
-                  {/* Height */}
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Height
@@ -542,8 +506,6 @@ const AddChallanModel = ({
                       className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
-
-                  {/* Width */}
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Width
@@ -559,8 +521,6 @@ const AddChallanModel = ({
                       className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
-
-                  {/* Quantity */}
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Quantity
@@ -575,8 +535,6 @@ const AddChallanModel = ({
                       className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
-
-                  {/* Size Unit */}
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Size Unit *
@@ -592,8 +550,6 @@ const AddChallanModel = ({
                       <option value="feet">Feet</option>
                     </select>
                   </div>
-
-                  {/* Area */}
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Area (Sq. Ft.)
@@ -607,8 +563,6 @@ const AddChallanModel = ({
                       className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5"
                     />
                   </div>
-
-                  {/* Description */}
                   <div className="md:col-span-2">
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Description *
@@ -623,8 +577,6 @@ const AddChallanModel = ({
                     />
                   </div>
                 </div>
-
-                {/* Add Print Button */}
                 <div className="mt-4 flex justify-end gap-2">
                   {editingIndex !== null && (
                     <button
@@ -635,7 +587,6 @@ const AddChallanModel = ({
                       Cancel Edit
                     </button>
                   )}
-
                   <button
                     type="button"
                     onClick={handleAddPrint}
@@ -657,13 +608,11 @@ const AddChallanModel = ({
               </div>
             </div>
 
-            {/* ADDED PRINTS TABLE */}
             {formData.prints.length > 0 && (
               <div className="mb-6">
                 <h3 className="mb-3 text-lg font-semibold text-gray-800">
                   Added Prints
                 </h3>
-
                 <div className="overflow-x-auto rounded-xl border border-gray-200">
                   <table className="w-full min-w-225 text-sm">
                     <thead className="bg-gray-100">
@@ -729,7 +678,6 @@ const AddChallanModel = ({
             )}
 
             {/* BUTTONS */}
-
             <div className="mt-6 flex justify-end gap-3 border-t pt-5">
               <button
                 type="button"
