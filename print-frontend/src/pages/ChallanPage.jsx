@@ -81,15 +81,20 @@ const ChallanPage = () => {
   const getAllChallanData = async () => {
     try {
       setLoading(true);
+
       const response = await axios.get(`${apiUrl}/api/Challan/get-all-Challan`);
-      if (response.data?.data?.success) {
-        setChallanRecords(response?.data?.data?.data || []);
-      } else {
-        setChallanRecords(response?.data?.data?.data || []);
-      }
+
+      const records = response.data?.data?.success
+        ? response.data?.data?.data || []
+        : response.data?.data?.data || [];
+
+      setChallanRecords(records);
+
+      return records;
     } catch (error) {
       console.error("Error fetching challans:", error);
       toast.error("Failed to load challan records");
+      return [];
     } finally {
       setLoading(false);
     }
@@ -280,6 +285,8 @@ const ChallanPage = () => {
     toast.success("Excel file downloaded successfully");
   };
 
+  console.log("challan details", filteredChallanRecords);
+
   return (
     <>
       <div className="p-6 bg-white rounded-xl shadow-sm sm:mt-18 mt-16">
@@ -318,7 +325,7 @@ const ChallanPage = () => {
         {/* FILTERS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
           {/* Search */}
-          <div className="relative lg:col-span-2">
+          <div className="relative lg:col-span-3">
             <FiSearch
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               size={18}
@@ -374,9 +381,9 @@ const ChallanPage = () => {
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                {/* <th className="px-5 py-3 font-semibold text-gray-600">
                   Sr. No.
-                </th>
+                </th> */}
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Challan ID
                 </th>
@@ -384,12 +391,13 @@ const ChallanPage = () => {
                   Client
                 </th>
                 <th className="px-5 py-3 font-semibold text-gray-600">Date</th>
-                <th className="px-5 py-3 font-semibold text-gray-600">Phone</th>
+
+                {/* <th className="px-5 py-3 font-semibold text-gray-600">Phone</th>
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Delivered To
-                </th>
+                </th> */}
                 <th className="px-5 py-3 font-semibold text-gray-600">
-                  Remarks
+                  Delivered
                 </th>
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Actions
@@ -424,7 +432,7 @@ const ChallanPage = () => {
                     key={challan?.ch_id || index}
                     className="hover:bg-gray-50 transition"
                   >
-                    <td className="px-5 py-4 text-gray-500">{index + 1}</td>
+                    {/* <td className="px-5 py-4 text-gray-500">{index + 1}</td> */}
                     <td className="px-5 py-4 font-semibold text-blue-700">
                       {challan?.ch_id || "-"}
                     </td>
@@ -432,17 +440,18 @@ const ChallanPage = () => {
                       {challan?.client_name || "-"}
                     </td>
                     <td className="px-5 py-4 text-gray-600">
-                      {challan?.ch_date || "-"}
+                      {challan?.ch_date?.split(" ")[0] || "-"}
                     </td>
-                    <td className="px-5 py-4 text-gray-600">
+
+                    {/* <td className="px-5 py-4 text-gray-600">
                       {challan?.ch_phone || "-"}
                     </td>
                     <td className="px-5 py-4 text-gray-600">
                       {challan?.ch_delivered_to || "-"}
-                    </td>
+                    </td> */}
                     <td className="px-5 py-4 text-gray-600 max-w-xs">
-                      <p className="truncate" title={challan?.ch_remark || ""}>
-                        {challan?.ch_remark || "-"}
+                      <p className="truncate">
+                        {challan?.ch_delivered_to || "-"}
                       </p>
                     </td>
                     <td className="px-5 py-4">
@@ -510,6 +519,7 @@ const ChallanPage = () => {
         getAllChallanData={getAllChallanData}
         employees={employees}
         printRecords={printRecords}
+        onPrintChallan={handlePrintModel}
       />
 
       {/* CLIENT MASTER */}

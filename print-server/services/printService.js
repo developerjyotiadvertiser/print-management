@@ -1,38 +1,212 @@
 const pool = require("../config/db");
 const moment = require("moment-timezone");
 
-const savePrintService = async (data) => {
-  const {
-    creative,
-    media_type,
-    width,
-    height,
-    size_unit,
-    quality_print,
-    quantity,
-    total_area,
-    remarks,
-  } = data;
+const saveChallanService = async (data) => {
+  const { ch_client_id, ch_delivered_to, ch_phone, ch_remark, prints } = data;
+
+  // Validate client
+  if (!ch_client_id) {
+    throw new Error("Client ID is required");
+  }
+
+  // Validate prints
+  if (!Array.isArray(prints) || prints.length === 0) {
+    throw new Error("At least one print is required");
+  }
+
   const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
-  const sql = `
-        INSERT INTO print_records
-        (creative, media_type, print_date, width, height, size_unit, quality_print, quantity, total_area, 	remarks, print_created_at)
-        VALUES (?, ?, ?, ?,?,?,?,?,?, ?, ?)
+
+  const connection = await pool.getConnection();
+
+  try {
+    // =====================================================
+    // 1. START TRANSACTION
+    // =====================================================
+
+    await connection.beginTransaction();
+
+    // =====================================================
+    // 2. SAVE CHALLAN
+    // =====================================================
+
+    const challanSql = `
+      INSERT INTO print_challan (
+        ch_client_id,
+        ch_date,
+        ch_delivered_to,
+        ch_phone,
+        ch_remark,
+        ch_created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
-  const [result] = await pool.query(sql, [
-    creative,
-    media_type,
-    createdAt,
-    width,
-    height,
-    size_unit,
-    quality_print,
-    quantity,
-    total_area,
-    remarks,
-    createdAt,
-  ]);
-  return result;
+
+    const [challanResult] = await connection.query(challanSql, [
+      ch_client_id,
+      createdAt,
+      ch_delivered_to || null,
+      ch_phone || null,
+      ch_remark || null,
+      createdAt,
+    ]);
+
+    const ch_id = challanResult.insertId;
+
+    // =====================================================
+    // 3. SAVE ALL PRINT ITEMS
+    // =====================================================
+
+    const printSql = `
+      INSERT INTO print_challan_items (
+        pci_ch_id,
+        pci_print_id,
+        pci_description,
+        pci_creative,
+        pci_height,
+        pci_width,
+        pci_quantity,
+        pci_size_unit,
+        pci_area,
+        pci_created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    for (const print of prints) {
+      await connection.query(printSql, [
+        ch_id,
+        print.pci_print_id || null,
+        print.pci_description || null,
+        print.pci_creative || null,
+        print.pci_height || null,
+        print.pci_width || null,
+        print.pci_quantity || null,
+        print.pci_size_unit || null,
+        print.pci_area || null,
+        createdAt,
+      ]);
+    }
+
+    // =====================================================
+    // 4. COMMIT TRANSACTION
+    // =====================================================
+
+    await connection.commit();
+
+    // =====================================================
+    // 5. GET COMPLETE CHALLAN DATA
+    //    Same structure as getAllChallanService
+    // =====================================================
+
+    const [rows] = await connection.query(
+      `
+      SELECT 
+        /* Challan details */
+        c.ch_id,
+        c.ch_client_id,
+        c.ch_date,
+        c.ch_delivered_to,
+        c.ch_phone,
+        c.ch_remark,
+        c.ch_created_at,
+
+        /* Client details */
+        p.client_id,
+        p.client_name,
+        p.client_contact,
+        p.client_address,
+        p.pan_number,
+        p.gst_number,
+        p.pincode,
+        p.client_created_at,
+        p.client_updated_at,
+
+        /* Print items */
+        COALESCE(
+          JSON_ARRAYAGG(
+            CASE
+              WHEN i.pci_id IS NOT NULL THEN
+                JSON_OBJECT(
+                  'pci_id', i.pci_id,
+                  'pci_ch_id', i.pci_ch_id,
+                  'pci_print_id', i.pci_print_id,
+                  'pci_description', i.pci_description,
+                  'pci_creative', i.pci_creative,
+                  'pci_height', i.pci_height,
+                  'pci_width', i.pci_width,
+                  'pci_quantity', i.pci_quantity,
+                  'pci_size_unit', i.pci_size_unit,
+                  'pci_area', i.pci_area,
+                  'pci_created_at', i.pci_created_at
+                )
+            END
+          ),
+          JSON_ARRAY()
+        ) AS prints
+
+      FROM print_challan c
+
+      /* Challan -> Client */
+      LEFT JOIN print_party_master p
+        ON c.ch_client_id = p.client_id
+
+      /* Challan -> Print Items */
+      LEFT JOIN print_challan_items i
+        ON c.ch_id = i.pci_ch_id
+
+      WHERE c.ch_id = ?
+
+      GROUP BY 
+        c.ch_id,
+        c.ch_client_id,
+        c.ch_date,
+        c.ch_delivered_to,
+        c.ch_phone,
+        c.ch_remark,
+        c.ch_created_at,
+
+        p.client_id,
+        p.client_name,
+        p.client_contact,
+        p.client_address,
+        p.pan_number,
+        p.gst_number,
+        p.pincode,
+        p.client_created_at,
+        p.client_updated_at
+      `,
+      [ch_id],
+    );
+
+    // =====================================================
+    // 6. NORMALIZE PRINTS
+    // =====================================================
+
+    const normalizedData = rows.map((row) => ({
+      ...row,
+      prints:
+        typeof row.prints === "string"
+          ? JSON.parse(row.prints)
+          : row.prints || [],
+    }));
+
+    // =====================================================
+    // 7. RETURN SAME STRUCTURE AS getAllChallanService
+    // =====================================================
+
+    return {
+      success: true,
+      data: normalizedData[0],
+    };
+  } catch (error) {
+    await connection.rollback();
+
+    console.error("Save Challan Service Error:", error);
+
+    throw error;
+  } finally {
+    connection.release();
+  }
 };
 
 const getAllPrintService = async () => {

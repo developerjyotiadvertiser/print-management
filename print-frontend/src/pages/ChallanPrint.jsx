@@ -5,6 +5,8 @@ import ReactDOMServer from "react-dom/server";
 const ChallanPrint = ({ isOpen, onClose, challan }) => {
   if (!isOpen) return null;
 
+  console.log("8 print page", challan);
+
   const challanData = {
     challanNo: challan?.ch_id || challan?.ch_no || "",
     date: challan?.ch_date || challan?.ch_created_at || "",
@@ -167,25 +169,30 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
       <div className="grid grid-cols-[1.3fr_1fr_0.65fr] border-x border-b border-gray-500">
         <div className="border-r border-gray-500 px-1.5 py-1">
           <div className="flex min-h-4 items-center">
-            <span className="w-12.5 text-[12px] font-bold">Client</span>
+            <span className="w-14 shrink-0 text-[12px] font-bold">Client</span>
+            <span className="w-3 shrink-0 text-[12px] font-bold">:</span>
             <span className="text-[12px]">
-              : {challanData?.client?.toUpperCase()}
+              {challanData?.client?.toUpperCase() || "-"}
             </span>
           </div>
-          {/* <div className="flex min-h-4 items-center">
-            <span className="w-12.5 text-[12px] font-bold">Courier</span>
-            <span className="text-[12px]">: -</span>
-          </div> */}
+
+          <div className="flex min-h-4">
+            <span className="w-14 shrink-0 text-[12px] font-bold">Address</span>
+            <span className="w-3 shrink-0 text-[12px] font-bold">:</span>
+            <span className="text-[12px]">
+              {challanData?.address?.toUpperCase() || "-"}
+            </span>
+          </div>
         </div>
 
         {/* Address / Phone */}
         <div className="border-r border-gray-500 px-1.5 py-1">
-          <div className="flex min-h-4 items-center">
+          {/* <div className="flex min-h-4 items-center">
             <span className="w-12.5 text-[12px] font-bold">Address</span>
             <span className="text-[12px]">
               : {challanData.address?.toUpperCase() || "-"}
             </span>
-          </div>
+          </div> */}
           <div className="flex min-h-4 items-center">
             <span className="w-12.5 text-[12px] font-bold">Phone</span>
             <span className="text-[12px]">
@@ -246,7 +253,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
                 : "";
             return (
               <tr key={item?.pci_id || index}>
-                <td className="h-5 border border-gray-500 px-1 py-1 text-center text-[8px]">
+                <td className="h-5 border border-gray-500 px-1 py-1 text-center text-[12px]">
                   {index + 1}
                 </td>
                 <td className="h-5 border border-gray-500 px-1 py-1 text-[12px]">

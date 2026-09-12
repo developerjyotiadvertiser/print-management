@@ -661,7 +661,7 @@ const UpdateChallanModel = ({
                         {/* Description */}
                         <div className="md:col-span-4">
                           <label className="mb-1 block text-sm font-semibold text-gray-700">
-                            Description *
+                            Media *
                           </label>
                           <textarea
                             name="pci_description"
@@ -669,7 +669,7 @@ const UpdateChallanModel = ({
                             onChange={(e) => handlePrintChange(index, e)}
                             required
                             rows={2}
-                            placeholder="Enter description"
+                            placeholder="Enter Media"
                             className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
