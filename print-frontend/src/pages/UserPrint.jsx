@@ -301,6 +301,9 @@ const UserPrint = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Remarks
                 </th>
+                <th className="px-5 py-3 font-semibold text-gray-600">
+                  Remarks One
+                </th>
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Actions
                 </th>
@@ -385,6 +388,11 @@ const UserPrint = () => {
                     <td className="px-5 py-4 text-gray-600 max-w-xs">
                       <p className="truncate" title={print?.remarks}>
                         {print?.remarks || "-"}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4 text-gray-600 max-w-xs">
+                      <p className="truncate" title={print?.remark_one}>
+                        {print?.remark_one || "-"}
                       </p>
                     </td>
 

@@ -34,6 +34,7 @@ const AddChallanModel = ({
     pci_quantity: "",
     pci_size_unit: "",
     pci_area: "",
+    pci_location: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -181,6 +182,7 @@ const AddChallanModel = ({
           pci_quantity: selectedPrint.quantity || "",
           pci_size_unit: selectedPrint.pci_size_unit || "",
           pci_area: selectedPrint.area || "",
+          pci_location: selectedPrint.location || "",
         }));
       } else {
         setCurrentPrint((prev) => ({
@@ -192,6 +194,7 @@ const AddChallanModel = ({
           pci_quantity: "",
           pci_size_unit: "",
           pci_area: "",
+          pci_location: "",
         }));
       }
 
@@ -462,7 +465,7 @@ const AddChallanModel = ({
                       className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
-                  <div className="md:col-span-4">
+                  {/* <div className="md:col-span-4">
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
                       Location
                     </label>
@@ -474,7 +477,7 @@ const AddChallanModel = ({
                       rows={2}
                       className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className="mb-6">
@@ -507,6 +510,19 @@ const AddChallanModel = ({
                           </option>
                         ))}
                       </select>
+                    </div>
+                    <div className="md:col-span-3">
+                      <label className="mb-1 block text-sm font-semibold text-gray-700">
+                        Media *
+                      </label>
+                      <textarea
+                        name="pci_description"
+                        value={currentPrint.pci_description}
+                        onChange={handlePrintChange}
+                        placeholder="Enter Media"
+                        rows={2}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
                     </div>
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
@@ -593,15 +609,15 @@ const AddChallanModel = ({
                         className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5"
                       />
                     </div>
-                    <div className="md:col-span-2">
+                    <div className="md:col-span-3">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
-                        Media *
+                        Location *
                       </label>
                       <textarea
-                        name="pci_description"
-                        value={currentPrint.pci_description}
+                        name="pci_location"
+                        value={currentPrint.pci_location}
                         onChange={handlePrintChange}
-                        placeholder="Enter Media"
+                        placeholder="Enter Location"
                         rows={2}
                         className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                       />

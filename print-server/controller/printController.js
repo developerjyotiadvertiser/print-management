@@ -12,6 +12,7 @@ const savePrintController = async (req, res) => {
       quantity,
       total_area,
       remarks,
+      remark_one,
     } = req.body;
 
     await printService.savePrintService({
@@ -24,6 +25,7 @@ const savePrintController = async (req, res) => {
       quantity,
       total_area,
       remarks,
+      remark_one,
     });
 
     res.status(201).json({

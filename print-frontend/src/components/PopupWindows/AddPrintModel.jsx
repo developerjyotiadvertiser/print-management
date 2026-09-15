@@ -16,6 +16,7 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
     quantity: 1,
     total_area: "",
     remarks: "",
+    remark_one: "",
   });
 
   const [isMediaTypeModalOpen, setIsMediaTypeModalOpen] = useState(false);
@@ -98,6 +99,7 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
           quantity: 1,
           total_area: "",
           remarks: "",
+          remark_one: "",
         });
         onClose();
       }
@@ -295,7 +297,8 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 className="w-full border border-gray-200 bg-gray-100 rounded-lg px-4 py-2.5 focus:outline-none"
               />
             </div>
-            <div className="lg:col-span-4 md:col-span-2">
+            <div className="lg:col-span-4 md:col-span-4"></div>
+            <div className="lg:col-span-2 md:col-span-2">
               <label className="block mb-1 font-semibold">Remarks</label>
               <textarea
                 name="remarks"
@@ -303,6 +306,17 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
                 onChange={handleChange}
                 rows={3}
                 placeholder="Write remarks here..."
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+              />
+            </div>
+            <div className="lg:col-span-2 md:col-span-2">
+              <label className="block mb-1 font-semibold">Remarks One</label>
+              <textarea
+                name="remark_one"
+                value={formData.remark_one}
+                onChange={handleChange}
+                rows={3}
+                placeholder="Write remark_one here..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
               />
             </div>

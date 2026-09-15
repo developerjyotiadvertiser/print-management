@@ -263,7 +263,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
                   {item?.pci_creative?.toUpperCase() || "-"}
                 </td>
                 <td className="h-5 border border-gray-500 px-1 py-1 text-[12px]">
-                  {challanData.remark?.toUpperCase() || "-"}
+                  {item?.pci_location?.toUpperCase() || "-"}
                 </td>
                 <td className="h-5 border border-gray-500 px-1 py-1 text-center text-[12px]">
                   {size}

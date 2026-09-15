@@ -29,6 +29,8 @@ const UpdateChallanModel = ({
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  console.log("33", selected);
+
   // Populate form when selected challan changes
   useEffect(() => {
     if (!isOpen || !selected) return;
@@ -47,7 +49,7 @@ const UpdateChallanModel = ({
       gst_number: selected.gst_number || "",
       pincode: selected.pincode || "",
       prints: selectedPrints.map((print) => ({
-        pci_id: print.pci_id || "",
+        pci_id: print.pci_id ?? null,
         pci_ch_id: print.pci_ch_id || selected.ch_id || "",
         pci_print_id: print.pci_print_id || "",
         pci_description: print.pci_description || "",
@@ -57,6 +59,7 @@ const UpdateChallanModel = ({
         pci_quantity: print.pci_quantity || "",
         pci_size_unit: print.pci_size_unit || "",
         pci_area: print.pci_area || "",
+        pci_location: print.pci_location || "",
       })),
     });
   }, [isOpen, selected]);
@@ -143,6 +146,7 @@ const UpdateChallanModel = ({
           pci_quantity: selectedPrint.quantity || "",
           pci_size_unit: selectedPrint.ch_size_unit || "",
           pci_area: selectedPrint.area || "",
+          pci_location: selectedPrint.location || "",
         };
       } else {
         updatedPrints[index] = {
@@ -154,6 +158,7 @@ const UpdateChallanModel = ({
           pci_quantity: "",
           pci_size_unit: "",
           pci_area: "",
+          pci_location: "",
         };
       }
 
@@ -240,7 +245,7 @@ const UpdateChallanModel = ({
       prints: [
         ...prev.prints,
         {
-          pci_id: "",
+          pci_id: null,
           pci_ch_id: prev.ch_id,
           pci_print_id: "",
           pci_description: "",
@@ -250,6 +255,7 @@ const UpdateChallanModel = ({
           pci_quantity: "",
           pci_size_unit: "",
           pci_area: "",
+          pci_location: "",
         },
       ],
     }));
@@ -290,7 +296,7 @@ const UpdateChallanModel = ({
         ch_remark: formData.ch_remark,
 
         prints: formData.prints.map((print) => ({
-          pci_id: print.pci_id || "",
+          pci_id: print.pci_id ?? null,
           pci_print_id: print.pci_print_id || null,
           pci_description: print.pci_description || null,
           pci_creative: print.pci_creative || null,
@@ -299,8 +305,11 @@ const UpdateChallanModel = ({
           pci_quantity: print.pci_quantity || null,
           pci_size_unit: print.pci_size_unit || null,
           pci_area: print.pci_area || null,
+          pci_location: print.pci_location || null,
         })),
       };
+
+      console.log("UPDATE PAYLOAD:", JSON.stringify(payload, null, 2));
 
       const response = await axios.put(
         `${apiUrl}/api/challan/update-challan/${formData.ch_id}`,
@@ -560,6 +569,21 @@ const UpdateChallanModel = ({
                             ))}
                           </select>
                         </div>
+                        {/* Description */}
+                        <div className="md:col-span-3">
+                          <label className="mb-1 block text-sm font-semibold text-gray-700">
+                            Media *
+                          </label>
+                          <textarea
+                            name="pci_description"
+                            value={print.pci_description}
+                            onChange={(e) => handlePrintChange(index, e)}
+                            required
+                            rows={2}
+                            placeholder="Enter Media"
+                            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
 
                         {/* Creative */}
                         <div>
@@ -657,15 +681,14 @@ const UpdateChallanModel = ({
                             className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5"
                           />
                         </div>
-
                         {/* Description */}
                         <div className="md:col-span-4">
                           <label className="mb-1 block text-sm font-semibold text-gray-700">
-                            Media *
+                            Location *
                           </label>
                           <textarea
-                            name="pci_description"
-                            value={print.pci_description}
+                            name="pci_location"
+                            value={print.pci_location}
                             onChange={(e) => handlePrintChange(index, e)}
                             required
                             rows={2}
