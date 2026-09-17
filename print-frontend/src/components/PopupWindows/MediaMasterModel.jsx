@@ -52,7 +52,7 @@ const MediaMasterModel = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div
         ref={modalRef}
-        className="w-full max-w-md max-h-[80vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+        className="w-full max-w-7xl max-h-[80vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
       >
         {/* Header */}
         <div className="mb-5 flex items-center justify-between border-b pb-4">

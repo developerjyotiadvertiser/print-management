@@ -19,6 +19,8 @@ const AddChallanModel = ({
     ch_delivered_to: "",
     ch_phone: "",
     ch_remark: "",
+    ch_pr_name: "",
+    ch_pr_phone: "",
     pan_number: "",
     gst_number: "",
     pincode: "",
@@ -138,6 +140,8 @@ const AddChallanModel = ({
         ...prev,
         ch_client_id: value,
         ch_phone: "",
+        ch_pr_name: "",
+        ch_pr_phone: "",
         pan_number: "",
         gst_number: "",
         pincode: "",
@@ -154,6 +158,15 @@ const AddChallanModel = ({
       setFormData((prev) => ({
         ...prev,
         ch_phone: phone,
+      }));
+      return;
+    }
+
+    if (name === "ch_pr_phone") {
+      const phone = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((prev) => ({
+        ...prev,
+        ch_pr_phone: phone,
       }));
       return;
     }
@@ -438,7 +451,7 @@ const AddChallanModel = ({
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-gray-700">
-                      Phone *
+                      Mobile *
                     </label>
                     <input
                       type="tel"
@@ -465,19 +478,41 @@ const AddChallanModel = ({
                       className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
-                  {/* <div className="md:col-span-4">
-                    <label className="mb-1 block text-sm font-semibold text-gray-700">
-                      Location
-                    </label>
-                    <textarea
-                      name="ch_remark"
-                      value={formData.ch_remark}
-                      onChange={handleChallanChange}
-                      placeholder="Enter Location"
-                      rows={2}
-                      className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div> */}
+                </div>
+              </div>
+              <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-800">
+                Prepared By
+              </h3>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4 mb-6">
+                <div>
+                  <label className="mb-1 block text-sm font-semibold text-gray-700">
+                    Name*
+                  </label>
+                  <input
+                    type="text"
+                    name="ch_pr_name"
+                    required
+                    value={formData.ch_pr_name}
+                    onChange={handleChallanChange}
+                    placeholder="Enter name"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-semibold text-gray-700">
+                    Mobile *
+                  </label>
+                  <input
+                    type="tel"
+                    name="ch_pr_phone"
+                    value={formData.ch_pr_phone}
+                    onChange={handleChallanChange}
+                    maxLength={10}
+                    required
+                    placeholder="Phone number"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
                 </div>
               </div>
               <div className="mb-6">
@@ -491,8 +526,8 @@ const AddChallanModel = ({
                   </span>
                 </div>
                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                    <div>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
+                    <div className="md:col-span-2">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
                         Print ID *
                       </label>
@@ -511,20 +546,20 @@ const AddChallanModel = ({
                         ))}
                       </select>
                     </div>
-                    <div className="md:col-span-3">
+                    <div className="md:col-span-2">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
                         Media *
                       </label>
-                      <textarea
+                      <input
+                        type="text"
                         name="pci_description"
                         value={currentPrint.pci_description}
                         onChange={handlePrintChange}
                         placeholder="Enter Media"
-                        rows={2}
                         className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                       />
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
                         Creative
                       </label>
@@ -596,7 +631,7 @@ const AddChallanModel = ({
                         <option value="feet">Feet</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
                         Area (Sq. Ft.)
                       </label>
@@ -609,15 +644,15 @@ const AddChallanModel = ({
                         className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5"
                       />
                     </div>
-                    <div className="md:col-span-3">
+                    <div className="md:col-span-6">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
-                        Location *
+                        Location/Remark *
                       </label>
                       <textarea
                         name="pci_location"
                         value={currentPrint.pci_location}
                         onChange={handlePrintChange}
-                        placeholder="Enter Location"
+                        placeholder="Enter Location/Remark"
                         rows={2}
                         className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                       />

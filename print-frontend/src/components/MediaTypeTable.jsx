@@ -23,7 +23,9 @@ const MediaTypeTable = () => {
   const getAllMediaTypes = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${apiUrl}/api/media/get-all-media`);
+      const { data } = await axios.get(
+        `${apiUrl}/api/media-master/get-all-media-master`,
+      );
       setEmployees(data?.data?.data || []);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -43,7 +45,9 @@ const MediaTypeTable = () => {
     );
     if (!confirmDelete) return;
     try {
-      await axios.delete(`${apiUrl}/api/media/delete-media/${id}`);
+      await axios.delete(
+        `${apiUrl}/api/media-master/delete-media-master/${id}`,
+      );
       getAllMediaTypes();
       alert("Media type deleted successfully");
     } catch (error) {
@@ -76,9 +80,33 @@ const MediaTypeTable = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Sr. No.
                 </th>
+
+                <th className="px-5 py-3 font-semibold text-gray-600">Media</th>
+
+                <th className="px-5 py-3 font-semibold text-gray-600">Brand</th>
+
                 <th className="px-5 py-3 font-semibold text-gray-600">
-                  Media Type
+                  OZ/GSM
                 </th>
+
+                <th className="px-5 py-3 font-semibold text-gray-600">
+                  Height
+                </th>
+                <th className="px-5 py-3 font-semibold text-gray-600">Width</th>
+                <th className="px-5 py-3 font-semibold text-gray-600">Unit</th>
+
+                <th className="px-5 py-3 font-semibold text-gray-600">
+                  Size(SQFT)
+                </th>
+
+                <th className="px-5 py-3 font-semibold text-gray-600 text-center">
+                  Status
+                </th>
+
+                <th className="px-5 py-3 font-semibold text-gray-600 text-center">
+                  Created At
+                </th>
+
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Action
                 </th>
@@ -89,51 +117,103 @@ const MediaTypeTable = () => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan="7"
                     className="px-5 py-10 text-center text-gray-500"
                   >
-                    Loading employees...
+                    Loading media...
                   </td>
                 </tr>
               ) : employees.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan="7"
                     className="px-5 py-10 text-center text-gray-500"
                   >
-                    No Media type found.
+                    No media found.
                   </td>
                 </tr>
               ) : (
-                employees?.map((employee, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition">
-                    <td className="px-5 py-4 text-gray-500">{index + 1}</td>
+                employees?.map((media, index) => (
+                  <tr
+                    key={media?.mm_id || index}
+                    className="hover:bg-gray-50 transition"
+                  >
+                    {/* Sr. No. */}
+                    <td className="px-5 py-4 text-gray-500">
+                      {media?.mm_serial_number}
+                    </td>
+
+                    {/* Media */}
                     <td className="px-5 py-4">
                       <div className="font-medium text-gray-800">
-                        {employee?.mt_name || "-"}
+                        {media?.mm_media || "-"}
                       </div>
                     </td>
+
+                    {/* Brand */}
+                    <td className="px-5 py-4 text-gray-600">
+                      {media?.mm_brand || "-"}
+                    </td>
+
+                    {/* GSM */}
+                    <td className="px-5 py-4 text-gray-600">
+                      {media?.mm_gsm || "-"}
+                    </td>
+
+                    <td className="px-5 py-4 text-gray-600">
+                      {media?.mm_height || "-"}
+                    </td>
+                    <td className="px-5 py-4 text-gray-600">
+                      {media?.mm_width || "-"}
+                    </td>
+                    <td className="px-5 py-4 text-gray-600">
+                      {media?.mm_unit || "-"}
+                    </td>
+
+                    {/* Size */}
+                    <td className="px-5 py-4 text-gray-600">
+                      {media?.mm_size || "-"}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-5 py-4 text-center">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                          media?.mm_status === "Active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {media?.mm_status || "-"}
+                      </span>
+                    </td>
+
+                    {/* created at */}
+                    <td className="px-5 py-4 text-gray-600">
+                      {media?.mm_created_at || "-"}
+                    </td>
+
+                    {/* Action */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
                         {/* Update */}
                         <button
-                          onClick={() => handleUpdate(employee)}
+                          onClick={() => handleUpdate(media)}
                           className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
-                          title="Update Employee"
+                          title="Update Media"
                         >
                           <FiEdit size={16} />
                         </button>
+
+                        {/* Delete */}
                         {user?.user?.emp_role !== "employee" && (
-                          <>
-                            {/* Delete */}
-                            <button
-                              onClick={() => handleDelete(employee.mt_id)}
-                              className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
-                              title="Delete Employee"
-                            >
-                              <FiTrash2 size={16} />
-                            </button>
-                          </>
+                          <button
+                            onClick={() => handleDelete(media.mm_id)}
+                            className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                            title="Delete Media"
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
                         )}
                       </div>
                     </td>

@@ -23,13 +23,8 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
     deliveredTo: challan?.ch_delivered_to || "",
     deliveryPhone: challan?.ch_phone || "",
     remark: challan?.ch_remark || "",
-    preparedBy:
-      challan?.prepared_by ||
-      challan?.employee_name ||
-      challan?.preparedBy ||
-      "",
-    preparedByPhone:
-      challan?.prepared_by_phone || challan?.employee_phone || "",
+    preparedBy: challan?.ch_pr_name || "",
+    preparedByPhone: challan?.ch_pr_phone || "",
     items: Array.isArray(challan?.prints) ? challan.prints : [],
   };
 
@@ -131,12 +126,14 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
       <div className="grid grid-cols-[1.25fr_0.8fr_1fr] border border-gray-500">
         <div className="border-gray-500 p-1.5">
           <h2 className="font-custom text-3xl font-bold leading-none">
-            JYOTI ADVERTISER
+            JYOTI ADVERTISERS
           </h2>
           <p className="mt-1 text-[12px] leading-3.75">
-            Sukheja Tower, Wright Town, Jabalpur,
+            Sukheja Tower, Wright Town, Jabalpur, 482001 (M. P.),
             <br />
-            482001 (M. P.), Mo: 9111100590
+            <span className="font-semibold">Mob:</span> 9111100590,{" "}
+            <span className="font-semibold">Website:</span>{" "}
+            www.jyotiadvertiser.com
           </p>
         </div>
 
@@ -155,12 +152,14 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
             DELIVERY CHALLAN
           </h2>
           <p className="mt-1 text-[12px]">
-            <span className="font-semibold">PAN NO. :</span>
-            {challanData.panNo || "-"}
+            <span className="font-semibold">PAN NO. : </span>
+            {/* {challanData.panNo || "-"} */}
+            AHBPK3171A
           </p>
           <p className="text-[12px]">
-            <span className="font-semibold">GST NO. :</span>
-            {challanData.gstNo || "-"}
+            <span className="font-semibold">GST NO. : </span>
+            {/* {challanData.gstNo || "-"} */}
+            23AHBPK3171A1Z4
           </p>
         </div>
       </div>
@@ -194,9 +193,15 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
             </span>
           </div> */}
           <div className="flex min-h-4 items-center">
-            <span className="w-12.5 text-[12px] font-bold">Phone</span>
+            <span className="w-12.5 text-[12px] font-bold">Mobile</span>
             <span className="text-[12px]">
               : {challanData.contact || challanData.phone || "-"}
+            </span>
+          </div>
+          <div className="flex min-h-4 items-center">
+            <span className="w-12.5 text-[12px] font-bold">GSTIN</span>
+            <span className="text-[12px]">
+              : {challanData?.gstNo?.toUpperCase() || ""}
             </span>
           </div>
         </div>
@@ -230,7 +235,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
               Creative
             </th>
             <th className="w-[21%] border border-gray-500 px-1 py-2 text-center font-semibold text-[12px]">
-              Location
+              Location/Remark
             </th>
             <th className="w-[12%] border border-gray-500 px-1 py-2 text-center font-semibold text-[12px]">
               Size(W*H)
@@ -249,7 +254,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
             const height = item?.pci_height ?? "";
             const size =
               width !== "" || height !== ""
-                ? `${width}${item?.pci_size_unit === "inch" ? '"' : "'"}*${height}${item?.pci_size_unit === "inch" ? '"' : "'"}`
+                ? `${width}${item?.pci_size_unit === "inch" ? '"' : "'"} x ${height}${item?.pci_size_unit === "inch" ? '"' : "'"}`
                 : "";
             return (
               <tr key={item?.pci_id || index}>
@@ -280,7 +285,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
 
           {/* EMPTY ROWS */}
           {Array.from({
-            length: Math.max(0, 10 - challanData.items.length),
+            length: Math.max(0, 7 - challanData.items.length),
           }).map((_, index) => (
             <tr key={`empty-${index}`}>
               <td className="h-5 border border-gray-500 py-1">&nbsp;</td>
@@ -321,25 +326,25 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
             If any problem inform immediately, otherwise no complaint will be
             entertained.
           </p>
-          <div className="mt-4 grid grid-cols-[1.2fr_0.8fr_0.4fr] gap-4">
+          <div className="mt-12 grid grid-cols-[1.2fr_0.8fr_0.4fr] gap-4">
             <div>
               <span className="text-[12px]">Receiver's Signature</span>
-              <div className="mt-4 border-b border-dotted border-gray-500" />
+              {/* <div className="mt-4 border-b border-dotted border-gray-500" /> */}
             </div>
             <div>
-              <span className="text-[12px]">Mobile :</span>
-              <div className="mt-4 border-b border-dotted border-gray-500" />
+              <span className="text-[12px]">Mobile</span>
+              {/* <div className="mt-4 border-b border-dotted border-gray-500" /> */}
             </div>
-            <div className="flex items-end justify-center font-semibold">
-              E &amp; O E
+            <div className="flex items-end justify-center text-[12px]">
+              E. &amp; O. E.
             </div>
           </div>
         </div>
 
         {/* Prepared By */}
-        <div className="flex flex-col justify-end pb-1 text-left">
+        <div className="flex flex-col justify-end text-left mt-4">
           <span className="text-[12px]">Prepared By</span>
-          <strong className="mt-1">
+          <strong className="">
             {challanData?.preparedBy?.toUpperCase() || "-"}
           </strong>
           <strong>{challanData.preparedByPhone || ""}</strong>

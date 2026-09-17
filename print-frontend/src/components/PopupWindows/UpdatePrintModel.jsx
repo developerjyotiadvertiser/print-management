@@ -318,12 +318,13 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
 
             {/* Remarks */}
             <div className="lg:col-span-2 md:col-span-2">
-              <label className="block mb-1 font-semibold">Remarks</label>
+              <label className="block mb-1 font-semibold">Remark-1</label>
               <textarea
                 name="remarks"
                 value={formData.remarks}
                 onChange={handleChange}
                 rows={3}
+                maxLength={12}
                 placeholder="Write remarks here..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
               />
@@ -331,12 +332,13 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
 
             {/* Remarks One */}
             <div className="lg:col-span-2 md:col-span-2">
-              <label className="block mb-1 font-semibold">Remarks One</label>
+              <label className="block mb-1 font-semibold">Remark-2</label>
               <textarea
                 name="remark_one"
                 value={formData.remark_one}
                 onChange={handleChange}
                 rows={3}
+                maxLength={35}
                 placeholder="Write remark_one here..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
               />

@@ -19,6 +19,8 @@ const UpdateChallanModel = ({
     ch_delivered_to: "",
     ch_phone: "",
     ch_remark: "",
+    ch_pr_name: "",
+    ch_pr_phone: "",
     pan_number: "",
     gst_number: "",
     pincode: "",
@@ -45,6 +47,8 @@ const UpdateChallanModel = ({
       ch_delivered_to: selected.ch_delivered_to || "",
       ch_phone: selected.ch_phone || "",
       ch_remark: selected.ch_remark || "",
+      ch_pr_name: selected?.ch_pr_name,
+      ch_pr_phone: selected?.ch_pr_phone,
       pan_number: selected.pan_number || "",
       gst_number: selected.gst_number || "",
       pincode: selected.pincode || "",
@@ -100,6 +104,15 @@ const UpdateChallanModel = ({
       setFormData((prev) => ({
         ...prev,
         ch_phone: phone,
+      }));
+      return;
+    }
+
+    if (name === "ch_pr_phone") {
+      const phone = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((prev) => ({
+        ...prev,
+        ch_pr_phone: phone,
       }));
       return;
     }
@@ -294,6 +307,8 @@ const UpdateChallanModel = ({
         ch_delivered_to: formData.ch_delivered_to,
         ch_phone: formData.ch_phone,
         ch_remark: formData.ch_remark,
+        ch_pr_name: formData.ch_pr_name,
+        ch_pr_phone: formData.ch_pr_phone,
 
         prints: formData.prints.map((print) => ({
           pci_id: print.pci_id ?? null,
@@ -463,7 +478,7 @@ const UpdateChallanModel = ({
               {/* Phone */}
               <div>
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
-                  Phone
+                  Mobile
                 </label>
                 <input
                   type="tel"
@@ -507,6 +522,42 @@ const UpdateChallanModel = ({
               </div> */}
             </div>
 
+            <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-800">
+              Prepared By
+            </h3>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4 mb-6">
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="ch_pr_name"
+                  required
+                  value={formData.ch_pr_name}
+                  onChange={handleChange}
+                  placeholder="Enter name"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
+                  Mobile *
+                </label>
+                <input
+                  type="tel"
+                  name="ch_pr_phone"
+                  value={formData.ch_pr_phone}
+                  onChange={handleChange}
+                  maxLength={10}
+                  required
+                  placeholder="Phone number"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+            </div>
+
             {/* PRINTS */}
             <div className="mt-6 border-t pt-5">
               <div className="mb-4 flex items-center justify-between">
@@ -547,10 +598,10 @@ const UpdateChallanModel = ({
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
                         {/* Print ID */}
                         <div>
-                          <label className="mb-1 block text-sm font-semibold text-gray-700">
+                          <label className="mb-1 block text-sm font-semibold text-gray-700 md:col-span-2">
                             Print ID *
                           </label>
                           <select
@@ -570,23 +621,23 @@ const UpdateChallanModel = ({
                           </select>
                         </div>
                         {/* Description */}
-                        <div className="md:col-span-3">
+                        <div className="md:col-span-2">
                           <label className="mb-1 block text-sm font-semibold text-gray-700">
                             Media *
                           </label>
-                          <textarea
+                          <input
+                            type="text"
                             name="pci_description"
                             value={print.pci_description}
                             onChange={(e) => handlePrintChange(index, e)}
                             required
-                            rows={2}
                             placeholder="Enter Media"
                             className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
 
                         {/* Creative */}
-                        <div>
+                        <div className="md:col-span-2">
                           <label className="mb-1 block text-sm font-semibold text-gray-700">
                             Creative
                           </label>
@@ -669,7 +720,7 @@ const UpdateChallanModel = ({
                         </div>
 
                         {/* Area */}
-                        <div>
+                        <div className="md:col-span-2">
                           <label className="mb-1 block text-sm font-semibold text-gray-700">
                             Area (Sq. Ft.)
                           </label>
@@ -682,9 +733,9 @@ const UpdateChallanModel = ({
                           />
                         </div>
                         {/* Description */}
-                        <div className="md:col-span-4">
+                        <div className="md:col-span-6">
                           <label className="mb-1 block text-sm font-semibold text-gray-700">
-                            Location *
+                            Location/Remark *
                           </label>
                           <textarea
                             name="pci_location"
@@ -692,7 +743,7 @@ const UpdateChallanModel = ({
                             onChange={(e) => handlePrintChange(index, e)}
                             required
                             rows={2}
-                            placeholder="Enter Media"
+                            placeholder="Enter Location/Remark"
                             className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
