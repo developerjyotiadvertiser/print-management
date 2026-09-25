@@ -53,22 +53,66 @@ const UserPrint = () => {
     getAllPrintData();
   }, []);
 
+  const formatPrintDate = (date) => {
+    if (!date) return "";
+
+    // Already DD-MM-YYYY HH:mm:ss
+    if (/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(date)) {
+      return date;
+    }
+
+    // YYYY-MM-DD HH:mm:ss
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)) {
+      const [datePart, timePart] = date.split(" ");
+      const [year, month, day] = datePart.split("-");
+
+      return `${day}-${month}-${year} ${timePart}`;
+    }
+
+    return "";
+  };
+
+  const printDate = formatPrintDate(print?.print_date);
+
   const filteredPrintRecords = useMemo(() => {
     return printRecords.filter((print) => {
       const searchValue = search.toLowerCase();
+
       const matchesSearch =
         !search ||
         print?.media_type?.toLowerCase().includes(searchValue) ||
         print?.remarks?.toLowerCase().includes(searchValue) ||
         print?.creative?.toLowerCase().includes(searchValue);
+
       const matchesMediaType =
         !mediaTypeFilter || print?.media_type === mediaTypeFilter;
+
       const matchesUnit = !unitFilter || print?.size_unit === unitFilter;
-      const printDate = print?.print_date
-        ? new Date(print.print_date).toISOString().split("T")[0]
-        : "";
+
+      // Convert print date to YYYY-MM-DD for comparison
+      let printDate = "";
+
+      if (print?.print_date) {
+        const date = print.print_date;
+
+        // DD-MM-YYYY HH:mm:ss
+        if (/^\d{2}-\d{2}-\d{4} /.test(date)) {
+          const [datePart] = date.split(" ");
+          const [day, month, year] = datePart.split("-");
+
+          printDate = `${year}-${month}-${day}`;
+        }
+
+        // YYYY-MM-DD HH:mm:ss
+        else if (/^\d{4}-\d{2}-\d{2} /.test(date)) {
+          printDate = date.split(" ")[0];
+        }
+      }
+
       const matchesStartDate = !startDate || printDate >= startDate;
+
       const matchesEndDate = !endDate || printDate <= endDate;
+
       return (
         matchesSearch &&
         matchesMediaType &&
@@ -118,7 +162,9 @@ const UserPrint = () => {
         "Sr. No.": index + 1,
         Creative: print?.creative || "-",
         "Print Date": print?.print_date || "-",
-        "Media Type": print?.media_type || "-",
+        "Media Type":
+          `${print?.mm_serial_number?.toUpperCase()}-${print?.media_type}` ||
+          "-",
         Width: isNaN(width) ? 0 : width,
         Height: isNaN(height) ? 0 : height,
         Unit: print?.size_unit || "-",
@@ -298,11 +344,9 @@ const UserPrint = () => {
                   Total Area
                 </th>
 
+                <th className="px-5 py-3 font-semibold text-gray-600">Brand</th>
                 <th className="px-5 py-3 font-semibold text-gray-600">
-                  Remark-1
-                </th>
-                <th className="px-5 py-3 font-semibold text-gray-600">
-                  Remark-2
+                  Remark
                 </th>
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Actions
@@ -345,7 +389,7 @@ const UserPrint = () => {
 
                     {/* Media Type */}
                     <td className="px-5 py-4 font-medium text-gray-800">
-                      {print?.print_date || "-"}
+                      {formatPrintDate(print?.print_date) || "-"}
                     </td>
 
                     {/* Media Type */}

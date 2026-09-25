@@ -107,10 +107,30 @@ const ChallanPage = () => {
     getAllClientData();
   }, []);
 
+  const formatPrintDate = (date) => {
+    if (!date) return "";
+
+    // Already DD-MM-YYYY HH:mm:ss
+    if (/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(date)) {
+      return date;
+    }
+
+    // YYYY-MM-DD HH:mm:ss
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(date)) {
+      const [datePart, timePart] = date.split(" ");
+      const [year, month, day] = datePart.split("-");
+
+      return `${day}-${month}-${year} ${timePart}`;
+    }
+
+    return "";
+  };
+
   // FILTER CHALLANS
   const filteredChallanRecords = useMemo(() => {
     return ChallanRecords.filter((challan) => {
       const searchValue = search.toLowerCase().trim();
+
       const matchesSearch =
         !search ||
         challan?.client_name?.toLowerCase().includes(searchValue) ||
@@ -120,12 +140,31 @@ const ChallanPage = () => {
         String(challan?.ch_id || "")
           .toLowerCase()
           .includes(searchValue);
-      const challanDate = challan?.ch_date
-        ? new Date(challan.ch_date).toISOString().split("T")[0]
-        : "";
+
+      // Convert challan date to YYYY-MM-DD for filtering
+      let challanDate = "";
+
+      if (challan?.ch_date) {
+        const date = challan.ch_date;
+
+        // DD-MM-YYYY HH:mm:ss
+        if (/^\d{2}-\d{2}-\d{4} /.test(date)) {
+          const [datePart] = date.split(" ");
+          const [day, month, year] = datePart.split("-");
+
+          challanDate = `${year}-${month}-${day}`;
+        }
+
+        // YYYY-MM-DD HH:mm:ss
+        else if (/^\d{4}-\d{2}-\d{2} /.test(date)) {
+          challanDate = date.split(" ")[0];
+        }
+      }
 
       const matchesStartDate = !startDate || challanDate >= startDate;
+
       const matchesEndDate = !endDate || challanDate <= endDate;
+
       return matchesSearch && matchesStartDate && matchesEndDate;
     });
   }, [ChallanRecords, search, startDate, endDate]);
@@ -440,7 +479,8 @@ const ChallanPage = () => {
                       {challan?.client_name || "-"}
                     </td>
                     <td className="px-5 py-4 text-gray-600">
-                      {challan?.ch_date?.split(" ")[0] || "-"}
+                      {/* {challan?.ch_date?.split(" ")[0] || "-"} */}
+                      {formatPrintDate(challan?.ch_date)}
                     </td>
 
                     {/* <td className="px-5 py-4 text-gray-600">

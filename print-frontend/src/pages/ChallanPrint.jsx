@@ -215,7 +215,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
           <div className="flex h-5.5 items-center justify-start px-1.5">
             <span className="text-[12px] font-bold">Dated </span>
             <span className="font-semibold text-[12px]">
-              : {formatDate(challanData.date)}
+              : {formatDate(challanData.date?.split(" ")[0])}
             </span>
           </div>
         </div>

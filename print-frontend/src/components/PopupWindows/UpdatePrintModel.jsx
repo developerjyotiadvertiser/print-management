@@ -17,6 +17,7 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
     total_area: "",
     remarks: "",
     remark_one: "",
+    mm_id: null,
   });
 
   const [isMediaTypeModalOpen, setIsMediaTypeModalOpen] = useState(false);
@@ -36,12 +37,17 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
       total_area: selected?.total_area,
       remarks: selected?.remarks,
       remark_one: selected?.remark_one,
+      mm_id: selected?.print_mm_id,
     });
   }, [selected]);
 
+  console.log("selected", selected);
+
   const getAllMediaTypes = async () => {
     try {
-      const { data } = await axios.get(`${apiUrl}/api/media/get-all-media`);
+      const { data } = await axios.get(
+        `${apiUrl}/api/media-master/get-all-media-master`,
+      );
       setMediaTypes(data.data?.data);
     } catch (error) {
       console.log(error);
@@ -70,7 +76,7 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
     let heightInFeet = Number(height);
 
     // Convert inches to feet
-    if (size_unit === "inch") {
+    if (size_unit === "Inch") {
       widthInFeet = widthInFeet / 12;
       heightInFeet = heightInFeet / 12;
     }
@@ -83,13 +89,62 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
   }, [formData.width, formData.height, formData.size_unit, formData.quantity]);
 
   // Handle form changes
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  // };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Validate width against available media stock
+    if (name === "width") {
+      const selectedMedia = mediaTypes.find(
+        (item) => item.mm_id === formData.mm_id,
+      );
+
+      if (selectedMedia) {
+        const availableWidth = Number(selectedMedia.mm_width);
+        const enteredWidth = Number(value);
+
+        if (enteredWidth > availableWidth) {
+          toast.error(
+            `Maximum available width is ${availableWidth}. You cannot enter ${enteredWidth}.`,
+          );
+
+          return;
+        }
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+
+      ...(name === "media_type"
+        ? {
+            remarks:
+              mediaTypes.find((item) => item.mm_media === value)?.mm_brand ||
+              "",
+
+            size_unit:
+              mediaTypes.find((item) => item.mm_media === value)?.mm_unit || "",
+
+            height:
+              mediaTypes.find((item) => item.mm_media === value)?.mm_height ||
+              "",
+
+            mm_id:
+              mediaTypes.find((item) => item.mm_media === value)?.mm_id || "",
+          }
+        : {}),
     }));
   };
+
+  console.log("formdata", formData);
 
   // Submit
   const handleSubmit = async (e) => {
@@ -157,6 +212,8 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
 
   if (!isOpen) return null;
 
+  console.log("formData update", formData);
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -199,44 +256,35 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
             {/* Media Type */}
             <div className="lg:col-span-2 md:col-span-1">
               <label className="block mb-1 font-semibold">Media Type *</label>
-              <select
+              {/* <input
+                type="text"
                 name="media_type"
                 value={formData.media_type}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">Select Media Type</option>
-                {mediaTypes?.map((item) => (
-                  <option key={item?.mt_id} value={item?.mt_name}>
-                    {item?.mt_name}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                onClick={() => setIsMediaTypeModalOpen(true)}
-                className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800"
-              >
-                + Add New Media Type
-              </button>
+                readOnly
+                placeholder="Enter unit"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-200"
+              /> */}
+              <p className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-200">
+                {selected?.mm_serial_number?.toUpperCase()}-{selected?.mm_media}
+                -{selected?.mm_brand}-{selected?.mm_height}
+              </p>
             </div>
 
             {/* Size Unit */}
             <div className="lg:col-span-2 md:col-span-1">
               <label className="block mb-1 font-semibold">Size Unit *</label>
-              <select
+              <input
+                type="text"
                 name="size_unit"
                 value={formData.size_unit}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">Select Unit</option>
-                <option value="feet">Feet</option>
-                <option value="inch">Inch</option>
-              </select>
+                readOnly
+                placeholder="Enter unit"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-200"
+              />
             </div>
 
             {/* Quality print */}
@@ -318,13 +366,15 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
 
             {/* Remarks */}
             <div className="lg:col-span-2 md:col-span-2">
-              <label className="block mb-1 font-semibold">Remark-1</label>
+              <label className="block mb-1 font-semibold">Brand*</label>
               <textarea
                 name="remarks"
                 value={formData.remarks}
                 onChange={handleChange}
                 rows={3}
                 maxLength={12}
+                required
+                readOnly
                 placeholder="Write remarks here..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
               />
@@ -332,13 +382,14 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
 
             {/* Remarks One */}
             <div className="lg:col-span-2 md:col-span-2">
-              <label className="block mb-1 font-semibold">Remark-2</label>
+              <label className="block mb-1 font-semibold">Remark*</label>
               <textarea
                 name="remark_one"
                 value={formData.remark_one}
                 onChange={handleChange}
                 rows={3}
                 maxLength={35}
+                required
                 placeholder="Write remark_one here..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
               />
