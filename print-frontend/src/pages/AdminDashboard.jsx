@@ -275,6 +275,14 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                setMasterModel(true);
+              }}
+              className="rounded-lg  px-5 py-2 text-sm font-semibold  transition text-white bg-cyan-600 hover:bg-cyan-700 cursor-pointer"
+            >
+              + Media
+            </button>
             {/* Add New Record */}
             <button
               onClick={() => {

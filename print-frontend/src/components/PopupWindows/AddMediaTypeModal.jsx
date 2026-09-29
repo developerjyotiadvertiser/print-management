@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { IoClose } from "react-icons/io5";
 import AddMediaItemsModel from "./AddMediaItemsModel";
 import DeleteMediaItemsModel from "./DeleteMediaItemsModel";
+import { useSelector } from "react-redux";
 
 const AddMediaTypeModal = ({
   isOpen,
@@ -15,6 +16,7 @@ const AddMediaTypeModal = ({
 }) => {
   const modalRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
+  const user = useSelector((state) => state?.user?.currentUser);
 
   const [formData, setFormData] = useState({
     mm_media: "",
@@ -201,22 +203,26 @@ const AddMediaTypeModal = ({
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Media *
                 </label>
-                <div className="flex justify-between gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsMediaItemModalOpen(true)}
-                    className="mb-1 flex items-center gap-2 px-3 py-1 bg-green-500 rounded-lg text-white hover:bg-green-600 transition text-md font-bold"
-                  >
-                    +
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteModalOpen(true)}
-                    className="mb-1 flex items-center gap-2 px-3 py-1 bg-red-500 rounded-lg text-white hover:bg-red-600 transition text-md font-bold"
-                  >
-                    -
-                  </button>
-                </div>
+                {user && user?.user?.emp_role !== "employee" && (
+                  <>
+                    <div className="flex justify-between gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setIsMediaItemModalOpen(true)}
+                        className="mb-1 flex items-center gap-2 px-3 py-1 bg-green-500 rounded-lg text-white hover:bg-green-600 transition text-md font-bold"
+                      >
+                        +
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteModalOpen(true)}
+                        className="mb-1 flex items-center gap-2 px-3 py-1 bg-red-500 rounded-lg text-white hover:bg-red-600 transition text-md font-bold"
+                      >
+                        -
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
 
               <select

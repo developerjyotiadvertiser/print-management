@@ -85,9 +85,10 @@ const App = () => {
           }
         />
 
-        {user && user?.user?.emp_role !== "employee" && (
+        {/* {user && user?.user?.emp_role !== "employee" && (
           <Route path="/print-challan" element={<ChallanPage />} />
-        )}
+        )} */}
+        <Route path="/print-challan" element={<ChallanPage />} />
       </Routes>
     </>
   );

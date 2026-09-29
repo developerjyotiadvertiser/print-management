@@ -177,6 +177,8 @@ const AddChallanModel = ({
     }));
   };
 
+  console.log("selected print", selectedPrint);
+
   // PRINT FIELD CHANGE
   const handlePrintChange = (e) => {
     const { name, value } = e.target;
@@ -185,10 +187,13 @@ const AddChallanModel = ({
         (print) => String(print.print_id) === String(value),
       );
 
+      console.log("selected print 190", selectedPrint);
+
       if (selectedPrint) {
         setCurrentPrint((prev) => ({
           ...prev,
           pci_print_id: value,
+          pci_description: selectedPrint?.media_type || "",
           pci_creative: selectedPrint.creative || "",
           pci_height: selectedPrint.height || "",
           pci_width: selectedPrint.width || "",

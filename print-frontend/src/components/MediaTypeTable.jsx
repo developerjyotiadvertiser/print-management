@@ -17,6 +17,7 @@ const MediaTypeTable = () => {
   const [selected, setSelected] = useState();
   const [mediaType, setMediaType] = useState([]);
   const [isMediaTypeModalOpen, setIsMediaTypeModalOpen] = useState(false);
+  const [searchMedia, setSearchMedia] = useState("");
 
   const handleUpdate = (data) => {
     setUpdateModel(true);
@@ -74,6 +75,10 @@ const MediaTypeTable = () => {
       alert("Failed to delete media type");
     }
   };
+
+  const filteredMedia = employees.filter((media) =>
+    media?.mm_media?.toLowerCase().includes(searchMedia.toLowerCase().trim()),
+  );
 
   const downloadExcel = () => {
     if (employees?.length === 0) {
@@ -136,21 +141,43 @@ const MediaTypeTable = () => {
     <>
       <div className="p-1 bg-white rounded-xl shadow-sm w-full">
         {/* Header */}
-        <div className="flex items-center justify-end gap-2 mb-1">
-          <button
-            type="button"
-            onClick={() => setIsMediaTypeModalOpen(true)}
-            className="flex items-center gap-2 px-3 py-2 bg-red-500 rounded-lg text-white hover:bg-red-600 transition text-xs font-bold"
-          >
-            + Media Type
-          </button>
-          <button
-            type="button"
-            onClick={downloadExcel}
-            className="flex items-center gap-2 px-3 py-2 bg-green-500 rounded-lg text-white hover:bg-green-600 transition text-xs font-bold"
-          >
-            <FaDownload /> Excel
-          </button>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4">
+          {/* Search Media */}
+          <div className="w-full sm:max-w-xs">
+            <label
+              htmlFor="searchMedia"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Search Media
+            </label>
+            <input
+              id="searchMedia"
+              type="text"
+              value={searchMedia}
+              onChange={(e) => setSearchMedia(e.target.value)}
+              placeholder="Search media..."
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 transition"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setIsMediaTypeModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500 rounded-lg text-white hover:bg-red-600 transition text-xs font-bold whitespace-nowrap"
+            >
+              + Media Type
+            </button>
+
+            <button
+              type="button"
+              onClick={downloadExcel}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 rounded-lg text-white hover:bg-green-600 transition text-xs font-bold whitespace-nowrap"
+            >
+              <FaDownload /> Excel
+            </button>
+          </div>
         </div>
 
         {/* Table */}
@@ -187,10 +214,13 @@ const MediaTypeTable = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Created At
                 </th>
-
-                <th className="px-5 py-3 font-semibold text-gray-600 text-center">
-                  Action
-                </th>
+                {user && user?.user?.emp_role !== "employee" && (
+                  <>
+                    <th className="px-5 py-3 font-semibold text-gray-600 text-center">
+                      Action
+                    </th>
+                  </>
+                )}
               </tr>
             </thead>
 
@@ -204,17 +234,19 @@ const MediaTypeTable = () => {
                     Loading media...
                   </td>
                 </tr>
-              ) : employees.length === 0 ? (
+              ) : filteredMedia?.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="11"
                     className="px-5 py-10 text-center text-gray-500"
                   >
-                    No media found.
+                    {searchMedia
+                      ? "No matching media found."
+                      : "No media found."}
                   </td>
                 </tr>
               ) : (
-                employees?.map((media, index) => (
+                filteredMedia?.map((media, index) => (
                   <tr
                     key={media?.mm_id || index}
                     className="hover:bg-gray-50 transition"
@@ -253,7 +285,9 @@ const MediaTypeTable = () => {
 
                     {/* Size */}
                     <td className="px-5 py-4 text-gray-600">
-                      {media?.mm_size || "-"}
+                      {media?.mm_size != null
+                        ? Number(media.mm_size).toFixed(2)
+                        : "-"}
                     </td>
 
                     {/* Status */}
@@ -274,30 +308,34 @@ const MediaTypeTable = () => {
                       {media?.mm_created_at || "-"}
                     </td>
 
-                    {/* Action */}
-                    <td className="px-5 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {/* Update */}
-                        <button
-                          onClick={() => handleUpdate(media)}
-                          className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
-                          title="Update Media"
-                        >
-                          <FiEdit size={16} />
-                        </button>
+                    {user && user?.user?.emp_role !== "employee" && (
+                      <>
+                        {/* Action */}
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            {/* Update */}
+                            <button
+                              onClick={() => handleUpdate(media)}
+                              className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+                              title="Update Media"
+                            >
+                              <FiEdit size={16} />
+                            </button>
 
-                        {/* Delete */}
-                        {user?.user?.emp_role !== "employee" && (
-                          <button
-                            onClick={() => handleDelete(media.mm_id)}
-                            className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
-                            title="Delete Media"
-                          >
-                            <FiTrash2 size={16} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
+                            {/* Delete */}
+                            {user?.user?.emp_role !== "employee" && (
+                              <button
+                                onClick={() => handleDelete(media.mm_id)}
+                                className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                                title="Delete Media"
+                              >
+                                <FiTrash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))
               )}

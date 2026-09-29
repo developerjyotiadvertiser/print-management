@@ -4,6 +4,7 @@ import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import AddClientModal from "./PopupWindows/AddClientModal";
 import UpdateClientModel from "./PopupWindows/UpdateClientModel";
+import AddClientWithGSTModal from "./PopupWindows/AddClientWithGSTModal";
 
 const ClientMasterTable = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -204,7 +205,13 @@ const ClientMasterTable = () => {
         getAllClientData={getAllClientData}
         selected={selected}
       />
-      <AddClientModal
+      {/* <AddClientModal
+        isOpen={isClientModalOpen}
+        onClose={() => setIsClientModalOpen(false)}
+        getAllClientData={getAllClientData}
+      /> */}
+
+      <AddClientWithGSTModal
         isOpen={isClientModalOpen}
         onClose={() => setIsClientModalOpen(false)}
         getAllClientData={getAllClientData}

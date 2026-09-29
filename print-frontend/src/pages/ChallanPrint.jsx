@@ -148,7 +148,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
 
         {/* Delivery Challan */}
         <div className="p-1.5 text-right">
-          <h2 className="text-[20px] font-bold tracking-[2px]">
+          <h2 className="text-[20px] font-bold tracking-[0px]">
             DELIVERY CHALLAN
           </h2>
           <p className="mt-1 text-[12px]">
@@ -342,7 +342,7 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
         </div>
 
         {/* Prepared By */}
-        <div className="flex flex-col justify-end text-left mt-4">
+        <div className="flex flex-col justify-end text-right mt-4">
           <span className="text-[12px]">Prepared By</span>
           <strong className="">
             {challanData?.preparedBy?.toUpperCase() || "-"}

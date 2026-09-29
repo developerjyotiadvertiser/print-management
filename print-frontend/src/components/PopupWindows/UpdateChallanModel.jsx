@@ -153,6 +153,7 @@ const UpdateChallanModel = ({
         updatedPrints[index] = {
           ...updatedPrints[index],
           pci_print_id: value,
+          pci_description: selectedPrint?.media_type || "",
           pci_creative: selectedPrint.creative || "",
           pci_height: selectedPrint.height || "",
           pci_width: selectedPrint.width || "",

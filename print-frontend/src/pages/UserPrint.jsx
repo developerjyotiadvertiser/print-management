@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import AddPrintModel from "../components/PopupWindows/AddPrintModel";
 import UpdatePrintModel from "../components/PopupWindows/UpdatePrintModel";
 import * as XLSX from "xlsx";
+import MediaMasterModel from "../components/PopupWindows/MediaMasterModel";
 
 const UserPrint = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -26,6 +27,7 @@ const UserPrint = () => {
   const [unitFilter, setUnitFilter] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [masterModel, setMasterModel] = useState(false);
 
   const handleUpdate = (data) => {
     setUpdateModel(true);
@@ -217,12 +219,20 @@ const UserPrint = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                setMasterModel(true);
+              }}
+              className="rounded-lg  px-5 py-2 text-sm font-semibold  transition text-white bg-cyan-600 hover:bg-cyan-700 cursor-pointer"
+            >
+              + Media
+            </button>
             {/* Add New Record */}
             <button
               onClick={() => {
                 setAddModel(true);
               }}
-              className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 text-xl transition cursor-pointer"
+              className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 transition cursor-pointer"
             >
               <FiPlus />
               Add New Record
@@ -498,6 +508,10 @@ const UserPrint = () => {
         isOpen={addModel}
         onClose={() => setAddModel(false)}
         getAllPrintData={getAllPrintData}
+      />
+      <MediaMasterModel
+        isOpen={masterModel}
+        onClose={() => setMasterModel(false)}
       />
     </>
   );

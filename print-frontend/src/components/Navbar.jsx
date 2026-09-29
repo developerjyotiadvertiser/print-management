@@ -97,27 +97,44 @@ const Navbar = () => {
                 ))}
               </ul> */}
 
-              {user?.user?.emp_role !== "employee" && (
+              <button
+                onClick={() => {
+                  navigate("/");
+                }}
+                className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+              >
+                Print
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/print-challan");
+                }}
+                className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
+              >
+                Challan
+              </button>
+
+              {/* {user?.user?.emp_role !== "employee" && (
                 <>
                   <div></div>
+                  <button
+                    onClick={() => {
+                      navigate("/");
+                    }}
+                    className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+                  >
+                    Print
+                  </button>
                   <button
                     onClick={() => {
                       navigate("/print-challan");
                     }}
                     className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
                   >
-                    + Challan
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMasterModel(true);
-                    }}
-                    className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
-                  >
-                    + Media
+                    Challan
                   </button>
                 </>
-              )}
+              )} */}
 
               <button
                 onClick={logoutHandler}

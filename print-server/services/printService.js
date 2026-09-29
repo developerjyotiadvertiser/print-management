@@ -41,9 +41,10 @@ const savePrintService = async (data) => {
         total_area,
         remarks,
         remark_one,
+        print_mm_id,
         print_created_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [printResult] = await connection.query(printSql, [
@@ -58,6 +59,7 @@ const savePrintService = async (data) => {
       total_area,
       remarks,
       remark_one,
+      mm_id,
       createdAt,
     ]);
 
@@ -126,16 +128,21 @@ const savePrintService = async (data) => {
     // --------------------------------------------------
 
     const updateMediaSql = `
-      UPDATE media_master
-      SET
-        mm_width = ?,
-        mm_size = ?,
-        mm_updated_at = ?
-      WHERE mm_id = ?
+       UPDATE media_master
+  SET
+    mm_width = ?,
+    mm_size = ?,
+    mm_status = CASE
+      WHEN ? < 10 THEN 'Inactive'
+      ELSE mm_status
+    END,
+    mm_updated_at = ?
+  WHERE mm_id = ?
     `;
 
     await connection.query(updateMediaSql, [
       remainingWidth,
+      remainingSize,
       remainingSize,
       createdAt,
       mm_id,
@@ -171,9 +178,23 @@ const savePrintService = async (data) => {
 
 const getAllPrintService = async () => {
   try {
-    const [rows] = await pool.query(
-      `SELECT * FROM print_records ORDER BY print_id DESC`,
-    );
+    const [rows] = await pool.query(`
+      SELECT 
+        pr.*,
+        mm.mm_serial_number,
+        mm.mm_media,
+        mm.mm_brand,
+        mm.mm_gsm,
+        mm.mm_height,
+        mm.mm_width,
+        mm.mm_unit,
+        mm.mm_size,
+        mm.mm_status
+      FROM print_records pr
+      LEFT JOIN media_master mm 
+        ON mm.mm_id = pr.print_mm_id
+      ORDER BY pr.print_id DESC
+    `);
 
     return {
       success: true,
@@ -272,14 +293,24 @@ const updatePrintService = async (print_id, data) => {
 
     await connection.query(
       `
-      UPDATE media_master
-      SET
-        mm_width = ?,
-        mm_size = ?,
-        mm_updated_at = ?
-      WHERE mm_id = ?
+    UPDATE media_master
+  SET
+    mm_width = ?,
+    mm_size = ?,
+    mm_status = CASE
+      WHEN ? < 10 THEN 'Inactive'
+      ELSE 'Active'
+    END,
+    mm_updated_at = ?
+  WHERE mm_id = ?
       `,
-      [restoredWidth, restoredSize, updateAt, oldPrint.print_mm_id],
+      [
+        restoredWidth,
+        restoredSize,
+        restoredSize,
+        updateAt,
+        oldPrint.print_mm_id,
+      ],
     );
 
     // --------------------------------------------------
@@ -350,13 +381,17 @@ const updatePrintService = async (print_id, data) => {
     await connection.query(
       `
       UPDATE media_master
-      SET
-        mm_width = ?,
-        mm_size = ?,
-        mm_updated_at = ?
-      WHERE mm_id = ?
+  SET
+    mm_width = ?,
+    mm_size = ?,
+    mm_status = CASE
+      WHEN ? < 10 THEN 'Inactive'
+      ELSE 'Active'
+    END,
+    mm_updated_at = ?
+  WHERE mm_id = ?
       `,
-      [remainingWidth, remainingSize, updateAt, newMmId],
+      [remainingWidth, remainingSize, remainingSize, updateAt, newMmId],
     );
 
     // --------------------------------------------------
@@ -474,16 +509,148 @@ const updatePrintService = async (print_id, data) => {
 };
 
 const deletePrintService = async (print_id) => {
+  const connection = await pool.getConnection();
+
   try {
-    const sql = `
+    await connection.beginTransaction();
+
+    const updatedAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
+
+    // --------------------------------------------------
+    // 1. Get print record
+    // --------------------------------------------------
+
+    const [printRows] = await connection.query(
+      `
+      SELECT
+        print_id,
+        print_mm_id,
+        width,
+        total_area
+      FROM print_records
+      WHERE print_id = ?
+      FOR UPDATE
+      `,
+      [print_id],
+    );
+
+    if (printRows.length === 0) {
+      throw new Error("Print record not found.");
+    }
+
+    const print = printRows[0];
+
+    // --------------------------------------------------
+    // 2. Restore media stock
+    // --------------------------------------------------
+
+    if (print.print_mm_id) {
+      const [mediaRows] = await connection.query(
+        `
+        SELECT
+          mm_id,
+          mm_width,
+          mm_size
+        FROM media_master
+        WHERE mm_id = ?
+        FOR UPDATE
+        `,
+        [print.print_mm_id],
+      );
+
+      if (mediaRows.length === 0) {
+        throw new Error("Media master record not found.");
+      }
+
+      const media = mediaRows[0];
+
+      const currentWidth = Number(media.mm_width);
+      const currentSize = Number(media.mm_size);
+
+      const printWidth = Number(print.width);
+      const printArea = Number(print.total_area);
+
+      if (
+        Number.isNaN(currentWidth) ||
+        Number.isNaN(currentSize) ||
+        Number.isNaN(printWidth) ||
+        Number.isNaN(printArea)
+      ) {
+        throw new Error("Invalid media stock or print values.");
+      }
+
+      // Add the consumed stock back
+      const restoredWidth = currentWidth + printWidth;
+      const restoredSize = currentSize + printArea;
+
+      await connection.query(
+        `UPDATE media_master
+  SET
+    mm_width = ?,
+    mm_size = ?,
+    mm_status = CASE
+      WHEN ? < 10 THEN 'Inactive'
+      ELSE 'Active'
+    END,
+    mm_updated_at = ?
+  WHERE mm_id = ?
+        `,
+        [
+          restoredWidth,
+          restoredSize,
+          restoredSize,
+          updatedAt,
+          print.print_mm_id,
+        ],
+      );
+    }
+
+    // --------------------------------------------------
+    // 3. Delete print record
+    // --------------------------------------------------
+
+    const [result] = await connection.query(
+      `
       DELETE FROM print_records
       WHERE print_id = ?
-    `;
+      `,
+      [print_id],
+    );
 
-    const [result] = await pool.query(sql, [print_id]);
+    // --------------------------------------------------
+    // 4. Commit
+    // --------------------------------------------------
 
-    return result;
+    await connection.commit();
+
+    connection.release();
+
+    return {
+      success: true,
+      print_id,
+      stock: {
+        restored_width: Number(print.width),
+        restored_size: Number(print.total_area),
+      },
+      result,
+    };
   } catch (error) {
+    await connection.rollback();
+    connection.release();
+
+    // Challan foreign key constraint
+    if (
+      error.code === "ER_ROW_IS_REFERENCED_2" ||
+      error.code === "ER_ROW_IS_REFERENCED"
+    ) {
+      const customError = new Error(
+        "Challan record already exists for this print. Please remove it from the challan first.",
+      );
+
+      customError.statusCode = 409;
+      throw customError;
+    }
+
     throw error;
   }
 };

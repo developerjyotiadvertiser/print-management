@@ -13,4 +13,6 @@ router.delete(
   clientController.deleteClientController,
 );
 
+router.post("/fetch-gst-details", clientController.fetchGSTDetailsController);
+
 module.exports = router;
