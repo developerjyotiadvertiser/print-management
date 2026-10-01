@@ -14,6 +14,7 @@ import AddPrintModel from "../components/PopupWindows/AddPrintModel";
 import UpdatePrintModel from "../components/PopupWindows/UpdatePrintModel";
 import * as XLSX from "xlsx";
 import MediaMasterModel from "../components/PopupWindows/MediaMasterModel";
+import EmployeeTable from "../components/EmployeeTable";
 
 const AdminDashboard = () => {
   const user = useSelector((state) => state?.user?.currentUser);

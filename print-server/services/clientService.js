@@ -4,32 +4,6 @@ const axios = require("axios");
 
 const APISETU_BASE_URL = "https://apisetu.gov.in/gstn/v2/taxpayers";
 
-// const saveClientService = async (data) => {
-//   const {
-//     client_name,
-//     client_contact,
-//     client_address,
-//     pan_number,
-//     gst_number,
-//     pincode,
-//   } = data;
-//   const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
-//   const sql = `
-//         INSERT INTO print_party_master (client_name, client_contact, client_address, pan_number, gst_number, pincode, client_created_at)
-//         VALUES (?, ?, ?, ?,?,?,?)
-//     `;
-//   const [result] = await pool.query(sql, [
-//     client_name,
-//     client_contact,
-//     client_address,
-//     pan_number,
-//     gst_number,
-//     pincode,
-//     createdAt,
-//   ]);
-//   return result;
-// };
-
 const saveClientService = async (data) => {
   const {
     client_name,

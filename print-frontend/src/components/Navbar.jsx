@@ -6,6 +6,7 @@ import logo from "../assets/logo.png";
 import { clearUser } from "../../redux/admin/adminSlice";
 import { useDispatch, useSelector } from "react-redux";
 import MediaMasterModel from "./PopupWindows/MediaMasterModel";
+import { FaPowerOff } from "react-icons/fa";
 
 // const navItems = [
 //   { name: "HOME", path: "/" },
@@ -99,6 +100,14 @@ const Navbar = () => {
 
               <button
                 onClick={() => {
+                  navigate("/work-order");
+                }}
+                className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
+              >
+                Work Order
+              </button>
+              <button
+                onClick={() => {
                   navigate("/");
                 }}
                 className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
@@ -140,7 +149,7 @@ const Navbar = () => {
                 onClick={logoutHandler}
                 className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
               >
-                Logout
+                <FaPowerOff />
               </button>
             </nav>
 

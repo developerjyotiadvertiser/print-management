@@ -9,6 +9,8 @@ const mediaRoutes = require("./routes/mediaRouter");
 const clientRoutes = require("./routes/clientRouter");
 const challanRoutes = require("./routes/challanRouter");
 const mediaMasterRoutes = require("./routes/mediaMasterRouter");
+const workItemsRoutes = require("./routes/workItemsRouter");
+const printerMasterRoutes = require("./routes/printerMasterRouter");
 
 const pool = require("./config/db");
 const app = express();
@@ -43,6 +45,8 @@ app.use("/api/media", mediaRoutes);
 app.use("/api/client", clientRoutes);
 app.use("/api/challan", challanRoutes);
 app.use("/api/media-master", mediaMasterRoutes);
+app.use("/api/work-items", workItemsRoutes);
+app.use("/api/printer-master", printerMasterRoutes);
 
 // const frontendPath = path.join(__dirname, "dist");
 // app.use(express.static(frontendPath));
