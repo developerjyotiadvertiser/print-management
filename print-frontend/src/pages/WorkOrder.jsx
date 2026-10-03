@@ -9,15 +9,21 @@ import {
   FiSearch,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
-import AddWorkItemsModel from "../components/PopupWindows/AddWorkItemsModel";
 import * as XLSX from "xlsx";
+import { FaShareAltSquare } from "react-icons/fa";
+
+import AddWorkItemsModel from "../components/PopupWindows/AddWorkItemsModel";
 import UpdateWorkItemsModel from "../components/PopupWindows/UpdateWorkItemsModel";
 import PrinterMasterModel from "../components/PopupWindows/PrinterMasterModel";
-import { FaShareAltSquare } from "react-icons/fa";
 import ImagePreviewModal from "../utils/ImagePreviewModal";
+import WorkOrderShareModal from "../components/PopupWindows/WorkOrderShareModal";
 
 const WorkOrder = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  // =========================================================
+  // STATE
+  // =========================================================
 
   const [workItems, setWorkItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -35,23 +41,34 @@ const WorkOrder = () => {
   const [endDate, setEndDate] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 10;
-  const [printerMaster, setPrinterMaster] = useState([]);
 
+  const recordsPerPage = 10;
+
+  const [printerMaster, setPrinterMaster] = useState([]);
   const [mediaType, setMediaType] = useState([]);
+
   const [printerMasterTable, setPrinterMasterTable] = useState(false);
+
+  const [shareModel, setShareModel] = useState(false);
+  const [shareWorkItem, setShareWorkItem] = useState(null);
 
   const [imagePreview, setImagePreview] = useState({
     isOpen: false,
     imageUrl: "",
   });
 
+  // =========================================================
+  // IMAGE PREVIEW
+  // =========================================================
+
   const handleImagePreview = (imagePath) => {
     if (!imagePath) return;
 
+    const cleanPath = String(imagePath).replace(/^\/+/, "");
+
     setImagePreview({
       isOpen: true,
-      imageUrl: `${apiUrl}/${imagePath}`,
+      imageUrl: `${apiUrl}/${cleanPath}`,
     });
   };
 
@@ -62,9 +79,18 @@ const WorkOrder = () => {
     });
   };
 
+  // =========================================================
+  // PRINT / SHARE
+  // =========================================================
+
   const handlePrintShare = (data) => {
-    console.log("handle print share", data);
+    setShareWorkItem(data);
+    setShareModel(true);
   };
+
+  // =========================================================
+  // GET ALL PRINTER MASTER
+  // =========================================================
 
   const getAllPrinterMaster = async () => {
     try {
@@ -76,7 +102,11 @@ const WorkOrder = () => {
 
       setPrinterMaster(data?.data?.data || []);
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to fetch printer master");
+      console.error("Error fetching printer master:", error);
+
+      toast.error(
+        error?.response?.data?.message || "Failed to fetch printer master",
+      );
     } finally {
       setLoading(false);
     }
@@ -85,31 +115,31 @@ const WorkOrder = () => {
   // =========================================================
   // GET ALL WORK ITEMS
   // =========================================================
+
   const getAllWorkItems = async () => {
     try {
       setLoading(true);
 
-      const response = await axios.get(
+      const { data } = await axios.get(
         `${apiUrl}/api/work-items/get-all-work-items`,
       );
 
-      console.log("Work Items Response:", response);
+      console.log("Work Items Response:", data);
 
-      setWorkItems(response?.data?.data?.data || []);
+      setWorkItems(Array.isArray(data?.data?.data) ? data.data?.data : []);
     } catch (error) {
       console.error("Error fetching work items:", error);
 
-      toast.error(
-        error?.response?.data?.message || "Failed to fetch work items",
-      );
+      toast.error(error?.data?.message || "Failed to fetch work items");
     } finally {
       setLoading(false);
     }
   };
 
   // =========================================================
-  // GET MEDIA
+  // GET ALL MEDIA
   // =========================================================
+
   const getAllMediaType = async () => {
     try {
       const { data } = await axios.get(`${apiUrl}/api/media/get-all-media`);
@@ -120,6 +150,10 @@ const WorkOrder = () => {
     }
   };
 
+  // =========================================================
+  // INITIAL LOAD
+  // =========================================================
+
   useEffect(() => {
     getAllWorkItems();
     getAllMediaType();
@@ -129,6 +163,7 @@ const WorkOrder = () => {
   // =========================================================
   // FORMAT DATE
   // =========================================================
+
   const formatDate = (date) => {
     if (!date) return "";
 
@@ -136,7 +171,9 @@ const WorkOrder = () => {
     if (/^\d{2}-\d{2}-\d{4}/.test(date)) {
       const [datePart, timePart] = date.split(" ");
 
-      if (!timePart) return datePart;
+      if (!timePart) {
+        return datePart;
+      }
 
       return `${datePart} ${timePart}`;
     }
@@ -156,14 +193,16 @@ const WorkOrder = () => {
   };
 
   // =========================================================
-  // CONVERT DATE TO YYYY-MM-DD
+  // GET DATE ONLY
   // =========================================================
+
   const getDateOnly = (date) => {
     if (!date) return "";
 
     // DD-MM-YYYY
     if (/^\d{2}-\d{2}-\d{4}/.test(date)) {
       const [datePart] = date.split(" ");
+
       const [day, month, year] = datePart.split("-");
 
       return `${year}-${month}-${day}`;
@@ -178,7 +217,7 @@ const WorkOrder = () => {
   };
 
   // =========================================================
-  // FILTER OPTIONS
+  // FILTER OPTIONS - PRINTER
   // =========================================================
 
   const printers = useMemo(() => {
@@ -189,11 +228,25 @@ const WorkOrder = () => {
     ];
   }, [workItems]);
 
+  // =========================================================
+  // FILTER OPTIONS - MEDIA
+  // =========================================================
+
   const medias = useMemo(() => {
     return [
-      ...new Set(workItems.map((item) => item?.woi_media).filter(Boolean)),
+      ...new Set(
+        workItems
+          .flatMap((item) =>
+            (item?.media_items || []).map((media) => media?.woim_media),
+          )
+          .filter(Boolean),
+      ),
     ];
   }, [workItems]);
+
+  // =========================================================
+  // FILTER OPTIONS - STATUS
+  // =========================================================
 
   const statuses = useMemo(() => {
     return [
@@ -204,9 +257,38 @@ const WorkOrder = () => {
   // =========================================================
   // FILTER WORK ITEMS
   // =========================================================
+
   const filteredWorkItems = useMemo(() => {
     return workItems.filter((item) => {
       const searchValue = search.toLowerCase().trim();
+
+      const mediaItems = item?.media_items || [];
+
+      // -----------------------------------------
+      // Search inside media
+      // -----------------------------------------
+
+      const matchesMediaSearch = mediaItems.some((media) => {
+        const values = [
+          media?.woim_media,
+          media?.woim_creative,
+          media?.woim_size_height,
+          media?.woim_size_width,
+          media?.woim_unit,
+          media?.woim_quantity,
+          media?.woim_area,
+        ];
+
+        return values.some((value) =>
+          String(value || "")
+            .toLowerCase()
+            .includes(searchValue),
+        );
+      });
+
+      // -----------------------------------------
+      // Search parent + media
+      // -----------------------------------------
 
       const matchesSearch =
         !search ||
@@ -219,24 +301,36 @@ const WorkOrder = () => {
         String(item?.woi_printer_name || "")
           .toLowerCase()
           .includes(searchValue) ||
-        String(item?.woi_media || "")
-          .toLowerCase()
-          .includes(searchValue) ||
-        String(item?.woi_creative || "")
-          .toLowerCase()
-          .includes(searchValue) ||
         String(item?.woi_status || "")
           .toLowerCase()
-          .includes(searchValue);
+          .includes(searchValue) ||
+        matchesMediaSearch;
+
+      // -----------------------------------------
+      // Printer
+      // -----------------------------------------
 
       const matchesPrinter =
         !printerFilter || item?.woi_printer_name === printerFilter;
 
-      const matchesMedia = !mediaFilter || item?.woi_media === mediaFilter;
+      // -----------------------------------------
+      // Media
+      // -----------------------------------------
+
+      const matchesMedia =
+        !mediaFilter ||
+        mediaItems.some((media) => media?.woim_media === mediaFilter);
+
+      // -----------------------------------------
+      // Status
+      // -----------------------------------------
 
       const matchesStatus = !statusFilter || item?.woi_status === statusFilter;
 
-      // Work allot date
+      // -----------------------------------------
+      // Date
+      // -----------------------------------------
+
       const workAllotDate = getDateOnly(item?.woi_work_allot_date);
 
       const matchesStartDate = !startDate || workAllotDate >= startDate;
@@ -265,6 +359,7 @@ const WorkOrder = () => {
   // =========================================================
   // PAGINATION
   // =========================================================
+
   const totalPages = Math.ceil(filteredWorkItems.length / recordsPerPage);
 
   const paginatedWorkItems = useMemo(() => {
@@ -273,9 +368,17 @@ const WorkOrder = () => {
     return filteredWorkItems.slice(startIndex, startIndex + recordsPerPage);
   }, [filteredWorkItems, currentPage]);
 
+  // =========================================================
+  // RESET PAGE WHEN FILTER CHANGES
+  // =========================================================
+
   useEffect(() => {
     setCurrentPage(1);
   }, [search, printerFilter, mediaFilter, statusFilter, startDate, endDate]);
+
+  // =========================================================
+  // PAGE NUMBERS
+  // =========================================================
 
   const getPageNumbers = () => {
     const pages = [];
@@ -284,30 +387,28 @@ const WorkOrder = () => {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
+    } else if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, "...", totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(
+        1,
+        "...",
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      );
     } else {
-      if (currentPage <= 4) {
-        pages.push(1, 2, 3, 4, 5, "...", totalPages);
-      } else if (currentPage >= totalPages - 3) {
-        pages.push(
-          1,
-          "...",
-          totalPages - 4,
-          totalPages - 3,
-          totalPages - 2,
-          totalPages - 1,
-          totalPages,
-        );
-      } else {
-        pages.push(
-          1,
-          "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          totalPages,
-        );
-      }
+      pages.push(
+        1,
+        "...",
+        currentPage - 1,
+        currentPage,
+        currentPage + 1,
+        "...",
+        totalPages,
+      );
     }
 
     return pages;
@@ -316,6 +417,7 @@ const WorkOrder = () => {
   // =========================================================
   // UPDATE
   // =========================================================
+
   const handleUpdate = (data) => {
     setSelected(data);
     setUpdateModel(true);
@@ -324,12 +426,15 @@ const WorkOrder = () => {
   // =========================================================
   // DELETE
   // =========================================================
+
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this work item?",
     );
 
-    if (!confirmDelete) return;
+    if (!confirmDelete) {
+      return;
+    }
 
     try {
       await axios.delete(`${apiUrl}/api/work-items/delete-work-items/${id}`);
@@ -338,7 +443,7 @@ const WorkOrder = () => {
 
       toast.success("Work item deleted successfully");
     } catch (error) {
-      console.error(error);
+      console.error("Delete work item error:", error);
 
       toast.error(
         error?.response?.data?.message || "Failed to delete work item",
@@ -349,6 +454,7 @@ const WorkOrder = () => {
   // =========================================================
   // CLEAR FILTERS
   // =========================================================
+
   const clearFilters = () => {
     setSearch("");
     setPrinterFilter("");
@@ -361,28 +467,94 @@ const WorkOrder = () => {
   // =========================================================
   // DOWNLOAD EXCEL
   // =========================================================
+
   const downloadExcel = () => {
     if (filteredWorkItems.length === 0) {
       toast.error("No work items available to download");
+
       return;
     }
 
-    const excelData = filteredWorkItems.map((item) => ({
-      "Work Item ID": item?.woi_id || "-",
-      "Serial Number": item?.woi_serial_number || "-",
-      "JC Number": item?.woi_jc_number || "-",
-      "Work Allot Date": formatDate(item?.woi_work_allot_date) || "-",
-      "Printer Name": item?.woi_printer_name || "-",
-      Media: item?.woi_media || "-",
-      Height: item?.woi_size_height || "-",
-      Width: item?.woi_size_width || "-",
-      Quantity: item?.woi_quantity || 0,
-      Area: item?.woi_area || "-",
-      Creative: item?.woi_creative || "-",
-      Status: item?.woi_status || "-",
-      "Created At": formatDate(item?.woi_created_at) || "-",
-      "Updated At": formatDate(item?.woi_updated_at) || "-",
-    }));
+    const excelData = [];
+
+    filteredWorkItems.forEach((item) => {
+      const mediaItems = item?.media_items || [];
+
+      // -----------------------------------------
+      // No media
+      // -----------------------------------------
+
+      if (mediaItems.length === 0) {
+        excelData.push({
+          "Work Item ID": item?.woi_id || "-",
+
+          "Serial Number": item?.woi_serial_number || "-",
+
+          "JC Number": item?.woi_jc_number || "-",
+
+          "Work Allot Date": formatDate(item?.woi_work_allot_date) || "-",
+
+          "Printer Name": item?.woi_printer_name || "-",
+
+          Media: "-",
+          Height: "-",
+          Width: "-",
+          Unit: "-",
+          Quantity: 0,
+          Area: "-",
+          Creative: "-",
+          "Creative Image": "-",
+
+          Status: item?.woi_status || "-",
+
+          "Created At": formatDate(item?.woi_created_at) || "-",
+
+          "Updated At": formatDate(item?.woi_updated_at) || "-",
+        });
+
+        return;
+      }
+
+      // -----------------------------------------
+      // One Excel row per media
+      // -----------------------------------------
+
+      mediaItems.forEach((media) => {
+        excelData.push({
+          "Work Item ID": item?.woi_id || "-",
+
+          "Serial Number": item?.woi_serial_number || "-",
+
+          "JC Number": item?.woi_jc_number || "-",
+
+          "Work Allot Date": formatDate(item?.woi_work_allot_date) || "-",
+
+          "Printer Name": item?.woi_printer_name || "-",
+
+          Media: media?.woim_media || "-",
+
+          Height: media?.woim_size_height || "-",
+
+          Width: media?.woim_size_width || "-",
+
+          Unit: media?.woim_unit || "-",
+
+          Quantity: media?.woim_quantity || 0,
+
+          Area: media?.woim_area || "-",
+
+          Creative: media?.woim_creative || "-",
+
+          "Creative Image": media?.woim_creative_image || "-",
+
+          Status: item?.woi_status || "-",
+
+          "Created At": formatDate(item?.woi_created_at) || "-",
+
+          "Updated At": formatDate(item?.woi_updated_at) || "-",
+        });
+      });
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
 
@@ -396,8 +568,10 @@ const WorkOrder = () => {
       { wch: 12 },
       { wch: 12 },
       { wch: 12 },
+      { wch: 12 },
       { wch: 15 },
       { wch: 25 },
+      { wch: 45 },
       { wch: 15 },
       { wch: 22 },
       { wch: 22 },
@@ -415,33 +589,40 @@ const WorkOrder = () => {
     toast.success("Excel file downloaded successfully");
   };
 
+  // =========================================================
+  // RENDER
+  // =========================================================
+
   return (
     <>
-      <div className="p-6 bg-white rounded-xl shadow-sm sm:mt-18 mt-16">
+      <div className="mt-16 rounded-xl bg-white p-6 shadow-sm sm:mt-18">
         {/* =====================================================
             HEADER
         ====================================================== */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
               Work Items Details
             </h2>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Showing {filteredWorkItems.length} of {workItems.length} records
+            <p className="mt-1 text-sm text-gray-500">
+              Showing {filteredWorkItems.length} of {workItems.length} work
+              orders
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setPrinterMasterTable(true)}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 transition cursor-pointer"
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
             >
               Printer Master
             </button>
+
             <button
               onClick={() => setAddModel(true)}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition cursor-pointer"
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
             >
               <FiPlus />
               New Work Item
@@ -450,13 +631,15 @@ const WorkOrder = () => {
         </div>
 
         {/* =====================================================
-    FILTER SECTION
-====================================================== */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
-            {/* Search */}
+            FILTER SECTION
+        ====================================================== */}
+
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-7">
+            {/* SEARCH */}
+
             <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Search
               </label>
 
@@ -468,32 +651,25 @@ const WorkOrder = () => {
 
                 <input
                   type="text"
-                  placeholder="Search serial, JC, printer, media..."
+                  placeholder="Search JC, printer, media, creative..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-11 pl-10 pr-4 border border-gray-300 rounded-lg
-                     text-sm outline-none
-                     focus:ring-2 focus:ring-blue-100
-                     focus:border-blue-400
-                     transition"
+                  className="h-11 w-full rounded-lg border border-gray-300 pl-10 pr-4 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
             </div>
 
-            {/* Printer */}
+            {/* PRINTER */}
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Printer
               </label>
 
               <select
                 value={printerFilter}
                 onChange={(e) => setPrinterFilter(e.target.value)}
-                className="w-full h-11 px-3 border border-gray-300 rounded-lg
-                   text-sm outline-none bg-white
-                   focus:ring-2 focus:ring-blue-100
-                   focus:border-blue-400
-                   transition"
+                className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">All Printers</option>
 
@@ -505,20 +681,17 @@ const WorkOrder = () => {
               </select>
             </div>
 
-            {/* Media */}
+            {/* MEDIA */}
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Media
               </label>
 
               <select
                 value={mediaFilter}
                 onChange={(e) => setMediaFilter(e.target.value)}
-                className="w-full h-11 px-3 border border-gray-300 rounded-lg
-                   text-sm outline-none bg-white
-                   focus:ring-2 focus:ring-blue-100
-                   focus:border-blue-400
-                   transition"
+                className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">All Media</option>
 
@@ -530,20 +703,17 @@ const WorkOrder = () => {
               </select>
             </div>
 
-            {/* Status */}
+            {/* STATUS */}
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Status
               </label>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full h-11 px-3 border border-gray-300 rounded-lg
-                   text-sm outline-none bg-white
-                   focus:ring-2 focus:ring-blue-100
-                   focus:border-blue-400
-                   transition"
+                className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="">All Status</option>
 
@@ -555,9 +725,10 @@ const WorkOrder = () => {
               </select>
             </div>
 
-            {/* Start Date */}
+            {/* START DATE */}
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Start Date
               </label>
 
@@ -565,17 +736,14 @@ const WorkOrder = () => {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full h-11 px-3 border border-gray-300 rounded-lg
-                   text-sm outline-none
-                   focus:ring-2 focus:ring-blue-100
-                   focus:border-blue-400
-                   transition"
+                className="h-11 w-full rounded-lg border border-gray-300 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            {/* End Date */}
+            {/* END DATE */}
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 End Date
               </label>
 
@@ -583,49 +751,27 @@ const WorkOrder = () => {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full h-11 px-3 border border-gray-300 rounded-lg
-                   text-sm outline-none
-                   focus:ring-2 focus:ring-blue-100
-                   focus:border-blue-400
-                   transition"
+                className="h-11 w-full rounded-lg border border-gray-300 px-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            {/* Actions */}
+            {/* ACTIONS */}
+
             <div className="flex items-end gap-2">
-              {/* Clear */}
               <button
                 type="button"
                 onClick={clearFilters}
-                className="h-11 flex-1 px-4
-                   flex items-center justify-center gap-2
-                   rounded-lg
-                   border border-gray-300
-                   bg-white
-                   text-gray-700
-                   text-sm font-medium
-                   hover:bg-gray-50
-                   hover:border-gray-400
-                   transition"
+                className="h-11 flex-1 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50"
               >
-                <span>Clear</span>
+                Clear
               </button>
 
-              {/* Refresh */}
               <button
                 type="button"
                 onClick={getAllWorkItems}
                 disabled={loading}
                 title="Refresh Data"
-                className="h-11 w-11 flex-shrink-0
-                   flex items-center justify-center
-                   rounded-lg
-                   bg-blue-600
-                   text-white
-                   hover:bg-blue-700
-                   transition
-                   disabled:opacity-50
-                   disabled:cursor-not-allowed"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <FiRefreshCw
                   size={18}
@@ -639,9 +785,10 @@ const WorkOrder = () => {
         {/* =====================================================
             TABLE
         ====================================================== */}
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 border-b border-gray-200">
+
+        <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full min-w-300 text-left text-sm">
+            <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
                 <th className="px-5 py-3 font-semibold text-gray-600">ID</th>
 
@@ -649,162 +796,210 @@ const WorkOrder = () => {
                   JC Number
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
-                  Work Allot Date
-                </th>
+                <th className="px-5 py-3 font-semibold text-gray-600">Date</th>
 
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Printer
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">Media</th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
-                  Height
+                  Media Details
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">Width</th>
-
-                <th className="px-5 py-3 font-semibold text-gray-600">
-                  Quantity
-                </th>
-
-                <th className="px-5 py-3 font-semibold text-gray-600">Area</th>
-
-                <th className="px-5 py-3 font-semibold text-gray-600">
-                  Creative
-                </th>
-
-                <th className="px-5 py-3 font-semibold text-gray-600">
-                  Creative Image
-                </th>
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Status
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600 text-center">
+                <th className="px-5 py-3 text-center font-semibold text-gray-600">
                   Actions
                 </th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-100">
+              {/* LOADING */}
+
               {loading ? (
                 <tr>
                   <td
-                    colSpan={13}
+                    colSpan={7}
                     className="px-5 py-10 text-center text-gray-500"
                   >
                     Loading work items...
                   </td>
                 </tr>
               ) : filteredWorkItems.length === 0 ? (
+                /* NO DATA */
+
                 <tr>
                   <td
-                    colSpan={13}
+                    colSpan={7}
                     className="px-5 py-10 text-center text-gray-500"
                   >
                     No work items found.
                   </td>
                 </tr>
               ) : (
+                /* DATA */
+
                 paginatedWorkItems.map((item, index) => (
                   <tr
                     key={item?.woi_id || index}
-                    className="hover:bg-gray-50 transition"
+                    className="align-top transition hover:bg-gray-50"
                   >
                     {/* ID */}
+
                     <td className="px-5 py-4 text-gray-500">
                       {item?.woi_id || "-"}
                     </td>
 
-                    {/* JC Number */}
-                    <td className="px-5 py-4 text-gray-700">
+                    {/* JC NUMBER */}
+
+                    <td className="px-5 py-4 font-medium text-gray-700">
                       {item?.woi_jc_number || "-"}
                     </td>
 
-                    {/* Work Allot Date */}
-                    <td className="px-5 py-4 text-gray-700 whitespace-nowrap">
+                    {/* DATE */}
+
+                    <td className="whitespace-nowrap px-5 py-4 text-gray-700">
                       {formatDate(item?.woi_work_allot_date) || "-"}
                     </td>
 
-                    {/* Printer */}
+                    {/* PRINTER */}
+
                     <td className="px-5 py-4 text-gray-700">
                       {item?.woi_printer_name || "-"}
                     </td>
 
-                    {/* Media */}
-                    <td className="px-5 py-4 text-gray-700">
-                      {item?.woi_media || "-"}
-                    </td>
+                    {/* =================================================
+                          MEDIA DETAILS
+                      ================================================== */}
 
-                    {/* Height */}
-                    <td className="px-5 py-4 text-gray-600">
-                      {item?.woi_size_height || "-"}
-                    </td>
-
-                    {/* Width */}
-                    <td className="px-5 py-4 text-gray-600">
-                      {item?.woi_size_width || "-"}
-                    </td>
-
-                    {/* Quantity */}
-                    <td className="px-5 py-4 text-gray-600">
-                      {item?.woi_quantity || 0}
-                    </td>
-
-                    {/* Area */}
-                    <td className="px-5 py-4 font-medium text-gray-800">
-                      {item?.woi_area ? `${item.woi_area} Sq.Ft` : "-"}
-                    </td>
-
-                    {/* Creative */}
-                    <td className="px-5 py-4 text-gray-700 max-w-xs">
-                      <p className="truncate" title={item?.woi_creative}>
-                        {item?.woi_creative || "-"}
-                      </p>
-                    </td>
-
-                    {/* Creative Image */}
-                    <td className="px-5 py-4 text-gray-700">
-                      {item?.woi_creative_image ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleImagePreview(item?.woi_creative_image)
-                          }
-                          className="group relative block cursor-pointer"
-                          title="Click to view image"
-                        >
-                          <img
-                            src={`${apiUrl}/${item?.woi_creative_image}`}
-                            alt="Creative"
-                            className="h-12 w-16 rounded-lg object-cover border border-gray-200
-                   transition duration-200
-                   group-hover:scale-105
-                   group-hover:shadow-md"
-                          />
-
-                          {/* Zoom overlay */}
+                    <td className="min-w-[700px] px-5 py-4">
+                      <div className="space-y-3">
+                        {(item?.media_items || []).map((media, mediaIndex) => (
                           <div
-                            className="absolute inset-0 flex items-center justify-center
-                   rounded-lg bg-black/40 opacity-0
-                   group-hover:opacity-100 transition"
+                            key={media?.woim_id || mediaIndex}
+                            className="rounded-lg border border-gray-200 bg-white p-3"
                           >
-                            <span className="text-white text-xs font-medium">
-                              View
-                            </span>
+                            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
+                              {/* MEDIA */}
+
+                              <div>
+                                <p className="text-xs text-gray-400">Media</p>
+
+                                <p className="font-semibold text-gray-700">
+                                  {media?.woim_media || "-"}
+                                </p>
+                              </div>
+
+                              {/* SIZE */}
+
+                              <div>
+                                <p className="text-xs text-gray-400">Size</p>
+
+                                <p className="text-gray-700">
+                                  {media?.woim_size_height || "-"} ×{" "}
+                                  {media?.woim_size_width || "-"}{" "}
+                                  {media?.woim_unit || ""}
+                                </p>
+                              </div>
+
+                              {/* QUANTITY */}
+
+                              <div>
+                                <p className="text-xs text-gray-400">
+                                  Quantity
+                                </p>
+
+                                <p className="text-gray-700">
+                                  {media?.woim_quantity || 0}
+                                </p>
+                              </div>
+
+                              {/* AREA */}
+
+                              <div>
+                                <p className="text-xs text-gray-400">Area</p>
+
+                                <p className="font-medium text-gray-800">
+                                  {media?.woim_area
+                                    ? `${media.woim_area} Sq.Ft`
+                                    : "-"}
+                                </p>
+                              </div>
+
+                              {/* CREATIVE */}
+
+                              <div>
+                                <p className="text-xs text-gray-400">
+                                  Creative
+                                </p>
+
+                                <p
+                                  className="max-w-[150px] truncate text-gray-700"
+                                  title={media?.woim_creative || ""}
+                                >
+                                  {media?.woim_creative || "-"}
+                                </p>
+                              </div>
+
+                              {/* IMAGE */}
+
+                              <div>
+                                <p className="mb-1 text-xs text-gray-400">
+                                  Image
+                                </p>
+
+                                {media?.woim_creative_image ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleImagePreview(
+                                        media?.woim_creative_image,
+                                      )
+                                    }
+                                    className="group relative block cursor-pointer"
+                                    title="Click to view image"
+                                  >
+                                    <img
+                                      src={`${apiUrl}/${String(
+                                        media.woim_creative_image,
+                                      ).replace(/^\/+/, "")}`}
+                                      alt="Creative"
+                                      className="h-12 w-16 rounded-lg border border-gray-200 object-cover transition duration-200 group-hover:scale-105 group-hover:shadow-md"
+                                    />
+
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition group-hover:opacity-100">
+                                      <span className="text-xs font-medium text-white">
+                                        View
+                                      </span>
+                                    </div>
+                                  </button>
+                                ) : (
+                                  <span className="text-gray-400">
+                                    No Image
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </button>
-                      ) : (
-                        <span className="text-gray-400">No Image</span>
-                      )}
+                        ))}
+
+                        {/* NO MEDIA */}
+
+                        {(!item?.media_items ||
+                          item.media_items.length === 0) && (
+                          <span className="text-gray-400">No media added</span>
+                        )}
+                      </div>
                     </td>
 
-                    {/* Status */}
+                    {/* STATUS */}
+
                     <td className="px-5 py-4">
                       <span
-                        className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
                           String(item?.woi_status || "").toLowerCase() ===
                           "completed"
                             ? "bg-green-50 text-green-700"
@@ -821,27 +1016,35 @@ const WorkOrder = () => {
                       </span>
                     </td>
 
-                    {/* Actions */}
+                    {/* ACTIONS */}
+
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
+                        {/* SHARE */}
+
                         <button
                           onClick={() => handlePrintShare(item)}
-                          className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+                          className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
                           title="Share as a file"
                         >
                           <FaShareAltSquare size={16} />
                         </button>
+
+                        {/* UPDATE */}
+
                         <button
                           onClick={() => handleUpdate(item)}
-                          className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+                          className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
                           title="Update Work Item"
                         >
                           <FiEdit size={16} />
                         </button>
 
+                        {/* DELETE */}
+
                         <button
                           onClick={() => handleDelete(item?.woi_id)}
-                          className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                          className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
                           title="Delete Work Item"
                         >
                           <FiTrash2 size={16} />
@@ -859,7 +1062,7 @@ const WorkOrder = () => {
           ================================================== */}
 
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-4 border-t border-gray-200">
+            <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row">
               <p className="text-sm text-gray-500">
                 Showing{" "}
                 <span className="font-medium text-gray-700">
@@ -880,15 +1083,19 @@ const WorkOrder = () => {
               </p>
 
               <div className="flex items-center gap-1">
+                {/* PREVIOUS */}
+
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
-                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Previous
                 </button>
+
+                {/* PAGE NUMBERS */}
 
                 {getPageNumbers().map((page, index) =>
                   page === "..." ? (
@@ -902,9 +1109,9 @@ const WorkOrder = () => {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`min-w-[38px] px-3 py-2 text-sm rounded-lg border transition ${
+                      className={`min-w-[38px] rounded-lg border px-3 py-2 text-sm transition ${
                         currentPage === page
-                          ? "bg-blue-600 text-white border-blue-600"
+                          ? "border-blue-600 bg-blue-600 text-white"
                           : "border-gray-300 text-gray-700 hover:bg-gray-50"
                       }`}
                     >
@@ -913,12 +1120,14 @@ const WorkOrder = () => {
                   ),
                 )}
 
+                {/* NEXT */}
+
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
                   disabled={currentPage === totalPages}
-                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -931,11 +1140,11 @@ const WorkOrder = () => {
             EXCEL
         ====================================================== */}
 
-        <div className="flex justify-end mt-3">
+        <div className="mt-3 flex justify-end">
           <button
             onClick={downloadExcel}
             disabled={filteredWorkItems.length === 0}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition"
+            className="flex items-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-white transition hover:bg-green-700 disabled:opacity-50"
           >
             <FiDownload />
             Excel
@@ -944,7 +1153,7 @@ const WorkOrder = () => {
       </div>
 
       {/* =======================================================
-          ADD WORK ITEM MODAL
+          ADD WORK ITEM
       ======================================================== */}
 
       <AddWorkItemsModel
@@ -956,15 +1165,24 @@ const WorkOrder = () => {
         getAllPrinterMaster={getAllPrinterMaster}
       />
 
+      {/* =======================================================
+          UPDATE WORK ITEM
+      ======================================================== */}
+
       <UpdateWorkItemsModel
         isItemOpen={updateModel}
         onItemClose={() => {
           setUpdateModel(false);
+          setSelected(null);
         }}
         getAllWorkItems={getAllWorkItems}
         mediaType={mediaType}
         selectedWorkItem={selected}
       />
+
+      {/* =======================================================
+          PRINTER MASTER
+      ======================================================== */}
 
       <PrinterMasterModel
         isOpen={printerMasterTable}
@@ -973,10 +1191,23 @@ const WorkOrder = () => {
         printerMaster={printerMaster}
       />
 
+      {/* =======================================================
+          IMAGE PREVIEW
+      ======================================================== */}
+
       <ImagePreviewModal
         isOpen={imagePreview.isOpen}
         imageUrl={imagePreview.imageUrl}
         onClose={closeImagePreview}
+      />
+
+      <WorkOrderShareModal
+        isOpen={shareModel}
+        onClose={() => {
+          setShareModel(false);
+          setShareWorkItem(null);
+        }}
+        workItem={shareWorkItem}
       />
     </>
   );

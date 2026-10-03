@@ -9,7 +9,7 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Store uploaded file temporarily in memory
+// Store uploaded files temporarily in memory
 const storage = multer.memoryStorage();
 
 const uploadWorkItem = multer({
@@ -20,7 +20,7 @@ const uploadWorkItem = multer({
   },
 
   fileFilter: (req, file, cb) => {
-    // Accept any image type
+    // Accept only image files
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
@@ -29,39 +29,45 @@ const uploadWorkItem = multer({
   },
 });
 
-// Convert uploaded image to compressed WebP
+// -----------------------------------------
+// Convert multiple uploaded images to WebP
+// -----------------------------------------
 const processWorkItemImage = async (req, res, next) => {
   try {
-    if (!req.file) {
+    // No files uploaded
+    if (!req.files || req.files.length === 0) {
       return next();
     }
 
-    const fileName = `work-item-${Date.now()}-${Math.round(
-      Math.random() * 1e9,
-    )}.webp`;
+    // Process all uploaded files
+    for (const file of req.files) {
+      const fileName = `work-item-${Date.now()}-${Math.round(
+        Math.random() * 1e9,
+      )}.webp`;
 
-    const outputPath = path.join(uploadDir, fileName);
+      const outputPath = path.join(uploadDir, fileName);
 
-    await sharp(req.file.buffer)
-      .rotate()
-      .resize({
-        width: 2000,
-        height: 2000,
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .webp({
-        quality: 75,
-        effort: 6,
-      })
-      .toFile(outputPath);
+      await sharp(file.buffer)
+        .rotate()
+        .resize({
+          width: 2000,
+          height: 2000,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({
+          quality: 75,
+          effort: 6,
+        })
+        .toFile(outputPath);
 
-    // Replace req.file information with processed file information
-    req.file.filename = fileName;
-    req.file.path = outputPath;
-    req.file.destination = uploadDir;
-    req.file.mimetype = "image/webp";
-    req.file.originalname = fileName;
+      // Replace file information with processed file information
+      file.filename = fileName;
+      file.path = outputPath;
+      file.destination = uploadDir;
+      file.mimetype = "image/webp";
+      file.originalname = fileName;
+    }
 
     next();
   } catch (error) {
