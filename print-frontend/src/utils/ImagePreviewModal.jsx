@@ -1,7 +1,25 @@
+import { useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 
 const ImagePreviewModal = ({ isOpen, imageUrl, onClose }) => {
   if (!isOpen) return null;
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen]);
 
   return (
     <div

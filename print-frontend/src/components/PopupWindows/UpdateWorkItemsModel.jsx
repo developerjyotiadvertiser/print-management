@@ -688,7 +688,7 @@ const UpdateWorkItemsModel = ({
                   </p>
                 </div>
 
-                <button
+                {/* <button
                   type="button"
                   onClick={handleAddMedia}
                   disabled={loading}
@@ -696,7 +696,7 @@ const UpdateWorkItemsModel = ({
                 >
                   <FiPlus />
                   Add Print
-                </button>
+                </button> */}
               </div>
 
               {/* ================================================= */}
@@ -937,6 +937,17 @@ const UpdateWorkItemsModel = ({
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="mt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={handleAddMedia}
+                disabled={loading}
+                className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-green-700 disabled:opacity-50"
+              >
+                + Print
+              </button>
             </div>
 
             {/* ================================================= */}

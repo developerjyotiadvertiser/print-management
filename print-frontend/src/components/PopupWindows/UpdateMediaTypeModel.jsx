@@ -230,7 +230,7 @@ const UpdateMediaTypeModel = ({
                 </label>
 
                 <input
-                  type="number"
+                  type="text"
                   name="mm_gsm"
                   value={formData.mm_gsm}
                   onChange={handleChange}

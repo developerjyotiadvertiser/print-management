@@ -18,6 +18,7 @@ const MediaTypeTable = () => {
   const [mediaType, setMediaType] = useState([]);
   const [isMediaTypeModalOpen, setIsMediaTypeModalOpen] = useState(false);
   const [searchMedia, setSearchMedia] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Active");
 
   const handleUpdate = (data) => {
     setUpdateModel(true);
@@ -76,9 +77,16 @@ const MediaTypeTable = () => {
     }
   };
 
-  const filteredMedia = employees.filter((media) =>
-    media?.mm_media?.toLowerCase().includes(searchMedia.toLowerCase().trim()),
-  );
+  const filteredMedia = employees.filter((media) => {
+    const matchesSearch = media?.mm_media
+      ?.toLowerCase()
+      .includes(searchMedia.toLowerCase().trim());
+
+    const matchesStatus =
+      statusFilter === "All" || media?.mm_status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   const downloadExcel = () => {
     if (employees?.length === 0) {
@@ -162,6 +170,30 @@ const MediaTypeTable = () => {
 
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-2">
+            {/* Active / Inactive Toggle */}
+            <button
+              type="button"
+              onClick={() =>
+                setStatusFilter((prev) =>
+                  prev === "Active" ? "Inactive" : "Active",
+                )
+              }
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-white transition text-xs font-bold whitespace-nowrap ${
+                statusFilter === "Active"
+                  ? "bg-green-500 hover:bg-green-600"
+                  : "bg-gray-500 hover:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${
+                  statusFilter === "Active" ? "bg-white" : "bg-red-600"
+                }`}
+              ></span>
+
+              {statusFilter}
+            </button>
+
+            {/* Media Type */}
             <button
               type="button"
               onClick={() => setIsMediaTypeModalOpen(true)}
@@ -170,6 +202,7 @@ const MediaTypeTable = () => {
               + Media Type
             </button>
 
+            {/* Excel */}
             <button
               type="button"
               onClick={downloadExcel}

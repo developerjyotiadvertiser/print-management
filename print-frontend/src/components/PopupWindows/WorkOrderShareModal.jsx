@@ -38,7 +38,11 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
   // FORMAT DATE
   // =========================================================
 
-  const currentDate = new Date().toLocaleDateString();
+  const currentDate = new Date().toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -613,6 +617,23 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
   // =========================================================
   // CLOSE EMAIL MODAL
   // =========================================================
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen]);
 
   const handleCloseEmailModal = () => {
     if (sendingEmail) {
