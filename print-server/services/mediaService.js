@@ -3,7 +3,7 @@ const moment = require("moment-timezone");
 
 const saveMediaService = async (data) => {
   const { mt_name, mt_status } = data;
-  const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  const createdAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
   const sql = `
         INSERT INTO media_type
         (mt_name, mt_status, mt_created_at)
@@ -32,11 +32,13 @@ const updateMediaService = async (mt_id, data) => {
   const fields = [];
   const values = [];
 
-  const updateAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  const updateAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
+
   if (data.mt_name !== undefined) {
     fields.push("mt_name = ?");
     values.push(data.mt_name);
   }
+
   if (data.mt_status !== undefined) {
     fields.push("mt_status = ?");
     values.push(data.mt_status);
@@ -50,7 +52,9 @@ const updateMediaService = async (mt_id, data) => {
   // Always update print_updated_at
   fields.push("mt_updated_at = ?");
   values.push(updateAt);
+
   values.push(mt_id);
+
   const sql = `
     UPDATE media_type
     SET ${fields.join(", ")}
@@ -58,6 +62,7 @@ const updateMediaService = async (mt_id, data) => {
   `;
 
   const [result] = await pool.query(sql, values);
+
   return result;
 };
 
@@ -67,7 +72,9 @@ const deleteMediaService = async (mt_id) => {
       DELETE FROM media_type
       WHERE mt_id = ?
     `;
+
     const [result] = await pool.query(sql, [mt_id]);
+
     return result;
   } catch (error) {
     throw error;

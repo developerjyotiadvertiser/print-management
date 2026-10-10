@@ -7,6 +7,7 @@ const PrinterMasterModel = ({
   onClose,
   getAllPrinterMaster,
   printerMaster,
+  mediaType,
 }) => {
   const modalRef = useRef();
   const [loading, setLoading] = useState(false);
@@ -75,6 +76,7 @@ const PrinterMasterModel = ({
         <PrinterMasterTable
           getAllPrinterMaster={getAllPrinterMaster}
           printerMaster={printerMaster}
+          mediaType={mediaType}
         />
       </div>
     </div>

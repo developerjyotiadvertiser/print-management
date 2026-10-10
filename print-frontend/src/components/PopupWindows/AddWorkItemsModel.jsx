@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { IoClose } from "react-icons/io5";
-import { FiPlus, FiTrash2, FiImage } from "react-icons/fi";
+import { FiTrash2, FiImage } from "react-icons/fi";
 import AddPrinterMasterModel from "./AddPrinterMasterModel";
 
 const getTodayDate = () => {
@@ -19,6 +19,7 @@ const getTodayDate = () => {
 // CREATE EMPTY MEDIA ITEM
 // =====================================================
 const createEmptyMedia = () => ({
+  woim_pmm_id: "",
   woim_media: "",
   woim_size_height: "",
   woim_size_width: "",
@@ -85,8 +86,9 @@ const AddWorkItemsModel = ({
   const [formData, setFormData] = useState({
     woi_jc_number: "",
     woi_work_allot_date: getTodayDate(),
+    woi_pm_id: "",
     woi_printer_name: "",
-    woi_status: "Done",
+    woi_status: "Allotted",
   });
 
   // =====================================================
@@ -96,17 +98,71 @@ const AddWorkItemsModel = ({
 
   const [loading, setLoading] = useState(false);
   const [addPrinter, setAddPrinter] = useState(false);
+  const [employees, setEmployees] = useState([]);
+
+  const getAllWorkOrderMediaMaster = async (pm_id) => {
+    if (!pm_id) {
+      setEmployees([]);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const { data } = await axios.get(
+        `${apiUrl}/api/printer-master/get-printer-media/${pm_id}`,
+      );
+
+      setEmployees(data?.data?.data || []);
+    } catch (error) {
+      console.error("Error fetching printer media:", error);
+      setEmployees([]);
+      toast.error("Failed to load printer media.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // =====================================================
   // HANDLE MAIN FORM CHANGE
   // =====================================================
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    // ==========================================
+    // PRINTER SELECTED
+    // ==========================================
+
+    if (name === "woi_pm_id") {
+      const selectedPrinter = printerMaster?.find(
+        (item) => String(item?.pm_id) === String(value),
+      );
+
+      if (!selectedPrinter) {
+        setEmployees([]);
+
+        setMediaItems([createEmptyMedia()]);
+        return;
+      }
+
+      // Store printer name also for display/backend if needed
+      setFormData((prev) => ({
+        ...prev,
+        woi_pm_id: selectedPrinter.pm_id,
+        woi_printer_name: selectedPrinter.printer_name,
+      }));
+
+      // Fetch media belonging to this printer
+      await getAllWorkOrderMediaMaster(selectedPrinter.pm_id);
+
+      // Reset media selections because printer changed
+      setMediaItems([createEmptyMedia()]);
+    }
   };
 
   // =====================================================
@@ -123,7 +179,23 @@ const AddWorkItemsModel = ({
         [name]: value,
       };
 
-      // Recalculate area when dimensions/unit/quantity change
+      // ==========================================
+      // MEDIA SELECTED
+      // ==========================================
+
+      if (name === "woim_pmm_id") {
+        const selectedMedia = employees?.find(
+          (item) => String(item?.pmm_id) === String(value),
+        );
+
+        updated[index].woim_pmm_id = value;
+        updated[index].woim_media = selectedMedia?.pmm_media || "";
+      }
+
+      // ==========================================
+      // AREA CALCULATION
+      // ==========================================
+
       if (
         name === "woim_size_width" ||
         name === "woim_size_height" ||
@@ -148,6 +220,22 @@ const AddWorkItemsModel = ({
   // =====================================================
   // ADD MEDIA ITEM
   // =====================================================
+  // const addMediaItem = () => {
+  //   const selectedPrinter = printerMaster?.find(
+  //     (item) => item?.printer_name === formData.woi_printer_name,
+  //   );
+
+  //   const selectedMedia = selectedPrinter?.pm_media || "";
+
+  //   setMediaItems((prev) => [
+  //     ...prev,
+  //     {
+  //       ...createEmptyMedia(),
+  //       woim_media: selectedMedia,
+  //     },
+  //   ]);
+  // };
+
   const addMediaItem = () => {
     setMediaItems((prev) => [...prev, createEmptyMedia()]);
   };
@@ -310,10 +398,12 @@ const AddWorkItemsModel = ({
     setFormData({
       woi_jc_number: "",
       woi_work_allot_date: getTodayDate(),
+      woi_pm_id: "",
       woi_printer_name: "",
-      woi_status: "Done",
+      woi_status: "Allotted",
     });
 
+    setEmployees([]);
     setMediaItems([createEmptyMedia()]);
   };
 
@@ -391,7 +481,9 @@ const AddWorkItemsModel = ({
 
       payload.append("woi_work_allot_date", formData.woi_work_allot_date);
 
-      payload.append("woi_printer_name", formData.woi_printer_name);
+      // payload.append("woi_printer_name", formData.woi_printer_name);
+
+      payload.append("woi_pm_id", formData.woi_pm_id);
 
       payload.append("woi_status", formData.woi_status);
 
@@ -400,6 +492,7 @@ const AddWorkItemsModel = ({
       // =================================================
 
       const mediaData = mediaItems.map((media) => ({
+        woim_pmm_id: media.woim_pmm_id,
         woim_media: media.woim_media,
         woim_size_height: media.woim_size_height,
         woim_size_width: media.woim_size_width,
@@ -411,15 +504,29 @@ const AddWorkItemsModel = ({
 
       payload.append("media_items", JSON.stringify(mediaData));
 
+      console.log("431 work media", mediaData);
+
       // =================================================
       // ADD IMAGES
       // =================================================
 
-      mediaItems.forEach((media) => {
+      // mediaItems.forEach((media) => {
+      //   if (media.woim_creative_image) {
+      //     payload.append("woi_creative_images", media.woim_creative_image);
+      //   }
+      // });
+
+      const imageIndexes = [];
+
+      mediaItems.forEach((media, index) => {
         if (media.woim_creative_image) {
           payload.append("woi_creative_images", media.woim_creative_image);
+
+          imageIndexes.push(index);
         }
       });
+
+      payload.append("image_indexes", JSON.stringify(imageIndexes));
 
       // =================================================
       // API REQUEST
@@ -491,9 +598,7 @@ const AddWorkItemsModel = ({
           ========================================== */}
 
           <div className="mb-5 flex items-center justify-between border-b pb-4">
-            <h2 className="text-xl font-semibold text-blue-800">
-              Add Work Item
-            </h2>
+            <h2 className="text-xl font-semibold text-blue-800">Add New Job</h2>
 
             <button
               type="button"
@@ -564,8 +669,8 @@ const AddWorkItemsModel = ({
                 </label>
 
                 <select
-                  name="woi_printer_name"
-                  value={formData.woi_printer_name}
+                  name="woi_pm_id"
+                  value={formData.woi_pm_id}
                   onChange={handleChange}
                   required
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -573,10 +678,7 @@ const AddWorkItemsModel = ({
                   <option value="">-select-</option>
 
                   {printerMaster?.map((item) => (
-                    <option
-                      key={item?.printer_id || item?.printer_name}
-                      value={item?.printer_name}
-                    >
+                    <option key={item?.pm_id} value={item?.pm_id}>
                       {item?.printer_name}
                     </option>
                   ))}
@@ -605,7 +707,7 @@ const AddWorkItemsModel = ({
                   required
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                  <option value="Done">Done</option>
+                  <option value="Allotted">Allotted</option>
 
                   <option value="Cancelled">Cancelled</option>
                 </select>
@@ -645,8 +747,6 @@ const AddWorkItemsModel = ({
 
               <div className="space-y-5">
                 {mediaItems.map((media, index) => {
-                  // Separate ref for every image input
-                  // using a local callback approach
                   return (
                     <MediaItemCard
                       key={index}
@@ -655,6 +755,7 @@ const AddWorkItemsModel = ({
                       mediaType={mediaType}
                       loading={loading}
                       onChange={handleMediaChange}
+                      printerMedia={employees}
                       onImageChange={handleMediaImageChange}
                       onRemove={removeMediaItem}
                       onRemoveImage={removeMediaImage}
@@ -726,7 +827,7 @@ const AddWorkItemsModel = ({
 const MediaItemCard = ({
   index,
   media,
-  mediaType,
+  printerMedia,
   loading,
   onChange,
   onImageChange,
@@ -767,17 +868,18 @@ const MediaItemCard = ({
           </label>
 
           <select
-            name="woim_media"
-            value={media.woim_media}
+            name="woim_pmm_id"
+            value={media.woim_pmm_id}
             onChange={(e) => onChange(index, e)}
             required
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            disabled={!printerMedia?.length || loading}
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100"
           >
             <option value="">-select-</option>
 
-            {mediaType?.map((item) => (
-              <option key={item?.mt_id || item?.mt_name} value={item?.mt_name}>
-                {item?.mt_name}
+            {printerMedia?.map((item) => (
+              <option key={item?.pmm_id} value={item?.pmm_id}>
+                {item?.pmm_media}
               </option>
             ))}
           </select>

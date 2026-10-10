@@ -386,8 +386,8 @@ const MediaTypeTable = () => {
         mediaType={mediaType}
       />
       <AddMediaTypeModal
-        isOpen={isMediaTypeModalOpen}
-        onClose={() => setIsMediaTypeModalOpen(false)}
+        isMediaOpen={isMediaTypeModalOpen}
+        onMediaClose={() => setIsMediaTypeModalOpen(false)}
         getAllMediaMaster={getAllMediaMaster}
         mediaType={mediaType}
         getAllMediaType={getAllMediaType}

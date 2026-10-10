@@ -98,14 +98,19 @@ const Navbar = () => {
                 ))}
               </ul> */}
 
-              <button
-                onClick={() => {
-                  navigate("/work-order");
-                }}
-                className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
-              >
-                Work Order
-              </button>
+              {user && user?.user?.emp_role !== "employee" && (
+                <>
+                  <button
+                    onClick={() => {
+                      navigate("/work-order-jobs");
+                    }}
+                    className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
+                  >
+                    Work Order
+                  </button>
+                </>
+              )}
+
               <button
                 onClick={() => {
                   navigate("/");

@@ -10,13 +10,17 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
-import { FaShareAltSquare } from "react-icons/fa";
+import { FaDatabase, FaNetworkWired, FaShareAltSquare } from "react-icons/fa";
 
 import AddWorkItemsModel from "../components/PopupWindows/AddWorkItemsModel";
 import UpdateWorkItemsModel from "../components/PopupWindows/UpdateWorkItemsModel";
 import PrinterMasterModel from "../components/PopupWindows/PrinterMasterModel";
 import ImagePreviewModal from "../utils/ImagePreviewModal";
 import WorkOrderShareModal from "../components/PopupWindows/WorkOrderShareModal";
+import { LiaFirstOrderAlt } from "react-icons/lia";
+import { BsFillPrinterFill } from "react-icons/bs";
+import AddFWOModel from "../components/finalWorkOrder/AddFWOModel";
+import { useNavigate } from "react-router-dom";
 
 const WorkOrder = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -25,6 +29,7 @@ const WorkOrder = () => {
   // STATE
   // =========================================================
 
+  const navigate = useNavigate();
   const [workItems, setWorkItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -51,6 +56,7 @@ const WorkOrder = () => {
 
   const [shareModel, setShareModel] = useState(false);
   const [shareWorkItem, setShareWorkItem] = useState(null);
+  const [isFwoOpen, setIsFwoOpen] = useState(false);
 
   const [imagePreview, setImagePreview] = useState({
     isOpen: false,
@@ -589,6 +595,8 @@ const WorkOrder = () => {
     toast.success("Excel file downloaded successfully");
   };
 
+  console.log("592 employee", workItems);
+
   // =========================================================
   // RENDER
   // =========================================================
@@ -603,29 +611,44 @@ const WorkOrder = () => {
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
-              Work Items Details
+              Work Order Jobs
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
               Showing {filteredWorkItems.length} of {workItems.length} work
-              orders
+              order jobs
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={() => {
+                navigate("/view-work-order");
+              }}
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f368e0] px-5 py-2 text-white transition hover:bg-[#b757aa]"
+            >
+              <FaDatabase /> View Orders
+            </button>
+            <button
+              onClick={() => setIsFwoOpen(true)}
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#43c09c] px-5 py-2 text-white transition hover:bg-[#35b08d]"
+            >
+              <LiaFirstOrderAlt /> Add Order
+            </button>
+            <button
               onClick={() => setPrinterMasterTable(true)}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
             >
-              Printer Master
+              <BsFillPrinterFill /> Printer
             </button>
 
             <button
               onClick={() => setAddModel(true)}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
             >
-              <FiPlus />
-              New Work Item
+              {/* <FiPlus /> */}
+              <FaNetworkWired />
+              New Job
             </button>
           </div>
         </div>
@@ -868,7 +891,7 @@ const WorkOrder = () => {
                     {/* PRINTER */}
 
                     <td className="px-5 py-4 text-gray-700">
-                      {item?.woi_printer_name || "-"}
+                      {item?.printer_name || "-"}
                     </td>
 
                     {/* =================================================
@@ -889,7 +912,7 @@ const WorkOrder = () => {
                                 <p className="text-xs text-gray-400">Media</p>
 
                                 <p className="font-semibold text-gray-700">
-                                  {media?.woim_media || "-"}
+                                  {media?.pmm_media || "-"}
                                 </p>
                               </div>
 
@@ -1030,25 +1053,29 @@ const WorkOrder = () => {
                           <FaShareAltSquare size={16} />
                         </button>
 
-                        {/* UPDATE */}
+                        {item?.woi_status !== "wo_created" && (
+                          <>
+                            {/* UPDATE */}
 
-                        <button
-                          onClick={() => handleUpdate(item)}
-                          className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
-                          title="Update Work Item"
-                        >
-                          <FiEdit size={16} />
-                        </button>
+                            <button
+                              onClick={() => handleUpdate(item)}
+                              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
+                              title="Update Work Item"
+                            >
+                              <FiEdit size={16} />
+                            </button>
 
-                        {/* DELETE */}
+                            {/* DELETE */}
 
-                        <button
-                          onClick={() => handleDelete(item?.woi_id)}
-                          className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
-                          title="Delete Work Item"
-                        >
-                          <FiTrash2 size={16} />
-                        </button>
+                            <button
+                              onClick={() => handleDelete(item?.woi_id)}
+                              className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
+                              title="Delete Work Item"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1189,6 +1216,7 @@ const WorkOrder = () => {
         onClose={() => setPrinterMasterTable(false)}
         getAllPrinterMaster={getAllPrinterMaster}
         printerMaster={printerMaster}
+        mediaType={mediaType}
       />
 
       {/* =======================================================
@@ -1208,6 +1236,15 @@ const WorkOrder = () => {
           setShareWorkItem(null);
         }}
         workItem={shareWorkItem}
+      />
+
+      <AddFWOModel
+        isOpen={isFwoOpen}
+        onClose={() => setIsFwoOpen(false)}
+        onSaved={() => {
+          setIsFwoOpen(false);
+          // Refresh your final work order list here.
+        }}
       />
     </>
   );

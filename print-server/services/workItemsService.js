@@ -1,6 +1,4 @@
 const pool = require("../config/db");
-const fs = require("fs");
-const path = require("path");
 const moment = require("moment-timezone");
 
 const saveWorkItemsService = async (data) => {
@@ -12,19 +10,26 @@ const saveWorkItemsService = async (data) => {
     const {
       woi_jc_number,
       woi_work_allot_date,
-      woi_printer_name,
+      woi_pm_id,
       woi_status,
       media_items = [],
     } = data;
 
     const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
 
-    // -----------------------------------------
-    // 1. INSERT PARENT WORK ORDER ITEM
-    // -----------------------------------------
+    // Validate printer
+    if (!woi_pm_id) {
+      throw new Error("Printer is required.");
+    }
+
+    if (!Array.isArray(media_items) || media_items.length === 0) {
+      throw new Error("At least one media item is required.");
+    }
+
+    // 1. Save parent work order.
+    // Existing DB column woi_printer_name stores pm_id.
     const workOrderSql = `
-      INSERT INTO work_order_items
-      (
+      INSERT INTO work_order_items (
         woi_jc_number,
         woi_work_allot_date,
         woi_printer_name,
@@ -37,48 +42,48 @@ const saveWorkItemsService = async (data) => {
     const [workOrderResult] = await connection.query(workOrderSql, [
       woi_jc_number,
       woi_work_allot_date,
-      woi_printer_name,
-      woi_status || "Done",
+      woi_pm_id,
+      woi_status || "Allotted",
       createdAt,
     ]);
 
     const woi_id = workOrderResult.insertId;
 
-    // -----------------------------------------
-    // 2. INSERT MULTIPLE MEDIA
-    // -----------------------------------------
-    if (media_items.length > 0) {
-      const mediaSql = `
-        INSERT INTO work_order_items_media
-        (
-          woim_woi_id,
-          woim_media,
-          woim_size_height,
-          woim_size_width,
-          woim_unit,
-          woim_quantity,
-          woim_area,
-          woim_creative,
-          woim_creative_image,
-          woim_created_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
+    // 2. Save media using existing DB columns.
+    // woim_media stores the selected pmm_id.
+    const mediaSql = `
+      INSERT INTO work_order_items_media (
+        woim_woi_id,
+        woim_media,
+        woim_size_height,
+        woim_size_width,
+        woim_unit,
+        woim_quantity,
+        woim_area,
+        woim_creative,
+        woim_creative_image,
+        woim_created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-      for (const media of media_items) {
-        await connection.query(mediaSql, [
-          woi_id,
-          media.woim_media,
-          media.woim_size_height,
-          media.woim_size_width,
-          media.woim_unit || "Inch",
-          media.woim_quantity,
-          media.woim_area,
-          media.woim_creative,
-          media.woim_creative_image,
-          createdAt,
-        ]);
+    for (const media of media_items) {
+      if (!media.woim_media) {
+        throw new Error("Printer media is required.");
       }
+
+      await connection.query(mediaSql, [
+        woi_id,
+        media.woim_media,
+        media.woim_size_height || null,
+        media.woim_size_width || null,
+        media.woim_unit || "Inch",
+        media.woim_quantity || null,
+        media.woim_area || null,
+        media.woim_creative || null,
+        media.woim_creative_image || null,
+        createdAt,
+      ]);
     }
 
     await connection.commit();
@@ -86,7 +91,7 @@ const saveWorkItemsService = async (data) => {
     return {
       success: true,
       woi_id,
-      message: "Work order item saved successfully",
+      message: "Work order item saved successfully.",
     };
   } catch (error) {
     await connection.rollback();
@@ -96,12 +101,70 @@ const saveWorkItemsService = async (data) => {
   }
 };
 
+// const getAllWorkItemsService = async () => {
+//   try {
+//     const [rows] = await pool.query(`
+//       SELECT
+//         woi.*,
+
+//         COALESCE(
+//           JSON_ARRAYAGG(
+//             CASE
+//               WHEN woim.woim_id IS NOT NULL THEN
+//                 JSON_OBJECT(
+//                   'woim_id', woim.woim_id,
+//                   'woim_woi_id', woim.woim_woi_id,
+//                   'woim_media', woim.woim_media,
+//                   'woim_size_height', woim.woim_size_height,
+//                   'woim_size_width', woim.woim_size_width,
+//                   'woim_unit', woim.woim_unit,
+//                   'woim_quantity', woim.woim_quantity,
+//                   'woim_area', woim.woim_area,
+//                   'woim_creative', woim.woim_creative,
+//                   'woim_creative_image', woim.woim_creative_image,
+//                   'woim_created_at', woim.woim_created_at,
+//                   'woim_updated_at', woim.woim_updated_at
+//                 )
+//             END
+//           ),
+//           JSON_ARRAY()
+//         ) AS media_items
+
+//       FROM work_order_items AS woi
+
+//       LEFT JOIN work_order_items_media AS woim
+//         ON woim.woim_woi_id = woi.woi_id
+
+//       GROUP BY woi.woi_id
+
+//       ORDER BY woi.woi_id DESC
+//     `);
+
+//     return {
+//       success: true,
+//       data: rows,
+//     };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
 const getAllWorkItemsService = async () => {
   try {
     const [rows] = await pool.query(`
       SELECT
         woi.*,
 
+        -- Printer details
+        pm.pm_id,
+        pm.printer_name,
+        pm.pm_gst_number,
+        pm.pm_address,
+        pm.pm_pan_number,
+        pm.pm_pincode,
+        pm.pm_status,
+
+        -- Media items
         COALESCE(
           JSON_ARRAYAGG(
             CASE
@@ -109,7 +172,14 @@ const getAllWorkItemsService = async () => {
                 JSON_OBJECT(
                   'woim_id', woim.woim_id,
                   'woim_woi_id', woim.woim_woi_id,
+
+                  -- Printer media ID and details
                   'woim_media', woim.woim_media,
+                  'pmm_id', pmm.pmm_id,
+                  'pmm_media', pmm.pmm_media,
+                  'pmm_price', pmm.pmm_price,
+
+                  -- Dimensions and other details
                   'woim_size_height', woim.woim_size_height,
                   'woim_size_width', woim.woim_size_width,
                   'woim_unit', woim.woim_unit,
@@ -127,8 +197,17 @@ const getAllWorkItemsService = async () => {
 
       FROM work_order_items AS woi
 
+      -- Get printer name
+      LEFT JOIN printer_master AS pm
+        ON pm.pm_id = woi.woi_printer_name
+
+      -- Get work order media
       LEFT JOIN work_order_items_media AS woim
         ON woim.woim_woi_id = woi.woi_id
+
+      -- Get printer media details
+      LEFT JOIN printer_master_media AS pmm
+        ON pmm.pmm_id = woim.woim_media
 
       GROUP BY woi.woi_id
 
@@ -140,6 +219,7 @@ const getAllWorkItemsService = async () => {
       data: rows,
     };
   } catch (error) {
+    console.error("Get All Work Items Service Error:", error);
     throw error;
   }
 };
@@ -152,15 +232,14 @@ const updateWorkItemsService = async (woi_id, data) => {
 
     const updateAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
 
-    // =========================================================
+    // ============================================================
     // 1. GET EXISTING WORK ORDER
-    // =========================================================
+    // ============================================================
 
     const [existingWorkOrderRows] = await connection.query(
       `
         SELECT
           woi_id,
-          woi_serial_number,
           woi_jc_number,
           woi_work_allot_date,
           woi_printer_name,
@@ -180,17 +259,12 @@ const updateWorkItemsService = async (woi_id, data) => {
       };
     }
 
-    // =========================================================
+    // ============================================================
     // 2. UPDATE PARENT WORK ORDER
-    // =========================================================
+    // ============================================================
 
     const parentFields = [];
     const parentValues = [];
-
-    if (data.woi_serial_number !== undefined) {
-      parentFields.push("woi_serial_number = ?");
-      parentValues.push(data.woi_serial_number);
-    }
 
     if (data.woi_jc_number !== undefined) {
       parentFields.push("woi_jc_number = ?");
@@ -212,25 +286,25 @@ const updateWorkItemsService = async (woi_id, data) => {
       parentValues.push(data.woi_status);
     }
 
-    // Only update parent if there are parent fields
     if (parentFields.length > 0) {
       parentFields.push("woi_updated_at = ?");
       parentValues.push(updateAt);
 
       parentValues.push(woi_id);
 
-      const parentSql = `
-        UPDATE work_order_items
-        SET ${parentFields.join(", ")}
-        WHERE woi_id = ?
-      `;
-
-      await connection.query(parentSql, parentValues);
+      await connection.query(
+        `
+          UPDATE work_order_items
+          SET ${parentFields.join(", ")}
+          WHERE woi_id = ?
+        `,
+        parentValues,
+      );
     }
 
-    // =========================================================
+    // ============================================================
     // 3. GET EXISTING MEDIA ITEMS
-    // =========================================================
+    // ============================================================
 
     const [existingMediaRows] = await connection.query(
       `
@@ -251,9 +325,9 @@ const updateWorkItemsService = async (woi_id, data) => {
       [woi_id],
     );
 
-    // =========================================================
-    // 4. MEDIA ITEMS FROM FRONTEND
-    // =========================================================
+    // ============================================================
+    // 4. PARSE MEDIA ITEMS
+    // ============================================================
 
     let mediaItems = data.media_items || [];
 
@@ -269,22 +343,24 @@ const updateWorkItemsService = async (woi_id, data) => {
       mediaItems = [];
     }
 
-    // =========================================================
-    // 5. TRACK MEDIA IDS RECEIVED FROM FRONTEND
-    // =========================================================
+    // ============================================================
+    // 5. TRACK EXISTING MEDIA IDS
+    // ============================================================
 
     const receivedMediaIds = [];
 
-    // =========================================================
+    // ============================================================
     // 6. UPDATE / INSERT MEDIA ITEMS
-    // =========================================================
+    // ============================================================
 
-    for (const media of mediaItems) {
+    for (let mediaIndex = 0; mediaIndex < mediaItems.length; mediaIndex++) {
+      const media = mediaItems[mediaIndex];
+
       const woim_id = media.woim_id ? Number(media.woim_id) : null;
 
-      // -------------------------------------------------------
+      // ==========================================================
       // UPDATE EXISTING MEDIA
-      // -------------------------------------------------------
+      // ==========================================================
 
       if (woim_id) {
         const existingMedia = existingMediaRows.find(
@@ -297,10 +373,15 @@ const updateWorkItemsService = async (woi_id, data) => {
           );
         }
 
+        // Mark this media as still existing
         receivedMediaIds.push(woim_id);
 
         const mediaFields = [];
         const mediaValues = [];
+
+        // --------------------------------------------------------
+        // BASIC MEDIA FIELDS
+        // --------------------------------------------------------
 
         if (media.woim_media !== undefined) {
           mediaFields.push("woim_media = ?");
@@ -337,46 +418,58 @@ const updateWorkItemsService = async (woi_id, data) => {
           mediaValues.push(media.woim_creative);
         }
 
-        // -----------------------------------------------------
+        // --------------------------------------------------------
         // IMAGE
-        // -----------------------------------------------------
+        // --------------------------------------------------------
+        // Controller sends the OLD image path when no new image
+        // was uploaded.
+        //
+        // Therefore we only update the image if the incoming
+        // image path is DIFFERENT from the existing image path.
+        // --------------------------------------------------------
 
-        if (media.woim_creative_image !== undefined) {
+        let newImagePath = null;
+        let imageWasReplaced = false;
+
+        if (
+          media.woim_creative_image !== undefined &&
+          media.woim_creative_image !== null &&
+          media.woim_creative_image !== existingMedia.woim_creative_image
+        ) {
+          newImagePath = media.woim_creative_image;
+          imageWasReplaced = true;
+
           mediaFields.push("woim_creative_image = ?");
-          mediaValues.push(media.woim_creative_image);
+          mediaValues.push(newImagePath);
         }
 
-        // -----------------------------------------------------
+        // --------------------------------------------------------
         // UPDATED AT
-        // -----------------------------------------------------
+        // --------------------------------------------------------
 
         if (mediaFields.length > 0) {
           mediaFields.push("woim_updated_at = ?");
           mediaValues.push(updateAt);
 
           mediaValues.push(woim_id);
-
-          const updateMediaSql = `
-            UPDATE work_order_items_media
-            SET ${mediaFields.join(", ")}
-            WHERE woim_id = ?
-              AND woim_woi_id = ?
-          `;
-
           mediaValues.push(woi_id);
 
-          await connection.query(updateMediaSql, mediaValues);
+          await connection.query(
+            `
+              UPDATE work_order_items_media
+              SET ${mediaFields.join(", ")}
+              WHERE woim_id = ?
+                AND woim_woi_id = ?
+            `,
+            mediaValues,
+          );
         }
 
-        // -----------------------------------------------------
-        // DELETE OLD IMAGE IF REPLACED
-        // -----------------------------------------------------
+        // --------------------------------------------------------
+        // DELETE OLD IMAGE IF NEW IMAGE WAS UPLOADED
+        // --------------------------------------------------------
 
-        if (
-          media.woim_creative_image !== undefined &&
-          existingMedia.woim_creative_image &&
-          existingMedia.woim_creative_image !== media.woim_creative_image
-        ) {
+        if (imageWasReplaced && existingMedia.woim_creative_image) {
           try {
             const oldImagePath = path.join(
               __dirname,
@@ -393,45 +486,51 @@ const updateWorkItemsService = async (woi_id, data) => {
         }
       }
 
-      // -------------------------------------------------------
+      // ==========================================================
       // INSERT NEW MEDIA
-      // -------------------------------------------------------
+      // ==========================================================
       else {
-        const insertMediaSql = `
-          INSERT INTO work_order_items_media
-          (
-            woim_woi_id,
-            woim_media,
-            woim_size_height,
-            woim_size_width,
-            woim_unit,
-            woim_quantity,
-            woim_area,
-            woim_creative,
-            woim_creative_image,
-            woim_created_at
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+        await connection.query(
+          `
+            INSERT INTO work_order_items_media
+            (
+              woim_woi_id,
+              woim_media,
+              woim_size_height,
+              woim_size_width,
+              woim_unit,
+              woim_quantity,
+              woim_area,
+              woim_creative,
+              woim_creative_image,
+              woim_created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `,
+          [
+            woi_id,
+            media.woim_media || null,
+            media.woim_size_height || null,
+            media.woim_size_width || null,
+            media.woim_unit || null,
+            media.woim_quantity || null,
+            media.woim_area || null,
+            media.woim_creative || null,
 
-        await connection.query(insertMediaSql, [
-          woi_id,
-          media.woim_media || null,
-          media.woim_size_height || null,
-          media.woim_size_width || null,
-          media.woim_unit || null,
-          media.woim_quantity || null,
-          media.woim_area || null,
-          media.woim_creative || null,
-          media.woim_creative_image || null,
-          updateAt,
-        ]);
+            // IMPORTANT:
+            // For a newly added print, controller has already
+            // assigned the correct uploaded image path here.
+            media.woim_creative_image || null,
+
+            updateAt,
+          ],
+        );
       }
     }
 
-    // =========================================================
+    // ============================================================
     // 7. DELETE MEDIA ITEMS REMOVED FROM FRONTEND
-    // =========================================================
+    // ============================================================
 
     for (const existingMedia of existingMediaRows) {
       const stillExists = receivedMediaIds.includes(
@@ -439,9 +538,9 @@ const updateWorkItemsService = async (woi_id, data) => {
       );
 
       if (!stillExists) {
-        // -----------------------------------------------------
-        // DELETE OLD IMAGE
-        // -----------------------------------------------------
+        // --------------------------------------------------------
+        // DELETE IMAGE FILE
+        // --------------------------------------------------------
 
         if (existingMedia.woim_creative_image) {
           try {
@@ -459,9 +558,9 @@ const updateWorkItemsService = async (woi_id, data) => {
           }
         }
 
-        // -----------------------------------------------------
-        // DELETE MEDIA RECORD
-        // -----------------------------------------------------
+        // --------------------------------------------------------
+        // DELETE DATABASE RECORD
+        // --------------------------------------------------------
 
         await connection.query(
           `
@@ -474,9 +573,9 @@ const updateWorkItemsService = async (woi_id, data) => {
       }
     }
 
-    // =========================================================
+    // ============================================================
     // 8. COMMIT
-    // =========================================================
+    // ============================================================
 
     await connection.commit();
 
@@ -486,12 +585,7 @@ const updateWorkItemsService = async (woi_id, data) => {
       message: "Work item updated successfully.",
     };
   } catch (error) {
-    // =========================================================
-    // ROLLBACK
-    // =========================================================
-
     await connection.rollback();
-
     throw error;
   } finally {
     connection.release();
@@ -503,21 +597,6 @@ const deleteWorkItemsService = async (woi_id) => {
 
   try {
     await connection.beginTransaction();
-
-    // --------------------------------
-    // GET MEDIA IMAGES BEFORE DELETE
-    // --------------------------------
-
-    const [mediaRows] = await connection.query(
-      `
-        SELECT
-          woim_id,
-          woim_creative_image
-        FROM work_order_items_media
-        WHERE woim_woi_id = ?
-      `,
-      [woi_id],
-    );
 
     // --------------------------------
     // CHECK WORK ORDER EXISTS
@@ -542,11 +621,34 @@ const deleteWorkItemsService = async (woi_id) => {
     }
 
     // --------------------------------
-    // DELETE PARENT
+    // GET MEDIA IMAGES BEFORE DELETE
     // --------------------------------
-    // Related media records will be
-    // automatically deleted because
-    // of ON DELETE CASCADE.
+
+    const [mediaRows] = await connection.query(
+      `
+        SELECT
+          woim_id,
+          woim_creative_image
+        FROM work_order_items_media
+        WHERE woim_woi_id = ?
+      `,
+      [woi_id],
+    );
+
+    // --------------------------------
+    // DELETE CHILD MEDIA RECORDS
+    // --------------------------------
+
+    await connection.query(
+      `
+        DELETE FROM work_order_items_media
+        WHERE woim_woi_id = ?
+      `,
+      [woi_id],
+    );
+
+    // --------------------------------
+    // DELETE PARENT WORK ITEM
     // --------------------------------
 
     const [result] = await connection.query(
@@ -578,22 +680,105 @@ const deleteWorkItemsService = async (woi_id) => {
     }
 
     // --------------------------------
-    // COMMIT
+    // COMMIT TRANSACTION
     // --------------------------------
 
     await connection.commit();
 
-    return result;
+    return {
+      affectedRows: result.affectedRows,
+      message: "Work Items deleted successfully.",
+    };
   } catch (error) {
     // --------------------------------
-    // ROLLBACK
+    // ROLLBACK TRANSACTION
     // --------------------------------
 
     await connection.rollback();
 
+    console.error("Delete Work Items Error:", error);
+
     throw error;
   } finally {
     connection.release();
+  }
+};
+
+const getAllWorkItemsByPrinterService = async (printer_id) => {
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT
+        woi.*,
+
+        -- Printer master details
+        pm.pm_id,
+        pm.printer_name,
+        pm.pm_gst_number,
+        pm.pm_address,
+        pm.pm_pan_number,
+        pm.pm_pincode,
+        pm.pm_status,
+        pm.pm_created_at,
+        pm.pm_updated_at,
+
+        -- Work order media with printer pricing
+        (
+          SELECT COALESCE(
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'woim_id', woim.woim_id,
+                'woim_woi_id', woim.woim_woi_id,
+                'woim_media', woim.woim_media,
+                'woim_size_height', woim.woim_size_height,
+                'woim_size_width', woim.woim_size_width,
+                'woim_unit', woim.woim_unit,
+                'woim_quantity', woim.woim_quantity,
+                'woim_area', woim.woim_area,
+                'woim_creative', woim.woim_creative,
+                'woim_creative_image', woim.woim_creative_image,
+                'woim_created_at', woim.woim_created_at,
+                'woim_updated_at', woim.woim_updated_at,
+
+                -- Matching printer media details
+                'pmm_id', pmm.pmm_id,
+                'pmm_printer_id', pmm.pmm_printer_id,
+                'pmm_media', pmm.pmm_media,
+                'pmm_price', pmm.pmm_price,
+                'pmm_created_at', pmm.pmm_created_at,
+                'pmm_updated_at', pmm.pmm_updated_at
+              )
+            ),
+            JSON_ARRAY()
+          )
+          FROM work_order_items_media AS woim
+
+          LEFT JOIN printer_master_media AS pmm
+            ON pmm.pmm_id = woim.woim_media
+           AND pmm.pmm_printer_id = pm.pm_id
+
+          WHERE woim.woim_woi_id = woi.woi_id
+        ) AS media_items
+
+      FROM work_order_items AS woi
+
+      INNER JOIN printer_master AS pm
+        ON pm.pm_id = woi.woi_printer_name
+
+      WHERE pm.pm_id = ?
+
+      ORDER BY woi.woi_id DESC
+      `,
+      [printer_id],
+    );
+
+    return {
+      success: true,
+      data: rows,
+    };
+  } catch (error) {
+    console.error("Error fetching work items by printer:", error);
+    throw error;
   }
 };
 
@@ -602,4 +787,5 @@ module.exports = {
   getAllWorkItemsService,
   updateWorkItemsService,
   deleteWorkItemsService,
+  getAllWorkItemsByPrinterService,
 };

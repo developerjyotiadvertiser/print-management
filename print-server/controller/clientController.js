@@ -25,6 +25,8 @@ const saveClientController = async (req, res) => {
       message: "Client Record Saved Successfully.",
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -35,12 +37,14 @@ const saveClientController = async (req, res) => {
 const getAllClientController = async (req, res) => {
   try {
     const employees = await clientService.getAllClientService();
+
     res.status(201).json({
       success: true,
       message: "Fetched client details successfully.",
       data: employees,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -51,7 +55,9 @@ const getAllClientController = async (req, res) => {
 const updateClientController = async (req, res) => {
   try {
     const { client_id } = req.params;
+
     const result = await clientService.updateClientService(client_id, req.body);
+
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
@@ -74,7 +80,9 @@ const updateClientController = async (req, res) => {
 const deleteClientController = async (req, res) => {
   try {
     const { client_id } = req.params;
+
     const result = await clientService.deleteClientService(client_id, req.body);
+
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,

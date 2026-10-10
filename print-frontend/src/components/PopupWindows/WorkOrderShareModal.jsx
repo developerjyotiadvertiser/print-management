@@ -1117,7 +1117,9 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                       ====================================== */}
 
                     <td style={bodyStyleCenter}>
-                      {media?.woim_area ? media.woim_area : ""}
+                      {media?.woim_area
+                        ? Number(media.woim_area).toFixed(2)
+                        : ""}
                     </td>
 
                     {/* =====================================
@@ -1177,7 +1179,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                   fontWeight: "bold",
                 }}
               >
-                {totalArea || ""}
+                {Number(totalArea)?.toFixed(2) || ""}
               </td>
 
               <td style={bodyStyleCenter}></td>

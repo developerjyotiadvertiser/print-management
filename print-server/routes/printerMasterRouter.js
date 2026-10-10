@@ -19,4 +19,23 @@ router.delete(
   printerMasterController.deletePrinterController,
 );
 
+//media
+
+router.post(
+  "/save-printer-media",
+  printerMasterController.savePrinterMediaController,
+);
+router.get(
+  "/get-printer-media/:printer_id",
+  printerMasterController.getAllPrinterMediaController,
+);
+router.put(
+  "/update-printer-media/:pmm_id",
+  printerMasterController.updatePrinterMediaController,
+);
+router.delete(
+  "/delete-printer-media/:pmm_id",
+  printerMasterController.deletePrinterMediaController,
+);
+
 module.exports = router;

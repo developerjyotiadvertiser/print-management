@@ -7,8 +7,8 @@ import DeleteMediaItemsModel from "./DeleteMediaItemsModel";
 import { useSelector } from "react-redux";
 
 const AddMediaTypeModal = ({
-  isOpen,
-  onClose,
+  isMediaOpen,
+  onMediaClose,
   getAllMediaMaster,
   onMediaTypeAdded,
   mediaType,
@@ -81,27 +81,27 @@ const AddMediaTypeModal = ({
   // --------------------------------
   const handleClose = () => {
     if (loading) return;
-    onClose();
+    onMediaClose();
   };
 
   // --------------------------------
   // CLOSE ON ESC
   // --------------------------------
-  useEffect(() => {
-    if (!isOpen) return;
+  // useEffect(() => {
+  //   if (!isMediaOpen) return;
 
-    const handleEscKey = (e) => {
-      if (e.key === "Escape") {
-        handleClose();
-      }
-    };
+  //   const handleEscKey = (e) => {
+  //     if (e.key === "Escape") {
+  //       handleClose();
+  //     }
+  //   };
 
-    document.addEventListener("keydown", handleEscKey);
+  //   document.addEventListener("keydown", handleEscKey);
 
-    return () => {
-      document.removeEventListener("keydown", handleEscKey);
-    };
-  }, [isOpen, loading]);
+  //   return () => {
+  //     document.removeEventListener("keydown", handleEscKey);
+  //   };
+  // }, [isMediaOpen, loading]);
 
   // --------------------------------
   // RESET FORM
@@ -161,7 +161,7 @@ const AddMediaTypeModal = ({
         }
 
         resetForm();
-        onClose();
+        onMediaClose();
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add media type.");
@@ -170,7 +170,7 @@ const AddMediaTypeModal = ({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isMediaOpen) return null;
 
   return (
     <>

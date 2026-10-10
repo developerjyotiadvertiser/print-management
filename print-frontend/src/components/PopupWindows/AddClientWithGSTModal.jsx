@@ -56,20 +56,20 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
       }
     };
 
-    const handleEscKey = (e) => {
-      if (e.key === "Escape") {
-        handleClose();
-      }
-    };
+    // const handleEscKey = (e) => {
+    //   if (e.key === "Escape") {
+    //     handleClose();
+    //   }
+    // };
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    document.addEventListener("keydown", handleEscKey);
+    // document.addEventListener("keydown", handleEscKey);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
 
-      document.removeEventListener("keydown", handleEscKey);
+      // document.removeEventListener("keydown", handleEscKey);
     };
   }, [isOpen, loading, fetchingGST]);
 

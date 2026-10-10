@@ -5,14 +5,33 @@ import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import AddPrinterMasterModel from "./PopupWindows/AddPrinterMasterModel";
 import UpdatePrinterMasterModel from "./PopupWindows/UpdatePrinterMasterModel";
+import { MdAddPhotoAlternate, MdPermMedia } from "react-icons/md";
+import AddPrinterMediaModel from "./PopupWindows/AddPrinterMediaModel";
+import PrinterMediaModel from "./PopupWindows/PrinterMediaModel";
 
-const PrinterMasterTable = ({ getAllPrinterMaster, printerMaster }) => {
+const PrinterMasterTable = ({
+  getAllPrinterMaster,
+  printerMaster,
+  mediaType,
+}) => {
   const user = useSelector((state) => state?.user?.currentUser);
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
   const [updatePrintMasterModel, setUpdatePrintMasterModel] = useState(false);
   const [selected, setSelected] = useState();
   const [addPrinter, setAddPrinter] = useState(false);
+  const [printMediaModel, setPrintMediaModel] = useState(false);
+  const [printMediaViewModel, setPrintMediaViewModel] = useState(false);
+
+  const handleViewPrinterMedia = (data) => {
+    setPrintMediaViewModel(true);
+    setSelected(data);
+  };
+
+  const handlePrinterMedia = (data) => {
+    setPrintMediaModel(true);
+    setSelected(data);
+  };
 
   const handleUpdate = (data) => {
     console.log("clicked 18");
@@ -68,6 +87,18 @@ const PrinterMasterTable = ({ getAllPrinterMaster, printerMaster }) => {
                   Printer Name
                 </th>
                 <th className="px-5 py-3 font-semibold text-gray-600">
+                  GST Number
+                </th>
+                <th className="px-5 py-3 font-semibold text-gray-600">
+                  PAN Number
+                </th>
+                <th className="px-5 py-3 font-semibold text-gray-600">
+                  PIN Code
+                </th>
+                <th className="px-5 py-3 font-semibold text-gray-600">
+                  Address
+                </th>
+                <th className="px-5 py-3 font-semibold text-gray-600">
                   Status
                 </th>
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
@@ -112,6 +143,30 @@ const PrinterMasterTable = ({ getAllPrinterMaster, printerMaster }) => {
                     </td>
 
                     <td className="px-5 py-4">
+                      <div className="font-medium text-gray-800">
+                        {employee?.pm_gst_number || "-"}
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-gray-800">
+                        {employee?.pm_pan_number || "-"}
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-gray-800">
+                        {employee?.pm_pincode || "-"}
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-gray-800">
+                        {employee?.pm_address || "-"}
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-4">
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium capitalize ${
                           String(employee?.pm_status || "").toLowerCase() ===
@@ -135,11 +190,26 @@ const PrinterMasterTable = ({ getAllPrinterMaster, printerMaster }) => {
                     {/* Action */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleViewPrinterMedia(employee)}
+                          className="p-2 rounded-lg text-green-600 bg-green-50 hover:bg-blue-100 transition"
+                          title="View Media"
+                        >
+                          <MdPermMedia size={16} />
+                        </button>
+                        <button
+                          onClick={() => handlePrinterMedia(employee)}
+                          className="p-2 rounded-lg text-purple-600 bg-purple-50 hover:bg-blue-100 transition"
+                          title="Add Media"
+                        >
+                          {/* <MdPermMedia size={16} /> */}
+                          <MdAddPhotoAlternate size={16} />
+                        </button>
                         {/* Update */}
                         <button
                           onClick={() => handleUpdate(employee)}
                           className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
-                          title="Update Media Type"
+                          title="Update Printer"
                         >
                           <FiEdit size={16} />
                         </button>
@@ -149,7 +219,7 @@ const PrinterMasterTable = ({ getAllPrinterMaster, printerMaster }) => {
                           <button
                             onClick={() => handleDelete(employee.pm_id)}
                             className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
-                            title="Delete Media Type"
+                            title="Delete Printer"
                           >
                             <FiTrash2 size={16} />
                           </button>
@@ -169,12 +239,28 @@ const PrinterMasterTable = ({ getAllPrinterMaster, printerMaster }) => {
         onPrintMasterClose={() => setUpdatePrintMasterModel(false)}
         getAllPrinterMaster={getAllPrinterMaster}
         selected={selected}
+        mediaType={mediaType}
       />
 
       <AddPrinterMasterModel
         isItemOpen={addPrinter}
         onItemClose={() => setAddPrinter(false)}
         getAllPrinterMaster={getAllPrinterMaster}
+        mediaType={mediaType}
+      />
+
+      <AddPrinterMediaModel
+        isMediaOpen={printMediaModel}
+        onMediaClose={() => setPrintMediaModel(false)}
+        selected={selected}
+        mediaType={mediaType}
+      />
+
+      <PrinterMediaModel
+        isMediaOpen={printMediaViewModel}
+        onMediaClose={() => setPrintMediaViewModel(false)}
+        selected={selected}
+        mediaType={mediaType}
       />
     </>
   );

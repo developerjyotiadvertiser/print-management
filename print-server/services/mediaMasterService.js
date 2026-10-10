@@ -2,16 +2,25 @@ const pool = require("../config/db");
 const moment = require("moment-timezone");
 
 const saveMediaMasterService = async (data) => {
-  const { mm_media, mm_brand, mm_gsm, mm_size, mm_status } = data;
+  const {
+    mm_media,
+    mm_brand,
+    mm_gsm,
+    mm_height,
+    mm_width,
+    mm_unit,
+    mm_size,
+    mm_status,
+  } = data;
 
-  const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  const createdAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
 
   try {
     // Get the latest serial number
     const [rows] = await pool.query(`
       SELECT mm_serial_number
       FROM media_master
-      WHERE mm_serial_number LIKE 'media-%'
+      WHERE mm_serial_number LIKE 'm-%'
       ORDER BY CAST(SUBSTRING_INDEX(mm_serial_number, '-', -1) AS UNSIGNED) DESC
       LIMIT 1
     `);
@@ -25,7 +34,7 @@ const saveMediaMasterService = async (data) => {
       nextNumber = lastNumber + 1;
     }
 
-    const mm_serial_number = `media-${nextNumber}`;
+    const mm_serial_number = `m-${nextNumber}`;
 
     const sql = `
       INSERT INTO media_master
@@ -34,11 +43,12 @@ const saveMediaMasterService = async (data) => {
         mm_media,
         mm_brand,
         mm_gsm,
+        mm_height, mm_width, mm_unit,
         mm_size,
         mm_status,
         mm_created_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await pool.query(sql, [
@@ -46,6 +56,9 @@ const saveMediaMasterService = async (data) => {
       mm_media,
       mm_brand,
       mm_gsm,
+      mm_height,
+      mm_width,
+      mm_unit,
       mm_size,
       mm_status,
       createdAt,
@@ -77,7 +90,7 @@ const updateMediaMasterService = async (mm_id, data) => {
   const fields = [];
   const values = [];
 
-  const updateAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  const updateAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
   if (data.mm_media !== undefined) {
     fields.push("mm_media = ?");
     values.push(data.mm_media);
@@ -91,6 +104,22 @@ const updateMediaMasterService = async (mm_id, data) => {
     fields.push("mm_gsm = ?");
     values.push(data.mm_gsm);
   }
+
+  if (data.mm_height !== undefined) {
+    fields.push("mm_height = ?");
+    values.push(data.mm_height);
+  }
+
+  if (data.mm_width !== undefined) {
+    fields.push("mm_width = ?");
+    values.push(data.mm_width);
+  }
+
+  if (data.mm_unit !== undefined) {
+    fields.push("mm_unit = ?");
+    values.push(data.mm_unit);
+  }
+
   if (data.mm_size !== undefined) {
     fields.push("mm_size = ?");
     values.push(data.mm_size);

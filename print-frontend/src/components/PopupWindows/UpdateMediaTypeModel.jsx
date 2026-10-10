@@ -130,21 +130,21 @@ const UpdateMediaTypeModel = ({
     onClose();
   };
 
-  useEffect(() => {
-    if (!isOpen) return;
+  // useEffect(() => {
+  //   if (!isOpen) return;
 
-    const handleEscKey = (e) => {
-      if (e.key === "Escape") {
-        handleClose();
-      }
-    };
+  //   const handleEscKey = (e) => {
+  //     if (e.key === "Escape") {
+  //       handleClose();
+  //     }
+  //   };
 
-    document.addEventListener("keydown", handleEscKey);
+  //   document.addEventListener("keydown", handleEscKey);
 
-    return () => {
-      document.removeEventListener("keydown", handleEscKey);
-    };
-  }, [isOpen, loading]);
+  //   return () => {
+  //     document.removeEventListener("keydown", handleEscKey);
+  //   };
+  // }, [isOpen, loading]);
 
   if (!isOpen) return null;
 

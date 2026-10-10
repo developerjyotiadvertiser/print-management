@@ -18,10 +18,10 @@ const getTodayDate = () => {
 // CREATE EMPTY MEDIA ITEM
 // --------------------------------------------------
 
-const createEmptyMedia = () => ({
+const createEmptyMedia = (mediaName = "") => ({
   woim_id: null,
 
-  woim_media: "",
+  woim_media: mediaName,
   woim_size_height: "",
   woim_size_width: "",
   woim_unit: "",
@@ -53,7 +53,8 @@ const UpdateWorkItemsModel = ({
     woi_jc_number: "",
     woi_work_allot_date: getTodayDate(),
     woi_printer_name: "",
-    woi_status: "Done",
+    printer_name: "",
+    woi_status: "Allotted",
   });
 
   const [mediaItems, setMediaItems] = useState([createEmptyMedia()]);
@@ -82,7 +83,10 @@ const UpdateWorkItemsModel = ({
 
       woi_printer_name: selectedWorkItem?.woi_printer_name || "",
 
-      woi_status: selectedWorkItem?.woi_status || "Done",
+      // Display the readable printer name
+      printer_name: selectedWorkItem?.printer_name || "",
+
+      woi_status: selectedWorkItem?.woi_status || "Allotted",
     });
 
     // --------------------------------------------------------
@@ -126,6 +130,8 @@ const UpdateWorkItemsModel = ({
         woim_id: media?.woim_id || null,
 
         woim_media: media?.woim_media || "",
+
+        pmm_media: media?.pmm_media || "",
 
         woim_size_height: media?.woim_size_height ?? "",
 
@@ -287,7 +293,12 @@ const UpdateWorkItemsModel = ({
   // =========================================================
 
   const handleAddMedia = () => {
-    setMediaItems((prev) => [...prev, createEmptyMedia()]);
+    setMediaItems((prev) => {
+      // Existing first media ka media name use karega
+      const selectedMedia = prev[0]?.woim_media || "";
+
+      return [...prev, createEmptyMedia(selectedMedia)];
+    });
   };
 
   // =========================================================
@@ -485,11 +496,20 @@ const UpdateWorkItemsModel = ({
       // IMAGES
       // =====================================================
 
-      mediaItems.forEach((media) => {
+      const imageIndexes = [];
+
+      mediaItems.forEach((media, index) => {
         if (media.imageFile) {
           formDataToSend.append("woi_creative_images", media.imageFile);
+
+          imageIndexes.push(index);
         }
       });
+
+      formDataToSend.append(
+        "woi_creative_image_indexes",
+        JSON.stringify(imageIndexes),
+      );
 
       // =====================================================
       // API REQUEST
@@ -643,11 +663,12 @@ const UpdateWorkItemsModel = ({
                   <input
                     type="text"
                     name="woi_printer_name"
-                    value={formData.woi_printer_name}
+                    value={formData.printer_name || ""}
                     onChange={handleParentChange}
-                    placeholder="Enter printer name"
+                    placeholder="Printer name"
                     required
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    readOnly
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-100"
                   />
                 </div>
 
@@ -665,7 +686,7 @@ const UpdateWorkItemsModel = ({
                     required
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
-                    <option value="Done">Done</option>
+                    <option value="Allotted">Allotted</option>
                     <option value="Cancelled">Cancelled</option>
                   </select>
                 </div>
@@ -743,21 +764,13 @@ const UpdateWorkItemsModel = ({
                           Media *
                         </label>
 
-                        <select
+                        <input
                           name="woim_media"
-                          value={media.woim_media}
-                          onChange={(e) => handleMediaChange(index, e)}
-                          required
-                          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        >
-                          <option value="">-select-</option>
-
-                          {mediaType?.map((item) => (
-                            <option key={item?.mt_id} value={item?.mt_name}>
-                              {item?.mt_name}
-                            </option>
-                          ))}
-                        </select>
+                          value={media.pmm_media || ""}
+                          placeholder="Media"
+                          readOnly
+                          className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 focus:outline-none"
+                        />
                       </div>
 
                       {/* Height */}

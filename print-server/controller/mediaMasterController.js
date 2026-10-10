@@ -2,11 +2,23 @@ const mediaMasterService = require("../services/mediaMasterService");
 
 const saveMediaMasterController = async (req, res) => {
   try {
-    const { mm_media, mm_brand, mm_gsm, mm_size, mm_status } = req.body;
+    const {
+      mm_media,
+      mm_brand,
+      mm_gsm,
+      mm_height,
+      mm_width,
+      mm_unit,
+      mm_size,
+      mm_status,
+    } = req.body;
     await mediaMasterService.saveMediaMasterService({
       mm_media,
       mm_brand,
       mm_gsm,
+      mm_height,
+      mm_width,
+      mm_unit,
       mm_size,
       mm_status,
     });

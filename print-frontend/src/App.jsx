@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import LoginPage from "./pages/LoginPage";
 import ChallanPage from "./pages/ChallanPage";
 import WorkOrder from "./pages/WorkOrder";
+import FinalWorkOrders from "./pages/FinalWorkOrders";
 
 const App = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -90,8 +91,12 @@ const App = () => {
           <Route path="/print-challan" element={<ChallanPage />} />
         )} */}
         <Route path="/print-challan" element={<ChallanPage />} />
-
-        <Route path="/work-order" element={<WorkOrder />} />
+        {user && user?.user?.emp_role !== "employee" && (
+          <>
+            <Route path="/work-order-jobs" element={<WorkOrder />} />
+            <Route path="/view-work-order" element={<FinalWorkOrders />} />
+          </>
+        )}
       </Routes>
     </>
   );

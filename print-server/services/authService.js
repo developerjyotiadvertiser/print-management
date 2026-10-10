@@ -21,7 +21,9 @@ const saveEmployeeService = async (data) => {
 
   // Hash password
   const hashedPassword = await bcrypt.hash(emp_password, 10);
-  const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+
+  const createdAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
+
   const sql = `
         INSERT INTO user_data
         (emp_name, emp_email, emp_phone, emp_password, emp_role, emp_designation, emp_status, device_id, fcm_token, emp_created_at)
@@ -61,7 +63,9 @@ const getAllEmployeesService = async () => {
     WHERE emp_role = ?
     ORDER BY emp_created_at DESC
   `;
+
   const [rows] = await pool.query(sql, ["employee"]);
+
   return rows;
 };
 
@@ -117,6 +121,7 @@ const updateEmployeeService = async (emp_id, data) => {
   }
 
   values.push(emp_id);
+
   const sql = `
     UPDATE user_data
     SET ${fields.join(", ")}
@@ -124,6 +129,7 @@ const updateEmployeeService = async (emp_id, data) => {
   `;
 
   const [result] = await pool.query(sql, values);
+
   return result;
 };
 
@@ -135,6 +141,7 @@ const deleteEmployeeService = async (emp_id) => {
     `;
 
     const [result] = await pool.query(sql, [emp_id]);
+
     return result;
   } catch (error) {
     throw error;
@@ -194,6 +201,7 @@ const loginService = async (emp_phone, emp_password) => {
 
     // Remove password before sending response
     delete user.emp_password;
+
     return {
       success: true,
       message: "Login successful.",
@@ -242,9 +250,12 @@ const sendOtpService = async (email) => {
     throw new Error("Invalid email address");
   }
 
-  const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  const createdAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
   await pool.query("delete from otp_collection where otp_email = ?", [email]);
+
   await pool.query(
     "insert into otp_collection (otp_email, otp, created_at) values (?,?,?)",
     [email, otp, createdAt],
@@ -264,6 +275,7 @@ const sendOtpService = async (email) => {
 
   if (!emailResponse.success) {
     await pool.query("DELETE FROM otp_collection WHERE otp_email = ?", [email]);
+
     throw new Error(emailResponse.error || "Failed to send OTP");
   }
 
@@ -284,6 +296,7 @@ const verifyOtpService = async (email, otp) => {
   }
 
   const otpData = rows[0];
+
   if (Number(otpData.otp) !== Number(otp)) {
     throw new Error("Invalid OTP");
   }
@@ -291,6 +304,7 @@ const verifyOtpService = async (email, otp) => {
   await pool.query("delete from otp_collection where otp_id = ?", [
     otpData.otp_id,
   ]);
+
   return {
     success: true,
     verified: true,

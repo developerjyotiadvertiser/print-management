@@ -5,6 +5,7 @@ const {
   uploadWorkItem,
   processWorkItemImage,
 } = require("../middleware/uploadWorkItems");
+
 const {
   sendWorkOrderEmailController,
 } = require("../controller/workOrderEmailController");
@@ -21,6 +22,11 @@ router.get(
   workItemsController.getAllWorkItemsController,
 );
 
+// router.put(
+//   "/update-work-items/:woi_id",
+//   workItemsController.updateWorkItemsController,
+// );
+
 router.put(
   "/update-work-items/:woi_id",
   uploadWorkItem.array("woi_creative_images", 20),
@@ -32,6 +38,12 @@ router.delete(
   "/delete-work-items/:woi_id",
   workItemsController.deleteWorkItemsController,
 );
+
+// router.post(
+//   "/send-work-order-email",
+//   uploadWorkItem.single("workOrderImage"),
+//   sendWorkOrderEmailController,
+// );
 
 router.post(
   "/send-work-order-email",
@@ -46,6 +58,11 @@ router.post(
     },
   ]),
   sendWorkOrderEmailController,
+);
+
+router.get(
+  "/get-work-items-by-printer/:printer_id",
+  workItemsController.getAllWorkItemsByPrinterController,
 );
 
 module.exports = router;

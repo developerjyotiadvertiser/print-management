@@ -22,7 +22,7 @@ const saveChallanService = async (data) => {
     throw new Error("At least one print is required");
   }
 
-  const createdAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  const createdAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
 
   const connection = await pool.getConnection();
 
@@ -335,7 +335,7 @@ const getAllChallanService = async () => {
 const updateChallanService = async (challan_id, data) => {
   const connection = await pool.getConnection();
 
-  const updateAt = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+  const updateAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
 
   try {
     await connection.beginTransaction();

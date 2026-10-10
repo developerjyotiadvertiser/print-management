@@ -13,6 +13,7 @@ const savePrintController = async (req, res) => {
       total_area,
       remarks,
       remark_one,
+      mm_id,
     } = req.body;
 
     await printService.savePrintService({
@@ -26,6 +27,7 @@ const savePrintController = async (req, res) => {
       total_area,
       remarks,
       remark_one,
+      mm_id,
     });
 
     res.status(201).json({
@@ -33,6 +35,8 @@ const savePrintController = async (req, res) => {
       message: "Print Record Saved Successfully.",
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -43,12 +47,14 @@ const savePrintController = async (req, res) => {
 const getAllPrintController = async (req, res) => {
   try {
     const employees = await printService.getAllPrintService();
+
     res.status(201).json({
       success: true,
       message: "Fetched print details successfully.",
       data: employees,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -59,7 +65,9 @@ const getAllPrintController = async (req, res) => {
 const updatePrintController = async (req, res) => {
   try {
     const { print_id } = req.params;
+
     const result = await printService.updatePrintService(print_id, req.body);
+
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
@@ -82,7 +90,9 @@ const updatePrintController = async (req, res) => {
 const deletePrintController = async (req, res) => {
   try {
     const { print_id } = req.params;
+
     const result = await printService.deletePrintService(print_id, req.body);
+
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
