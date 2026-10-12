@@ -10,7 +10,12 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
-import { FaDatabase, FaNetworkWired, FaShareAltSquare } from "react-icons/fa";
+import {
+  FaDatabase,
+  FaImage,
+  FaNetworkWired,
+  FaShareAltSquare,
+} from "react-icons/fa";
 
 import AddWorkItemsModel from "../components/PopupWindows/AddWorkItemsModel";
 import UpdateWorkItemsModel from "../components/PopupWindows/UpdateWorkItemsModel";
@@ -228,9 +233,7 @@ const WorkOrder = () => {
 
   const printers = useMemo(() => {
     return [
-      ...new Set(
-        workItems.map((item) => item?.woi_printer_name).filter(Boolean),
-      ),
+      ...new Set(workItems.map((item) => item?.printer_name).filter(Boolean)),
     ];
   }, [workItems]);
 
@@ -238,17 +241,22 @@ const WorkOrder = () => {
   // FILTER OPTIONS - MEDIA
   // =========================================================
 
+  console.log("241 workItems", workItems);
+
   const medias = useMemo(() => {
     return [
       ...new Set(
         workItems
           .flatMap((item) =>
-            (item?.media_items || []).map((media) => media?.woim_media),
+            (item?.media_items || []).map((media) => media?.pmm_media),
           )
           .filter(Boolean),
       ),
     ];
   }, [workItems]);
+
+  console.log("255 workItems", workItems);
+  console.log("256 Medias", medias);
 
   // =========================================================
   // FILTER OPTIONS - STATUS
@@ -317,7 +325,7 @@ const WorkOrder = () => {
       // -----------------------------------------
 
       const matchesPrinter =
-        !printerFilter || item?.woi_printer_name === printerFilter;
+        !printerFilter || item?.printer_name === printerFilter;
 
       // -----------------------------------------
       // Media
@@ -325,7 +333,7 @@ const WorkOrder = () => {
 
       const matchesMedia =
         !mediaFilter ||
-        mediaItems.some((media) => media?.woim_media === mediaFilter);
+        mediaItems.some((media) => media?.pmm_media === mediaFilter);
 
       // -----------------------------------------
       // Status
@@ -629,18 +637,12 @@ const WorkOrder = () => {
             >
               <FaDatabase /> View Orders
             </button>
-            <button
+            {/* <button
               onClick={() => setIsFwoOpen(true)}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#43c09c] px-5 py-2 text-white transition hover:bg-[#35b08d]"
             >
               <LiaFirstOrderAlt /> Add Order
-            </button>
-            <button
-              onClick={() => setPrinterMasterTable(true)}
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
-            >
-              <BsFillPrinterFill /> Printer
-            </button>
+            </button> */}
 
             <button
               onClick={() => setAddModel(true)}
@@ -650,6 +652,13 @@ const WorkOrder = () => {
               <FaNetworkWired />
               New Job
             </button>
+            <button
+              onClick={() => setPrinterMasterTable(true)}
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
+              title="Printer Master"
+            >
+              <BsFillPrinterFill />
+            </button>
           </div>
         </div>
 
@@ -658,7 +667,7 @@ const WorkOrder = () => {
         ====================================================== */}
 
         <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-7">
+          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-8">
             {/* SEARCH */}
 
             <div className="lg:col-span-2">
@@ -898,124 +907,82 @@ const WorkOrder = () => {
                           MEDIA DETAILS
                       ================================================== */}
 
-                    <td className="min-w-[700px] px-5 py-4">
-                      <div className="space-y-3">
-                        {(item?.media_items || []).map((media, mediaIndex) => (
-                          <div
-                            key={media?.woim_id || mediaIndex}
-                            className="rounded-lg border border-gray-200 bg-white p-3"
-                          >
-                            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
-                              {/* MEDIA */}
+                    <td className="min-w-[700px] px-5 py-3 align-top">
+                      {item?.media_items?.length > 0 ? (
+                        <div className="overflow-x-auto rounded-lg border border-gray-200">
+                          <table className="w-full border-collapse text-sm">
+                            <thead className="bg-gray-50">
+                              <tr className="text-left text-xs font-semibold text-gray-500">
+                                <th className="px-3 py-2">Media</th>
+                                <th className="px-3 py-2">Size</th>
+                                <th className="px-3 py-2">Qty</th>
+                                <th className="px-3 py-2">Area</th>
+                                <th className="px-3 py-2">Creative</th>
+                                <th className="px-3 py-2 text-center">Image</th>
+                              </tr>
+                            </thead>
 
-                              <div>
-                                <p className="text-xs text-gray-400">Media</p>
-
-                                <p className="font-semibold text-gray-700">
-                                  {media?.pmm_media || "-"}
-                                </p>
-                              </div>
-
-                              {/* SIZE */}
-
-                              <div>
-                                <p className="text-xs text-gray-400">Size</p>
-
-                                <p className="text-gray-700">
-                                  {media?.woim_size_height || "-"} ×{" "}
-                                  {media?.woim_size_width || "-"}{" "}
-                                  {media?.woim_unit || ""}
-                                </p>
-                              </div>
-
-                              {/* QUANTITY */}
-
-                              <div>
-                                <p className="text-xs text-gray-400">
-                                  Quantity
-                                </p>
-
-                                <p className="text-gray-700">
-                                  {media?.woim_quantity || 0}
-                                </p>
-                              </div>
-
-                              {/* AREA */}
-
-                              <div>
-                                <p className="text-xs text-gray-400">Area</p>
-
-                                <p className="font-medium text-gray-800">
-                                  {media?.woim_area
-                                    ? `${media.woim_area} Sq.Ft`
-                                    : "-"}
-                                </p>
-                              </div>
-
-                              {/* CREATIVE */}
-
-                              <div>
-                                <p className="text-xs text-gray-400">
-                                  Creative
-                                </p>
-
-                                <p
-                                  className="max-w-[150px] truncate text-gray-700"
-                                  title={media?.woim_creative || ""}
+                            <tbody className="divide-y divide-gray-100">
+                              {item.media_items.map((media, mediaIndex) => (
+                                <tr
+                                  key={media?.woim_id || mediaIndex}
+                                  className="hover:bg-gray-50"
                                 >
-                                  {media?.woim_creative || "-"}
-                                </p>
-                              </div>
+                                  <td className="whitespace-nowrap px-3 py-2 font-medium text-gray-700">
+                                    {media?.pmm_media || "-"}
+                                  </td>
 
-                              {/* IMAGE */}
+                                  <td className="whitespace-nowrap px-3 py-2 text-gray-600">
+                                    {media?.woim_size_height || "-"} ×{" "}
+                                    {media?.woim_size_width || "-"}{" "}
+                                    {media?.woim_unit || ""}
+                                  </td>
 
-                              <div>
-                                <p className="mb-1 text-xs text-gray-400">
-                                  Image
-                                </p>
+                                  <td className="px-3 py-2 text-gray-600">
+                                    {media?.woim_quantity ?? 0}
+                                  </td>
 
-                                {media?.woim_creative_image ? (
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleImagePreview(
-                                        media?.woim_creative_image,
-                                      )
-                                    }
-                                    className="group relative block cursor-pointer"
-                                    title="Click to view image"
+                                  <td className="whitespace-nowrap px-3 py-2 text-gray-700">
+                                    {media?.woim_area
+                                      ? `${media.woim_area} Sq.Ft`
+                                      : "-"}
+                                  </td>
+
+                                  <td
+                                    className="max-w-[160px] truncate px-3 py-2 text-gray-600"
+                                    title={media?.woim_creative || ""}
                                   >
-                                    <img
-                                      src={`${apiUrl}/${String(
-                                        media.woim_creative_image,
-                                      ).replace(/^\/+/, "")}`}
-                                      alt="Creative"
-                                      className="h-12 w-16 rounded-lg border border-gray-200 object-cover transition duration-200 group-hover:scale-105 group-hover:shadow-md"
-                                    />
+                                    {media?.woim_creative || "-"}
+                                  </td>
 
-                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition group-hover:opacity-100">
-                                      <span className="text-xs font-medium text-white">
-                                        View
-                                      </span>
-                                    </div>
-                                  </button>
-                                ) : (
-                                  <span className="text-gray-400">
-                                    No Image
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-
-                        {/* NO MEDIA */}
-
-                        {(!item?.media_items ||
-                          item.media_items.length === 0) && (
-                          <span className="text-gray-400">No media added</span>
-                        )}
-                      </div>
+                                  <td className="px-3 py-2 text-center">
+                                    {media?.woim_creative_image ? (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleImagePreview(
+                                            media.woim_creative_image,
+                                          )
+                                        }
+                                        className="inline-flex cursor-pointer items-center justify-center rounded-md p-1.5 text-blue-600 hover:bg-blue-50 hover:text-blue-800"
+                                        title="View image"
+                                      >
+                                        <FaImage size={17} />
+                                      </button>
+                                    ) : (
+                                      <span className="text-gray-400">—</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">
+                          No media added
+                        </span>
+                      )}
                     </td>
 
                     {/* STATUS */}

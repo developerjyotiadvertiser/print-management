@@ -77,10 +77,13 @@ const MediaTypeTable = () => {
     }
   };
 
+  console.log("80 employees");
+
   const filteredMedia = employees.filter((media) => {
-    const matchesSearch = media?.mm_media
-      ?.toLowerCase()
-      .includes(searchMedia.toLowerCase().trim());
+    const searchTerm = searchMedia.toLowerCase().trim();
+    const matchesSearch =
+      media?.mm_media?.toLowerCase().includes(searchTerm) ||
+      media?.mm_serial_number?.toLowerCase().includes(searchTerm);
 
     const matchesStatus =
       statusFilter === "All" || media?.mm_status === statusFilter;
@@ -163,7 +166,7 @@ const MediaTypeTable = () => {
               type="text"
               value={searchMedia}
               onChange={(e) => setSearchMedia(e.target.value)}
-              placeholder="Search media..."
+              placeholder="Search by media, serial number..."
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 transition"
             />
           </div>

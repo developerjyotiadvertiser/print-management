@@ -773,7 +773,7 @@ const AddWorkItemsModel = ({
                 disabled={loading}
                 className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-green-700 disabled:opacity-50"
               >
-                + Print
+                + Add
               </button>
             </div>
 
@@ -800,7 +800,7 @@ const AddWorkItemsModel = ({
                     : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
-                {loading ? "Saving..." : "Add Work Item"}
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </form>

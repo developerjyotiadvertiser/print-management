@@ -143,55 +143,6 @@ const getAllFinalWorkOrderService = async () => {
   }
 };
 
-// const updateFinalWorkOrderService = async (fwo_id, data) => {
-//   const fields = [];
-//   const values = [];
-
-//   const updateAt = moment().tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
-
-//   const allowedFields = [
-//     "fwo_date",
-//     "fwo_pm_id",
-//     "fwo_subtotal",
-//     "fwo_adjustment_amount",
-//     "fwo_grand_total",
-//     "fwo_paid_amount",
-//     "fwo_balance_amount",
-//     "fwo_status",
-//     "fwo_payment_status",
-//     "fwo_remarks",
-//   ];
-
-//   // Dynamically build update fields
-//   allowedFields.forEach((field) => {
-//     if (data[field] !== undefined) {
-//       fields.push(`${field} = ?`);
-//       values.push(data[field]);
-//     }
-//   });
-
-//   // Nothing to update
-//   if (fields.length === 0) {
-//     throw new Error("No fields provided for update.");
-//   }
-
-//   // Always update the modified timestamp
-//   fields.push("fwo_updated_at = ?");
-//   values.push(updateAt);
-
-//   values.push(fwo_id);
-
-//   const sql = `
-//     UPDATE final_work_orders
-//     SET ${fields.join(", ")}
-//     WHERE fwo_id = ?
-//   `;
-
-//   const [result] = await pool.query(sql, values);
-
-//   return result;
-// };
-
 const updateFinalWorkOrderService = async (fwo_id, data) => {
   const connection = await pool.getConnection();
 
@@ -315,19 +266,6 @@ const updateFinalWorkOrderService = async (fwo_id, data) => {
     connection.release();
   }
 };
-
-// const deleteFinalWorkOrderService = async (fwo_id) => {
-//   try {
-//     const sql = `
-//       DELETE FROM final_work_orders
-//       WHERE fwo_id = ?
-//     `;
-//     const [result] = await pool.query(sql, [fwo_id]);
-//     return result;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 const deleteFinalWorkOrderService = async (fwo_id) => {
   const connection = await pool.getConnection();

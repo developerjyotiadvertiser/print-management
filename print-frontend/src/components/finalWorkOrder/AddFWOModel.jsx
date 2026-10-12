@@ -259,6 +259,27 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
     }
   };
 
+  // RESET
+  const handleClose = () => {
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const renderMedia = (item) => {
@@ -423,7 +444,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                 >
                   <option value="Draft">Draft</option>
                   <option value="Finalized">Finalized</option>
-                  <option value="Cancelled">Cancelled</option>
+                  {/* <option value="Cancelled">Cancelled</option> */}
                 </select>
               </div>
             </div>
@@ -553,7 +574,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
               <div className="space-y-4">
                 <h3 className="font-semibold text-gray-800">Payment Details</h3>
 
-                <div>
+                {/* <div>
                   <label className="mb-1 block text-sm text-gray-600">
                     Adjustment Amount (+/-)
                   </label>
@@ -565,7 +586,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                     onChange={handleChange}
                     className="w-full rounded-lg border px-3 py-2.5"
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <label className="mb-1 block text-sm text-gray-600">
@@ -608,20 +629,20 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                     <span>₹{formatAmount(subtotal)}</span>
                   </div>
 
-                  <div className="flex justify-between gap-4">
+                  {/* <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Adjustment</span>
                     <span>₹{formatAmount(adjustment)}</span>
-                  </div>
+                  </div> */}
 
                   <div className="flex justify-between gap-4 border-t pt-3 text-base font-bold">
                     <span>Grand Total</span>
                     <span>₹{formatAmount(grandTotal)}</span>
                   </div>
 
-                  <div className="flex justify-between gap-4">
+                  {/* <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Paid Amount</span>
                     <span>₹{formatAmount(paidAmount)}</span>
-                  </div>
+                  </div> */}
 
                   <div className="flex justify-between gap-4 border-t pt-3 font-bold text-red-600">
                     <span>Balance Amount</span>
@@ -664,7 +685,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
               className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FiSave />
-              {saving ? "Saving..." : "Create Final Work Order"}
+              {saving ? "Saving..." : "Create Work Order"}
             </button>
           </div>
         </form>

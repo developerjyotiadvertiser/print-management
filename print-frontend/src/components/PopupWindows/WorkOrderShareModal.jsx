@@ -1075,7 +1075,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                         </td>
 
                         <td rowSpan={mediaItems.length} style={bodyStyleCenter}>
-                          {workItem?.woi_printer_name || "-"}
+                          {workItem?.printer_name || "-"}
                         </td>
                       </>
                     )}
@@ -1084,7 +1084,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                           MEDIA
                       ====================================== */}
 
-                    <td style={bodyStyleCenter}>{media?.woim_media || "-"}</td>
+                    <td style={bodyStyleCenter}>{media?.pmm_media || "-"}</td>
 
                     {/* =====================================
                           WIDTH

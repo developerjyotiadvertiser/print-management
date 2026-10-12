@@ -291,6 +291,27 @@ const UpdateWorkOrder = ({
     }
   };
 
+  // RESET
+  const handleClose = () => {
+    onOrderClose();
+  };
+
+  useEffect(() => {
+    if (!isOrderOpen) return;
+
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOrderOpen]);
+
   if (!isOrderOpen) return null;
 
   const renderMedia = (item) => {
@@ -696,7 +717,7 @@ const UpdateWorkOrder = ({
               className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FiSave />
-              {saving ? "Saving..." : "Update Final Work Order"}
+              {saving ? "Saving..." : "Update Work Order"}
             </button>
           </div>
         </form>

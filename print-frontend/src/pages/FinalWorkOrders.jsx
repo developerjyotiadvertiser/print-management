@@ -9,11 +9,12 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
-import { FaShareAltSquare } from "react-icons/fa";
+import { FaDownload, FaShareAltSquare } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { LiaFirstOrderAlt } from "react-icons/lia";
 import AddFWOModel from "../components/finalWorkOrder/AddFWOModel";
 import UpdateWorkOrder from "../components/finalWorkOrder/UpdateWorkOrder";
+import PreviewFinalWorkOrderModel from "../components/finalWorkOrder/PreviewFinalWorkOrderModel";
 
 const FinalWorkOrders = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -42,12 +43,12 @@ const FinalWorkOrders = () => {
   const [selected, setSelected] = useState(null);
   const [updateModel, setUpdateModel] = useState(false);
 
-  const [shareWorkOrder, setShareWorkOrder] = useState([]);
-  const [shareOrderModel, setShareOrderModel] = useState(false);
+  const [downloadWorkOrder, setDownloadWorkOrder] = useState([]);
+  const [downloadOrderModel, setDownloadOrderModel] = useState(false);
 
   const handlePrintOrder = (data) => {
-    setShareWorkOrder(data);
-    setShareOrderModel(true);
+    setDownloadWorkOrder(data);
+    setDownloadOrderModel(true);
   };
 
   // =========================================================
@@ -363,7 +364,7 @@ const FinalWorkOrders = () => {
         "Work Item IDs": workOrderItemIds.join(", ") || "-",
 
         Subtotal: Number(item?.fwo_subtotal || 0),
-        "Adjustment Amount": Number(item?.fwo_adjustment_amount || 0),
+        // "Adjustment Amount": Number(item?.fwo_adjustment_amount || 0),
         "Grand Total": Number(item?.fwo_grand_total || 0),
         "Paid Amount": Number(item?.fwo_paid_amount || 0),
         "Balance Amount": Number(item?.fwo_balance_amount || 0),
@@ -593,7 +594,7 @@ const FinalWorkOrders = () => {
           <table className="w-full min-w-300 text-left text-sm">
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
-                <th className="px-5 py-3 font-semibold text-gray-600">ID</th>
+                {/* <th className="px-5 py-3 font-semibold text-gray-600">ID</th> */}
 
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Order Number
@@ -675,14 +676,14 @@ const FinalWorkOrders = () => {
                   >
                     {/* ID */}
 
-                    <td className="px-5 py-4 text-gray-500">
+                    {/* <td className="px-5 py-4 text-gray-500">
                       {item?.fwo_id || "-"}
-                    </td>
+                    </td> */}
 
                     {/* JC NUMBER */}
 
                     <td className="px-5 py-4 font-medium text-gray-700">
-                      {item?.fwo_number || "-"}
+                      {String(item?.fwo_number ?? "-").toUpperCase()}
                     </td>
 
                     {/* DATE */}
@@ -755,9 +756,9 @@ const FinalWorkOrders = () => {
                         <button
                           onClick={() => handlePrintOrder(item)}
                           className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
-                          title="Share as a file"
+                          title="Download as a file"
                         >
-                          <FaShareAltSquare size={16} />
+                          <FaDownload size={16} />
                         </button>
 
                         {item?.fwo_status === "Draft" && (
@@ -906,6 +907,12 @@ const FinalWorkOrders = () => {
         onSaved={() => {
           setIsFwoOpen(false);
         }}
+      />
+
+      <PreviewFinalWorkOrderModel
+        isOpen={downloadOrderModel}
+        onClose={() => setDownloadOrderModel(false)}
+        workOrder={downloadWorkOrder}
       />
     </>
   );
