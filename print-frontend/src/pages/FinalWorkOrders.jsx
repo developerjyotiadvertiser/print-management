@@ -9,12 +9,13 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
-import { FaDownload, FaShareAltSquare } from "react-icons/fa";
+import { FaDownload, FaRupeeSign, FaShareAltSquare } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { LiaFirstOrderAlt } from "react-icons/lia";
 import AddFWOModel from "../components/finalWorkOrder/AddFWOModel";
 import UpdateWorkOrder from "../components/finalWorkOrder/UpdateWorkOrder";
 import PreviewFinalWorkOrderModel from "../components/finalWorkOrder/PreviewFinalWorkOrderModel";
+import { useSelector } from "react-redux";
 
 const FinalWorkOrders = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -26,6 +27,8 @@ const FinalWorkOrders = () => {
   const navigate = useNavigate();
   const [workOrders, setWorkOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const user = useSelector((state) => state?.user?.currentUser);
 
   const [search, setSearch] = useState("");
   const [printerFilter, setPrinterFilter] = useState("");
@@ -606,31 +609,29 @@ const FinalWorkOrders = () => {
                   Printer
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                {/* <th className="px-5 py-3 font-semibold text-gray-600">
                   Sub-total
-                </th>
+                </th> */}
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                {/* <th className="px-5 py-3 font-semibold text-gray-600">
                   Adjusted Amount
-                </th>
+                </th> */}
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
-                  Grand Total
-                </th>
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                <th className="px-5 py-3 font-semibold text-gray-600">Total</th>
+                {/* <th className="px-5 py-3 font-semibold text-gray-600">
                   Paid Amount
-                </th>
+                </th> */}
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                {/* <th className="px-5 py-3 font-semibold text-gray-600">
                   Balance Amount
-                </th>
+                </th> */}
 
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Order Status
                 </th>
 
                 <th className="px-5 py-3 font-semibold text-gray-600">
-                  Payment Status
+                  Bill Received
                 </th>
 
                 <th className="px-5 py-3 font-semibold text-gray-600">
@@ -698,25 +699,25 @@ const FinalWorkOrders = () => {
                       {item?.printer_name || "-"}
                     </td>
 
-                    <td className="px-5 py-4 text-gray-700">
+                    {/* <td className="px-5 py-4 text-gray-700">
                       {item?.fwo_subtotal || "-"}
-                    </td>
+                    </td> */}
 
-                    <td className="px-5 py-4 text-gray-700">
+                    {/* <td className="px-5 py-4 text-gray-700">
                       {item?.fwo_adjustment_amount || "-"}
-                    </td>
+                    </td> */}
 
                     <td className="px-5 py-4 text-gray-700">
                       {item?.fwo_grand_total || "-"}
                     </td>
 
-                    <td className="px-5 py-4 text-gray-700">
+                    {/* <td className="px-5 py-4 text-gray-700">
                       {item?.fwo_paid_amount || "-"}
-                    </td>
+                    </td> */}
 
-                    <td className="px-5 py-4 text-gray-700">
+                    {/* <td className="px-5 py-4 text-gray-700">
                       {item?.fwo_balance_amount || "-"}
-                    </td>
+                    </td> */}
 
                     {/* STATUS */}
 
@@ -740,7 +741,8 @@ const FinalWorkOrders = () => {
                     </td>
 
                     <td className="px-5 py-4 text-gray-700">
-                      {item?.fwo_payment_status || "-"}
+                      {item?.fwo_bill_received || "-"}
+                      <br /> <small>({item?.fwo_br_date})</small>
                     </td>
 
                     <td className="px-5 py-4 text-gray-700">
@@ -775,12 +777,28 @@ const FinalWorkOrders = () => {
 
                             {/* DELETE */}
 
+                            {user?.user?.emp_role === "admin" && (
+                              <>
+                                <button
+                                  onClick={() => handleDelete(item?.fwo_id)}
+                                  className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
+                                  title="Delete Work Item"
+                                >
+                                  <FiTrash2 size={16} />
+                                </button>
+                              </>
+                            )}
+                          </>
+                        )}
+
+                        {item?.fwo_status === "Finalized" && (
+                          <>
                             <button
-                              onClick={() => handleDelete(item?.fwo_id)}
-                              className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
-                              title="Delete Work Item"
+                              onClick={() => handleUpdate(item)}
+                              className="rounded-lg bg-green-50 p-2 text-green-600 transition hover:bg-blue-100"
+                              title="Download as a file"
                             >
-                              <FiTrash2 size={16} />
+                              <FaRupeeSign size={16} />
                             </button>
                           </>
                         )}

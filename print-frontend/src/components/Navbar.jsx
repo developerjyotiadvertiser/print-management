@@ -111,22 +111,26 @@ const Navbar = () => {
                 </>
               )}
 
-              <button
-                onClick={() => {
-                  navigate("/");
-                }}
-                className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
-              >
-                Print
-              </button>
-              <button
-                onClick={() => {
-                  navigate("/print-challan");
-                }}
-                className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
-              >
-                Challan
-              </button>
+              {user?.user?.emp_role !== "accountant" && (
+                <>
+                  <button
+                    onClick={() => {
+                      navigate("/");
+                    }}
+                    className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+                  >
+                    Print
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/print-challan");
+                    }}
+                    className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
+                  >
+                    Challan
+                  </button>
+                </>
+              )}
 
               {/* {user?.user?.emp_role !== "employee" && (
                 <>
@@ -225,35 +229,43 @@ const Navbar = () => {
                 ))}
               </nav> */}
 
-                {user?.user?.emp_role !== "employee" && (
-                  <>
-                    <div className="px-6 mt-8">
-                      <button
-                        onClick={() => {
-                          navigate("/print-challan");
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 transition cursor-pointer"
-                      >
-                        + Challan
-                      </button>
-                    </div>
-                  </>
-                )}
+                <div className="px-6 mt-8">
+                  <button
+                    onClick={() => {
+                      navigate("/work-order-jobs");
+                    }}
+                    className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
+                  >
+                    Work Order
+                  </button>
+                </div>
 
-                {user?.user?.emp_role !== "employee" && (
-                  <>
-                    <div className="px-6 mt-8">
-                      <button
-                        onClick={() => {
-                          setMasterModel(true);
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-white bg-[#1465ec] hover:bg-blue-600 transition cursor-pointer"
-                      >
-                        + Media
-                      </button>
-                    </div>
-                  </>
-                )}
+                {user?.user?.emp_role !== "employee" &&
+                  user?.user?.emp_role !== "accountant" && (
+                    <>
+                      <div className="px-6 mt-8">
+                        <button
+                          onClick={() => {
+                            navigate("/print-challan");
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 transition cursor-pointer"
+                        >
+                          + Challan
+                        </button>
+                      </div>
+
+                      <div className="px-6 mt-8">
+                        <button
+                          onClick={() => {
+                            setMasterModel(true);
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-white bg-[#1465ec] hover:bg-blue-600 transition cursor-pointer"
+                        >
+                          + Media
+                        </button>
+                      </div>
+                    </>
+                  )}
 
                 <div className="px-6 mt-8">
                   <button

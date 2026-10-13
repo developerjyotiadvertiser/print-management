@@ -491,13 +491,17 @@ const AdminDashboard = () => {
                         >
                           <FiEdit size={16} />
                         </button>
-                        <button
-                          onClick={() => handleDelete(print?.print_id)}
-                          className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
-                          title="Delete Print Record"
-                        >
-                          <FiTrash2 size={16} />
-                        </button>
+                        {user?.user?.emp_role === "admin" && (
+                          <>
+                            <button
+                              onClick={() => handleDelete(print?.print_id)}
+                              className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                              title="Delete Print Record"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

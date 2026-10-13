@@ -5,12 +5,10 @@ import { FiX, FiSearch, FiSave } from "react-icons/fi";
 const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
   const modalRef = useRef(null);
   const apiUrl = import.meta.env.VITE_API_URL;
-
   const [printers, setPrinters] = useState([]);
   const [workItems, setWorkItems] = useState([]);
   const [selectedPrinter, setSelectedPrinter] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
-
   const [loadingPrinters, setLoadingPrinters] = useState(false);
   const [loadingItems, setLoadingItems] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -50,13 +48,10 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
           `${apiUrl}/api/printer-master/get-all-printer-master`,
         );
 
-        console.log("55 FWO", data?.data?.data);
-
         const result = data?.data?.data || [];
         setPrinters(Array.isArray(result) ? result : []);
       } catch (error) {
         console.error("Error fetching printers:", error);
-        // alert("Unable to load printers.");
       } finally {
         setLoadingPrinters(false);
       }
@@ -83,18 +78,14 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
           `${apiUrl}/api/work-items/get-work-items-by-printer/${selectedPrinter}`,
         );
 
-        console.log("88 selectedPrinter", data?.data?.data);
-
         const result = data?.data?.data || [];
         const items = Array.isArray(result) ? result : [];
-
-        console.log("93 items", items);
 
         setWorkItems(
           items.filter(
             (item) =>
               String(item.woi_printer_name) === String(selectedPrinter) &&
-              item.woi_status !== "wo_created",
+              item.woi_status !== "WO_Issued",
           ),
         );
       } catch (error) {
@@ -118,13 +109,9 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
     );
   };
 
-  console.log("124 workItems", workItems);
-
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
-
     if (!query) return workItems;
-
     return workItems.filter((item) =>
       [item.woi_jc_number, item.woi_creative, item.woi_printer_name]
         .filter(Boolean)
@@ -132,16 +119,11 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
     );
   }, [workItems, search]);
 
-  console.log("137 filteredItems", filteredItems);
-
   const selectedItems = useMemo(
     () => workItems.filter((item) => selectedIds.includes(item.woi_id)),
     [workItems, selectedIds],
   );
 
-  // IMPORTANT:
-  // Replace getItemArea() and getItemRate() with the actual fields
-  // returned by your work-items/media API.
   const getItemArea = (item) => {
     const mediaItems = item.media_items ?? item.work_order_media ?? [];
 
@@ -157,8 +139,6 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
   };
 
   const getItemRate = (item) => {
-    console.log("162 item", item);
-
     const mediaItems = item.media_items || [];
 
     if (mediaItems.length > 0) {
@@ -283,8 +263,6 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
   if (!isOpen) return null;
 
   const renderMedia = (item) => {
-    console.log("266 item render", item);
-
     const mediaItems = item.media_items || [];
 
     if (!mediaItems.length) {
@@ -297,7 +275,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
     }
 
     return (
-      <div className="space-y-2 min-w-[420px]">
+      <div className="space-y-2 min-w-105">
         {mediaItems.map((media, index) => (
           <div
             key={media.woim_id ?? index}
@@ -485,8 +463,8 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                   No available work items for this printer.
                 </div>
               ) : (
-                <div className="max-h-[360px] overflow-auto">
-                  <table className="w-full min-w-[1000px] text-left text-sm">
+                <div className="max-h-90 overflow-auto">
+                  <table className="w-full min-w-250 text-left text-sm">
                     <thead className="sticky top-0 z-10 bg-gray-100 text-gray-600">
                       <tr>
                         <th className="w-12 px-4 py-3">
@@ -588,7 +566,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                   />
                 </div> */}
 
-                <div>
+                {/* <div>
                   <label className="mb-1 block text-sm text-gray-600">
                     Paid Amount
                   </label>
@@ -601,7 +579,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                     onChange={handleChange}
                     className="w-full rounded-lg border px-3 py-2.5"
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <label className="mb-1 block text-sm text-gray-600">
@@ -624,10 +602,10 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                 </h3>
 
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between gap-4">
+                  {/* <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Subtotal</span>
                     <span>₹{formatAmount(subtotal)}</span>
-                  </div>
+                  </div> */}
 
                   {/* <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Adjustment</span>
@@ -635,7 +613,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                   </div> */}
 
                   <div className="flex justify-between gap-4 border-t pt-3 text-base font-bold">
-                    <span>Grand Total</span>
+                    <span>Total</span>
                     <span>₹{formatAmount(grandTotal)}</span>
                   </div>
 
@@ -644,12 +622,12 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                     <span>₹{formatAmount(paidAmount)}</span>
                   </div> */}
 
-                  <div className="flex justify-between gap-4 border-t pt-3 font-bold text-red-600">
+                  {/* <div className="flex justify-between gap-4 border-t pt-3 font-bold text-red-600">
                     <span>Balance Amount</span>
                     <span>₹{formatAmount(balanceAmount)}</span>
-                  </div>
+                  </div> */}
 
-                  <div className="flex justify-between gap-4 pt-2">
+                  {/* <div className="flex justify-between gap-4 pt-2">
                     <span className="text-gray-600">Payment Status</span>
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -662,7 +640,7 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
                     >
                       {paymentStatus}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

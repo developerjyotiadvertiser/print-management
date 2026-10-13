@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FiX, FiDownload, FiFileText, FiImage } from "react-icons/fi";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 
 const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
@@ -39,13 +39,7 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
     return parsedDate.toLocaleDateString("en-IN");
   };
 
-  const printer =
-    workOrder.printer_name ||
-    workOrder.pm_name ||
-    workOrder.pm_printer_name ||
-    workOrder.printer?.printer_name ||
-    workOrder.pm_company_name ||
-    "-";
+  const printer = workOrder;
 
   const orderNumber = workOrder.fwo_number || workOrder.fwo_id || "-";
 
@@ -114,11 +108,14 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
   };
 
   const capturePreview = async () => {
-    if (!previewRef.current) {
-      throw new Error("Preview not available");
+    const element = previewRef.current;
+
+    if (!element) {
+      throw new Error("Work order preview is not available.");
     }
 
-    const images = Array.from(previewRef.current.querySelectorAll("img"));
+    // Wait for all preview images to load.
+    const images = Array.from(element.querySelectorAll("img"));
 
     await Promise.all(
       images.map(async (img) => {
@@ -129,25 +126,35 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
           });
         }
 
-        if (img.decode) {
-          try {
-            await img.decode();
-          } catch (error) {
-            console.warn("Image decode failed:", img.src);
-          }
+        if (img.decode && img.naturalWidth > 0) {
+          await img.decode().catch(() => {});
+        }
+
+        if (img.src && img.naturalWidth === 0) {
+          console.warn("Image failed to load:", img.src);
         }
       }),
     );
 
-    return await html2canvas(previewRef.current, {
+    return await html2canvas(element, {
       scale: 2,
       useCORS: true,
       allowTaint: false,
       backgroundColor: "#ffffff",
       logging: true,
-      imageTimeout: 20000,
+      imageTimeout: 30000,
       scrollX: 0,
       scrollY: 0,
+      onclone: (clonedDocument) => {
+        const clonedPreview = clonedDocument.querySelector(
+          "[data-work-order-preview]",
+        );
+
+        if (clonedPreview) {
+          clonedPreview.style.backgroundColor = "#ffffff";
+          clonedPreview.style.color = "#1f2937";
+        }
+      },
     });
   };
 
@@ -235,14 +242,14 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-3 sm:p-6"
+      className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 p-3 sm:p-6"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose?.();
       }}
     >
       <div className="flex max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-5 py-4">
+        <div className="flex items-center justify-between border-b px-5 py-2">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">
               Work Order Preview
@@ -262,49 +269,79 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
         </div>
 
         {/* Preview */}
-        <div className="flex-1 overflow-auto bg-gray-100 p-4 sm:p-6">
+        <div className="flex-1 overflow-auto bg-gray-100 p-4 sm:p-2">
           <div
             ref={previewRef}
-            className="mx-auto w-full max-w-[794px] bg-white p-6 text-gray-800 sm:p-10"
+            className="mx-auto w-full max-w-198.5 bg-white px-2 py-2 text-gray-800 sm:px-6 sm:py-4"
             style={{
               fontFamily: "Arial, sans-serif",
               minHeight: "600px",
             }}
           >
             {/* Company Header */}
-            <div className="border-b-2 border-gray-800 pb-5">
+            <div className="border-b-2 border-gray-800 pb-2">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h1 className="font-custom text-2xl font-bold">
+                  <h1 className="font-custom text-3xl font-bold">
                     JYOTI ADVERTISERS
                   </h1>
-                  <p className="mt-1 text-sm text-gray-600">Final Work Order</p>
+                  {/* <p className="mt-1 text-sm text-gray-600">Work Order</p> */}
+                  <p className="mt-1 text-[12px] leading-3.75">
+                    Sukheja Tower, Wright Town, Jabalpur, 482001 (M. P.),
+                    <br />
+                    <span className="font-semibold">Mob:</span> 9111100590,{" "}
+                    <span className="font-semibold">Website:</span>{" "}
+                    www.jyotiadvertiser.com
+                  </p>
                 </div>
 
                 <div className="text-right text-sm">
                   <p className="font-semibold">Work Order: {orderNumber}</p>
                   <p className="mt-1">Date: {formatDate(workOrder.fwo_date)}</p>
-                  <p className="mt-1">Status: {workOrder.fwo_status || "-"}</p>
+                  <p className="mt-1">
+                    Status:{" "}
+                    <span className="font-bold">
+                      {workOrder.fwo_status?.toUpperCase() || "-"}
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Printer Details */}
-            <div className="my-6 rounded-lg border border-gray-200 p-4">
-              <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div className="my-2 rounded-lg border border-gray-200 bg-white p-3">
+              {/* <h3 className="mb-2 text-center text-[11px] font-bold uppercase tracking-wider text-gray-500">
                 Printer Details
-              </h3>
+              </h3> */}
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <p className="text-xs text-gray-500">Printer Name</p>
-                  <p className="mt-1 font-semibold">{printer}</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                {/* Name */}
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    Printer Name
+                  </p>
+                  <p className="break-words text-[11px] font-medium text-gray-800">
+                    {printer?.printer_name?.toUpperCase() || "-"}
+                  </p>
                 </div>
 
-                <div>
-                  <p className="text-xs text-gray-500">Payment Status</p>
-                  <p className="mt-1 font-semibold">
-                    {workOrder.fwo_payment_status || "Unpaid"}
+                {/* GSTIN */}
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    GSTIN
+                  </p>
+                  <p className="break-all text-[11px] text-gray-800">
+                    {printer?.pm_gst_number?.toUpperCase() || "-"}
+                  </p>
+                </div>
+
+                {/* Address */}
+                <div className="col-span-2 min-w-0">
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    Address
+                  </p>
+                  <p className="break-words text-[11px] leading-4 text-gray-700">
+                    {printer?.pm_address?.toUpperCase() || "-"}
                   </p>
                 </div>
               </div>
@@ -319,7 +356,8 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
               <thead>
                 <tr className="bg-gray-100">
                   {/* <th className="border border-gray-300 p-2">#</th> */}
-                  <th className="border border-gray-300 p-2">JC / Media</th>
+                  <th className="border border-gray-300 p-2">JC Number</th>
+                  <th className="border border-gray-300 p-2">Media</th>
                   <th className="border border-gray-300 p-2">Size</th>
                   <th className="border border-gray-300 p-2">Qty</th>
                   <th className="border border-gray-300 p-2">Area</th>
@@ -370,7 +408,18 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
                                 "-"}
                             </p>
 
-                            <p className="mt-1">
+                            {/* {imagePath && (
+                              <img
+                                crossOrigin="anonymous"
+                                src={getImageUrl(imagePath)}
+                                alt="Creative"
+                                className="mt-2 h-12 w-16 rounded border object-cover"
+                              />
+                            )} */}
+                          </td>
+
+                          <td className="border border-gray-300 p-2">
+                            <p className="">
                               {media.pmm_media ||
                                 media.mm_media ||
                                 item.woi_media ||
@@ -384,15 +433,6 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
                                 {media.woim_creative || media.creative}
                               </p>
                             )}
-
-                            {/* {imagePath && (
-                              <img
-                                crossOrigin="anonymous"
-                                src={getImageUrl(imagePath)}
-                                alt="Creative"
-                                className="mt-2 h-12 w-16 rounded border object-cover"
-                              />
-                            )} */}
                           </td>
 
                           <td className="border border-gray-300 p-2">
@@ -460,40 +500,40 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
                   <span>₹{formatAmount(grandTotal)}</span>
                 </div>
 
-                <div className="flex justify-between gap-4">
+                {/* <div className="flex justify-between gap-4">
                   <span className="text-gray-600">Paid Amount</span>
                   <span>₹{formatAmount(paidAmount)}</span>
-                </div>
+                </div> */}
 
-                <div className="flex justify-between gap-4 font-bold text-red-600">
+                {/* <div className="flex justify-between gap-4 font-bold text-red-600">
                   <span>Balance Amount</span>
                   <span>₹{formatAmount(balanceAmount)}</span>
-                </div>
+                </div> */}
               </div>
             </div>
-
-            {/* Remarks */}
-            {workOrder.fwo_remarks && (
-              <div className="mt-8 border-t border-gray-300 pt-4">
-                <h3 className="text-sm font-bold">Remarks</h3>
-                <p className="mt-2 whitespace-pre-wrap text-sm text-gray-600">
-                  {workOrder.fwo_remarks}
-                </p>
+            <div className="mt-2 grid grid-cols-4 gap-4  border-t border-gray-300 pt-3">
+              {/* Remarks - 3 columns */}
+              <div className="col-span-3">
+                {workOrder.fwo_remarks && (
+                  <div>
+                    <p className="whitespace-pre-wrap text-sm text-gray-600">
+                      <span className="font-semibold">Remarks:</span>{" "}
+                      {workOrder.fwo_remarks}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Signatures */}
-            <div className="mt-16 grid grid-cols-2 gap-8 text-center text-xs">
-              <div className="border-t border-gray-400 pt-2">
-                Authorized Signature
-              </div>
-              <div className="border-t border-gray-400 pt-2">
-                Printer Signature
+              {/* Signature - 1 column */}
+              <div className="col-span-1">
+                <div className="mt-16 border-t border-gray-400 pt-2 text-center text-xs">
+                  Authorized Signature
+                </div>
               </div>
             </div>
 
             <p className="mt-8 text-center text-[10px] text-gray-400">
-              Generated by Jyoti Advertisers
+              Generated by Jyoti Advertisers CRM
             </p>
           </div>
         </div>

@@ -12,8 +12,6 @@ const AddPrinterMediaModel = ({
   const modalRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  console.log("10 mediaType", selected);
-
   const [formData, setFormData] = useState({
     printer_id: selected?.pm_id,
     pmm_media: "",
@@ -21,8 +19,6 @@ const AddPrinterMediaModel = ({
   });
 
   const [loading, setLoading] = useState(false);
-
-  console.log("25 formdata", formData);
 
   useEffect(() => {
     if (selected) {
@@ -53,7 +49,6 @@ const AddPrinterMediaModel = ({
 
     try {
       setLoading(true);
-
       const response = await axios.post(
         `${apiUrl}/api/printer-master/save-printer-media`,
         formData,
@@ -151,7 +146,7 @@ const AddPrinterMediaModel = ({
           <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-semibold text-gray-700">
-                Media Price *
+                Media Price (Per SQ FT)*
               </label>
 
               <input

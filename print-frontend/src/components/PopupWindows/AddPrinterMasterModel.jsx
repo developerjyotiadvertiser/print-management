@@ -257,15 +257,10 @@ const AddPrinterMasterModel = ({
 
       const payload = {
         printer_name: formData.printer_name?.toUpperCase(),
-
         pm_gst_number: formData.pm_gst_number?.toUpperCase(),
-
         pm_address: formData.pm_address,
-
         pm_pan_number: formData.pm_pan_number?.toUpperCase(),
-
         pm_pincode: formData.pm_pincode,
-
         pm_status: formData.pm_status,
       };
 
@@ -276,9 +271,7 @@ const AddPrinterMasterModel = ({
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         await getAllPrinterMaster();
-
         resetForm();
         onItemClose();
       } else {

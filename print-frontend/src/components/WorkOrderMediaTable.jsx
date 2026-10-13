@@ -74,7 +74,7 @@ const WorkOrderMediaTable = ({ selectedPrinter }) => {
                 </th>
 
                 <th className="px-5 py-3 font-semibold text-gray-600 text-left">
-                  Price
+                  Price(Per SQ FT)
                 </th>
 
                 <th className="px-5 py-3 font-semibold text-gray-600 text-left">
@@ -137,7 +137,7 @@ const WorkOrderMediaTable = ({ selectedPrinter }) => {
                     </td>
 
                     {/* Action */}
-                    {user && user?.user?.emp_role !== "employee" && (
+                    {user && user?.user?.emp_role === "admin" && (
                       <td className="px-5 py-4 text-left">
                         <div className="flex items-center justify-start gap-2">
                           {/* Delete */}

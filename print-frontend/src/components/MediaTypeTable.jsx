@@ -359,7 +359,7 @@ const MediaTypeTable = () => {
                             </button>
 
                             {/* Delete */}
-                            {user?.user?.emp_role !== "employee" && (
+                            {user?.user?.emp_role === "admin" && (
                               <button
                                 onClick={() => handleDelete(media.mm_id)}
                                 className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"

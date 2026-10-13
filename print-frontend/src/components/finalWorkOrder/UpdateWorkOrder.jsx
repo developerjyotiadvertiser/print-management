@@ -27,6 +27,7 @@ const UpdateWorkOrder = ({
     fwo_paid_amount: 0,
     fwo_status: "Draft",
     fwo_payment_status: "Unpaid",
+    fwo_bill_received: "No",
     fwo_remarks: "",
   });
 
@@ -49,6 +50,8 @@ const UpdateWorkOrder = ({
       fwo_status: selectedOrder.fwo_status ?? "Draft",
 
       fwo_payment_status: selectedOrder.fwo_payment_status ?? "Unpaid",
+
+      fwo_bill_received: selectedOrder.fwo_bill_received ?? "not-received",
 
       fwo_remarks: selectedOrder.fwo_remarks ?? "",
     });
@@ -266,6 +269,7 @@ const UpdateWorkOrder = ({
         fwo_balance_amount: balanceAmount,
         fwo_status: formData.fwo_status,
         fwo_payment_status: paymentStatus,
+        fwo_bill_received: formData?.fwo_bill_received,
         fwo_remarks: formData.fwo_remarks,
         woi_ids: selectedIds,
       };
@@ -436,6 +440,7 @@ const UpdateWorkOrder = ({
                     setSearch("");
                   }}
                   required
+                  disabled={selectedOrder?.fwo_status === "Finalized"}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-blue-500"
                 >
                   <option value="">
@@ -459,6 +464,7 @@ const UpdateWorkOrder = ({
                   name="fwo_date"
                   value={formData.fwo_date}
                   onChange={handleChange}
+                  disabled={selectedOrder?.fwo_status === "Finalized"}
                   required
                   className="w-full rounded-lg border border-gray-300 px-3 py-2.5"
                 />
@@ -474,9 +480,14 @@ const UpdateWorkOrder = ({
                   onChange={handleChange}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2.5"
                 >
-                  <option value="Draft">Draft</option>
+                  {selectedOrder?.fwo_status !== "Finalized" && (
+                    <>
+                      <option value="Draft">Draft</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </>
+                  )}
+
                   <option value="Finalized">Finalized</option>
-                  <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
             </div>
@@ -524,6 +535,7 @@ const UpdateWorkOrder = ({
                         <th className="w-12 px-4 py-3">
                           <input
                             type="checkbox"
+                            disabled={selectedOrder?.fwo_status === "Finalized"}
                             checked={
                               filteredItems.length > 0 &&
                               filteredItems.every((item) =>
@@ -568,6 +580,9 @@ const UpdateWorkOrder = ({
                           <td className="px-4 py-4">
                             <input
                               type="checkbox"
+                              disabled={
+                                selectedOrder?.fwo_status === "Finalized"
+                              }
                               checked={selectedIds.includes(item.woi_id)}
                               onChange={() => toggleItem(item.woi_id)}
                             />
@@ -606,7 +621,7 @@ const UpdateWorkOrder = ({
               <div className="space-y-4">
                 <h3 className="font-semibold text-gray-800">Payment Details</h3>
 
-                <div>
+                {/* <div>
                   <label className="mb-1 block text-sm text-gray-600">
                     Adjustment Amount (+/-)
                   </label>
@@ -618,9 +633,9 @@ const UpdateWorkOrder = ({
                     onChange={handleChange}
                     className="w-full rounded-lg border px-3 py-2.5"
                   />
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   <label className="mb-1 block text-sm text-gray-600">
                     Paid Amount
                   </label>
@@ -633,7 +648,28 @@ const UpdateWorkOrder = ({
                     onChange={handleChange}
                     className="w-full rounded-lg border px-3 py-2.5"
                   />
-                </div>
+                </div> */}
+
+                {selectedOrder?.fwo_status === "Finalized" && (
+                  <>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
+                        Bill Status *
+                      </label>
+
+                      <select
+                        name="fwo_bill_received"
+                        value={formData.fwo_bill_received}
+                        onChange={handleChange}
+                        required
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-blue-500"
+                      >
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                      </select>
+                    </div>
+                  </>
+                )}
 
                 <div>
                   <label className="mb-1 block text-sm text-gray-600">
@@ -656,32 +692,32 @@ const UpdateWorkOrder = ({
                 </h3>
 
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between gap-4">
+                  {/* <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Subtotal</span>
                     <span>₹{formatAmount(subtotal)}</span>
-                  </div>
+                  </div> */}
 
-                  <div className="flex justify-between gap-4">
+                  {/* <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Adjustment</span>
                     <span>₹{formatAmount(adjustment)}</span>
-                  </div>
+                  </div> */}
 
                   <div className="flex justify-between gap-4 border-t pt-3 text-base font-bold">
-                    <span>Grand Total</span>
+                    <span>Total</span>
                     <span>₹{formatAmount(grandTotal)}</span>
                   </div>
 
-                  <div className="flex justify-between gap-4">
+                  {/* <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Paid Amount</span>
                     <span>₹{formatAmount(paidAmount)}</span>
-                  </div>
+                  </div> */}
 
-                  <div className="flex justify-between gap-4 border-t pt-3 font-bold text-red-600">
+                  {/* <div className="flex justify-between gap-4 border-t pt-3 font-bold text-red-600">
                     <span>Balance Amount</span>
                     <span>₹{formatAmount(balanceAmount)}</span>
-                  </div>
+                  </div> */}
 
-                  <div className="flex justify-between gap-4 pt-2">
+                  {/* <div className="flex justify-between gap-4 pt-2">
                     <span className="text-gray-600">Payment Status</span>
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -694,7 +730,7 @@ const UpdateWorkOrder = ({
                     >
                       {paymentStatus}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

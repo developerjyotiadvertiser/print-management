@@ -175,7 +175,7 @@ const EmployeeTable = () => {
                         {employee?.emp_status}
                       </span>
                     </td>
-                    {user?.user?.emp_role !== "employee" && (
+                    {user?.user?.emp_role === "admin" && (
                       <>
                         <td className="px-5 py-4">
                           <div className="flex items-center justify-center gap-2">

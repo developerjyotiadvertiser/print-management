@@ -7,11 +7,9 @@ import AddPrinterMasterModel from "./AddPrinterMasterModel";
 
 const getTodayDate = () => {
   const today = new Date();
-
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
-
   return `${year}-${month}-${day}`;
 };
 
@@ -61,7 +59,6 @@ const calculateArea = (width, height, unit, quantity) => {
   }
 
   const area = widthInFeet * heightInFeet * qty;
-
   return area.toFixed(2);
 };
 
@@ -77,7 +74,6 @@ const AddWorkItemsModel = ({
   getAllPrinterMaster,
 }) => {
   const modalRef = useRef(null);
-
   const apiUrl = import.meta.env.VITE_API_URL;
 
   // =====================================================
@@ -145,12 +141,10 @@ const AddWorkItemsModel = ({
 
       if (!selectedPrinter) {
         setEmployees([]);
-
         setMediaItems([createEmptyMedia()]);
         return;
       }
 
-      // Store printer name also for display/backend if needed
       setFormData((prev) => ({
         ...prev,
         woi_pm_id: selectedPrinter.pm_id,
@@ -160,7 +154,6 @@ const AddWorkItemsModel = ({
       // Fetch media belonging to this printer
       await getAllWorkOrderMediaMaster(selectedPrinter.pm_id);
 
-      // Reset media selections because printer changed
       setMediaItems([createEmptyMedia()]);
     }
   };
@@ -216,25 +209,6 @@ const AddWorkItemsModel = ({
       return updated;
     });
   };
-
-  // =====================================================
-  // ADD MEDIA ITEM
-  // =====================================================
-  // const addMediaItem = () => {
-  //   const selectedPrinter = printerMaster?.find(
-  //     (item) => item?.printer_name === formData.woi_printer_name,
-  //   );
-
-  //   const selectedMedia = selectedPrinter?.pm_media || "";
-
-  //   setMediaItems((prev) => [
-  //     ...prev,
-  //     {
-  //       ...createEmptyMedia(),
-  //       woim_media: selectedMedia,
-  //     },
-  //   ]);
-  // };
 
   const addMediaItem = () => {
     setMediaItems((prev) => [...prev, createEmptyMedia()]);
@@ -481,8 +455,6 @@ const AddWorkItemsModel = ({
 
       payload.append("woi_work_allot_date", formData.woi_work_allot_date);
 
-      // payload.append("woi_printer_name", formData.woi_printer_name);
-
       payload.append("woi_pm_id", formData.woi_pm_id);
 
       payload.append("woi_status", formData.woi_status);
@@ -503,18 +475,6 @@ const AddWorkItemsModel = ({
       }));
 
       payload.append("media_items", JSON.stringify(mediaData));
-
-      console.log("431 work media", mediaData);
-
-      // =================================================
-      // ADD IMAGES
-      // =================================================
-
-      // mediaItems.forEach((media) => {
-      //   if (media.woim_creative_image) {
-      //     payload.append("woi_creative_images", media.woim_creative_image);
-      //   }
-      // });
 
       const imageIndexes = [];
 

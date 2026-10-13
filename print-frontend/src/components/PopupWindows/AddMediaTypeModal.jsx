@@ -213,13 +213,17 @@ const AddMediaTypeModal = ({
                       >
                         +
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteModalOpen(true)}
-                        className="mb-1 flex items-center gap-2 px-3 py-1 bg-red-500 rounded-lg text-white hover:bg-red-600 transition text-md font-bold"
-                      >
-                        -
-                      </button>
+                      {user?.user?.emp_role !== "manager" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setDeleteModalOpen(true)}
+                            className="mb-1 flex items-center gap-2 px-3 py-1 bg-red-500 rounded-lg text-white hover:bg-red-600 transition text-md font-bold"
+                          >
+                            -
+                          </button>
+                        </>
+                      )}
                     </div>
                   </>
                 )}

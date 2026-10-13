@@ -14,13 +14,11 @@ const initialFormData = {
 
 const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
   const modalRef = useRef();
-
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
   const [fetchingGST, setFetchingGST] = useState(false);
   const [gstFetched, setGstFetched] = useState(false);
   const [urv, setUrv] = useState(false);
-
   const apiUrl = import.meta.env.VITE_API_URL;
 
   // --------------------------------------------------
@@ -38,7 +36,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
   const handleClose = () => {
     if (loading || fetchingGST) return;
-
     resetForm();
     onClose();
   };
@@ -49,7 +46,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         handleClose();
@@ -127,10 +123,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
   // Map GST Response
   // --------------------------------------------------
 
-  // --------------------------------------------------
-  // Map GST Response
-  // --------------------------------------------------
-
   const mapGSTDetails = (data) => {
     const address =
       data?.principalPlaceOfBusinessFields?.principalPlaceOfBusinessAddress;
@@ -158,10 +150,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
       pincode: address?.pincode || "",
     };
   };
-
-  // --------------------------------------------------
-  // Fetch GST Details Through Backend API
-  // --------------------------------------------------
 
   // --------------------------------------------------
   // Fetch GST Details Through Backend API

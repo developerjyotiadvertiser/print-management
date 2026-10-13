@@ -503,13 +503,17 @@ const ChallanPage = () => {
                         >
                           <FiEdit size={16} />
                         </button>
-                        <button
-                          onClick={() => handleDelete(challan?.ch_id)}
-                          className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
-                          title="Delete Challan"
-                        >
-                          <FiTrash2 size={16} />
-                        </button>
+                        {user?.user?.emp_role === "admin" && (
+                          <>
+                            <button
+                              onClick={() => handleDelete(challan?.ch_id)}
+                              className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                              title="Delete Challan"
+                            >
+                              <FiTrash2 size={16} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                     <td className="px-5 py-4 text-center">

@@ -48,9 +48,6 @@ const AddChallanModel = ({
   const [challanPrintModel, setChallanPrintModel] = useState(false);
   const [selectedPrint, setSelectedPrint] = useState(null);
 
-  console.log("challan Print", challanPrintModel);
-  console.log("selected  print", selectedPrint);
-
   const handlePrintModel = (challan) => {
     setSelectedPrint(challan);
     setChallanPrintModel(true);
@@ -124,8 +121,6 @@ const AddChallanModel = ({
       (client) => String(client.client_id) === String(value),
     );
 
-    console.log("client", selectedClient);
-
     if (selectedClient) {
       setFormData((prev) => ({
         ...prev,
@@ -177,8 +172,6 @@ const AddChallanModel = ({
     }));
   };
 
-  console.log("selected print", selectedPrint);
-
   // PRINT FIELD CHANGE
   const handlePrintChange = (e) => {
     const { name, value } = e.target;
@@ -186,8 +179,6 @@ const AddChallanModel = ({
       const selectedPrint = printRecords?.find(
         (print) => String(print.print_id) === String(value),
       );
-
-      console.log("selected print 190", selectedPrint);
 
       if (selectedPrint) {
         setCurrentPrint((prev) => ({
@@ -310,8 +301,6 @@ const AddChallanModel = ({
         `${apiUrl}/api/challan/save-challan`,
         formData,
       );
-
-      console.log("293", response.data?.data?.data);
 
       if (response.data.success) {
         toast.success(response.data.message);

@@ -26,9 +26,12 @@ import { LiaFirstOrderAlt } from "react-icons/lia";
 import { BsFillPrinterFill } from "react-icons/bs";
 import AddFWOModel from "../components/finalWorkOrder/AddFWOModel";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const WorkOrder = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  const user = useSelector((state) => state?.user?.currentUser);
 
   // =========================================================
   // STATE
@@ -819,30 +822,30 @@ const WorkOrder = () => {
         ====================================================== */}
 
         <div className="overflow-x-auto rounded-lg border border-gray-200">
-          <table className="w-full min-w-300 text-left text-sm">
+          <table className="w-full min-w-200 text-left text-sm">
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
-                <th className="px-5 py-3 font-semibold text-gray-600">ID</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">ID</th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                <th className="px-4 py-3 font-semibold text-gray-600">
                   JC Number
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">Date</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Date</th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                <th className="px-4 py-3 font-semibold text-gray-600">
                   Printer
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                <th className="px-4 py-3 font-semibold text-gray-600">
                   Media Details
                 </th>
 
-                <th className="px-5 py-3 font-semibold text-gray-600">
+                <th className="px-4 py-3 font-semibold text-gray-600">
                   Status
                 </th>
 
-                <th className="px-5 py-3 text-center font-semibold text-gray-600">
+                <th className="px-4 py-3 text-center font-semibold text-gray-600">
                   Actions
                 </th>
               </tr>
@@ -855,7 +858,7 @@ const WorkOrder = () => {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-5 py-10 text-center text-gray-500"
+                    className="px-4 py-10 text-center text-gray-500"
                   >
                     Loading work items...
                   </td>
@@ -866,7 +869,7 @@ const WorkOrder = () => {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-5 py-10 text-center text-gray-500"
+                    className="px-4 py-10 text-center text-gray-500"
                   >
                     No work items found.
                   </td>
@@ -881,25 +884,25 @@ const WorkOrder = () => {
                   >
                     {/* ID */}
 
-                    <td className="px-5 py-4 text-gray-500">
+                    <td className="px-4 py-4 text-gray-500">
                       {item?.woi_id || "-"}
                     </td>
 
                     {/* JC NUMBER */}
 
-                    <td className="px-5 py-4 font-medium text-gray-700">
+                    <td className="px-4 py-4 font-medium text-gray-700">
                       {item?.woi_jc_number || "-"}
                     </td>
 
                     {/* DATE */}
 
-                    <td className="whitespace-nowrap px-5 py-4 text-gray-700">
+                    <td className="whitespace-nowrap px-4 py-4 text-gray-700">
                       {formatDate(item?.woi_work_allot_date) || "-"}
                     </td>
 
                     {/* PRINTER */}
 
-                    <td className="px-5 py-4 text-gray-700">
+                    <td className="px-4 py-4 text-gray-700">
                       {item?.printer_name || "-"}
                     </td>
 
@@ -907,7 +910,7 @@ const WorkOrder = () => {
                           MEDIA DETAILS
                       ================================================== */}
 
-                    <td className="min-w-[700px] px-5 py-3 align-top">
+                    <td className="min-w-[700px] px-4 py-3 align-top">
                       {item?.media_items?.length > 0 ? (
                         <div className="overflow-x-auto rounded-lg border border-gray-200">
                           <table className="w-full border-collapse text-sm">
@@ -987,7 +990,7 @@ const WorkOrder = () => {
 
                     {/* STATUS */}
 
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-4">
                       <span
                         className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
                           String(item?.woi_status || "").toLowerCase() ===
@@ -1008,7 +1011,7 @@ const WorkOrder = () => {
 
                     {/* ACTIONS */}
 
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-4">
                       <div className="flex items-center justify-center gap-2">
                         {/* SHARE */}
 
@@ -1020,7 +1023,7 @@ const WorkOrder = () => {
                           <FaShareAltSquare size={16} />
                         </button>
 
-                        {item?.woi_status !== "wo_created" && (
+                        {item?.woi_status !== "WO_Issued" && (
                           <>
                             {/* UPDATE */}
 
@@ -1034,13 +1037,17 @@ const WorkOrder = () => {
 
                             {/* DELETE */}
 
-                            <button
-                              onClick={() => handleDelete(item?.woi_id)}
-                              className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
-                              title="Delete Work Item"
-                            >
-                              <FiTrash2 size={16} />
-                            </button>
+                            {user?.user?.emp_role === "admin" && (
+                              <>
+                                <button
+                                  onClick={() => handleDelete(item?.woi_id)}
+                                  className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
+                                  title="Delete Work Item"
+                                >
+                                  <FiTrash2 size={16} />
+                                </button>
+                              </>
+                            )}
                           </>
                         )}
                       </div>

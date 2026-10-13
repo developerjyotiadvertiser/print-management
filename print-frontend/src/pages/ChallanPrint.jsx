@@ -186,12 +186,6 @@ const ChallanPrint = ({ isOpen, onClose, challan }) => {
 
         {/* Address / Phone */}
         <div className="border-r border-gray-500 px-1.5 py-1">
-          {/* <div className="flex min-h-4 items-center">
-            <span className="w-12.5 text-[12px] font-bold">Address</span>
-            <span className="text-[12px]">
-              : {challanData.address?.toUpperCase() || "-"}
-            </span>
-          </div> */}
           <div className="flex min-h-4 items-center">
             <span className="w-12.5 text-[12px] font-bold">Mobile</span>
             <span className="text-[12px]">

@@ -72,15 +72,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
     }));
   }, [formData.width, formData.height, formData.size_unit, formData.quantity]);
 
-  // Handle form changes
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  // };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -213,13 +204,9 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
 
   if (!isOpen) return null;
 
-  // console.log("formdata", formData);
-
   const activeMedia = mediaTypes?.filter((item) => {
     return item?.mm_status === "Active";
   });
-
-  console.log("activeMedia", activeMedia);
 
   return (
     <>

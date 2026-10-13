@@ -63,6 +63,8 @@ const App = () => {
             user ? (
               user?.user?.emp_role === "employee" ? (
                 <UserPrint />
+              ) : user?.user?.emp_role === "accountant" ? (
+                <WorkOrder />
               ) : (
                 <AdminDashboard />
               )

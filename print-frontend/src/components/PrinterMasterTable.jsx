@@ -8,6 +8,8 @@ import UpdatePrinterMasterModel from "./PopupWindows/UpdatePrinterMasterModel";
 import { MdAddPhotoAlternate, MdPermMedia } from "react-icons/md";
 import AddPrinterMediaModel from "./PopupWindows/AddPrinterMediaModel";
 import PrinterMediaModel from "./PopupWindows/PrinterMediaModel";
+import { AiFillFolderAdd } from "react-icons/ai";
+import { RiAddCircleFill } from "react-icons/ri";
 
 const PrinterMasterTable = ({
   getAllPrinterMaster,
@@ -191,20 +193,21 @@ const PrinterMasterTable = ({
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
+                          onClick={() => handlePrinterMedia(employee)}
+                          className="p-2 rounded-lg text-purple-600 bg-purple-50 hover:bg-blue-100 transition"
+                          title="Add Media"
+                        >
+                          {/* <MdPermMedia size={16} /> */}
+                          <RiAddCircleFill size={16} />
+                        </button>
+                        <button
                           onClick={() => handleViewPrinterMedia(employee)}
                           className="p-2 rounded-lg text-green-600 bg-green-50 hover:bg-blue-100 transition"
                           title="View Media"
                         >
                           <MdPermMedia size={16} />
                         </button>
-                        <button
-                          onClick={() => handlePrinterMedia(employee)}
-                          className="p-2 rounded-lg text-purple-600 bg-purple-50 hover:bg-blue-100 transition"
-                          title="Add Media"
-                        >
-                          {/* <MdPermMedia size={16} /> */}
-                          <MdAddPhotoAlternate size={16} />
-                        </button>
+
                         {/* Update */}
                         <button
                           onClick={() => handleUpdate(employee)}
@@ -215,7 +218,7 @@ const PrinterMasterTable = ({
                         </button>
 
                         {/* Delete */}
-                        {user?.user?.emp_role !== "employee" && (
+                        {user?.user?.emp_role === "admin" && (
                           <button
                             onClick={() => handleDelete(employee.pm_id)}
                             className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
