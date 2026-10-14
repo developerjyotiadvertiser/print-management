@@ -14,7 +14,6 @@ import AddPrintModel from "../components/PopupWindows/AddPrintModel";
 import UpdatePrintModel from "../components/PopupWindows/UpdatePrintModel";
 import * as XLSX from "xlsx";
 import MediaMasterModel from "../components/PopupWindows/MediaMasterModel";
-import EmployeeTable from "../components/EmployeeTable";
 
 const AdminDashboard = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -275,26 +274,30 @@ const AdminDashboard = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => {
-                setMasterModel(true);
-              }}
-              className="rounded-lg  px-5 py-2 text-sm font-semibold  transition text-white bg-cyan-600 hover:bg-cyan-700 cursor-pointer"
-            >
-              + Media
-            </button>
-            {/* Add New Record */}
-            <button
-              onClick={() => {
-                setAddModel(true);
-              }}
-              className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 transition cursor-pointer"
-            >
-              <FiPlus />
-              Add New Record
-            </button>
-          </div>
+          {user?.user?.emp_role === "admin" && (
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => {
+                    setMasterModel(true);
+                  }}
+                  className="rounded-lg  px-5 py-2 text-sm font-semibold  transition text-white bg-cyan-600 hover:bg-cyan-700 cursor-pointer"
+                >
+                  + Media
+                </button>
+                {/* Add New Record */}
+                <button
+                  onClick={() => {
+                    setAddModel(true);
+                  }}
+                  className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 transition cursor-pointer"
+                >
+                  <FiPlus />
+                  Add New Record
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">

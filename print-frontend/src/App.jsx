@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import ChallanPage from "./pages/ChallanPage";
 import WorkOrder from "./pages/WorkOrder";
 import FinalWorkOrders from "./pages/FinalWorkOrders";
+import FloatingUnitConverter from "./utils/FloatingUnitConverter";
 
 const App = () => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -80,6 +81,8 @@ const App = () => {
             user ? (
               user?.user?.emp_role === "employee" ? (
                 <UserPrint />
+              ) : user?.user?.emp_role === "accountant" ? (
+                <WorkOrder />
               ) : (
                 <AdminDashboard />
               )
@@ -100,6 +103,8 @@ const App = () => {
           </>
         )}
       </Routes>
+
+      <FloatingUnitConverter />
     </>
   );
 };

@@ -28,7 +28,7 @@ const AddChallanModel = ({
   };
 
   const initialPrint = {
-    pci_print_id: "",
+    pci_print_id: null,
     pci_description: "",
     pci_creative: "",
     pci_height: "",
@@ -47,6 +47,9 @@ const AddChallanModel = ({
 
   const [challanPrintModel, setChallanPrintModel] = useState(false);
   const [selectedPrint, setSelectedPrint] = useState(null);
+  const [manualChallan, setManualChallan] = useState(false);
+
+  console.log("manual 52", manualChallan);
 
   const handlePrintModel = (challan) => {
     setSelectedPrint(challan);
@@ -196,7 +199,7 @@ const AddChallanModel = ({
       } else {
         setCurrentPrint((prev) => ({
           ...prev,
-          pci_print_id: "",
+          pci_print_id: null,
           pci_creative: "",
           pci_height: "",
           pci_width: "",
@@ -212,15 +215,16 @@ const AddChallanModel = ({
     setCurrentPrint((prev) => ({
       ...prev,
       [name]: value,
+      ...(manualChallan ? { pci_print_id: null } : {}),
     }));
   };
 
   // ADD / UPDATE PRINT
   const handleAddPrint = () => {
-    if (!currentPrint.pci_print_id) {
-      toast.error("Please select Print ID");
-      return;
-    }
+    // if (!currentPrint.pci_print_id) {
+    //   toast.error("Please select Print ID");
+    //   return;
+    // }
     if (!currentPrint.pci_size_unit) {
       toast.error("Please select Size Unit");
       return;
@@ -514,14 +518,25 @@ const AddChallanModel = ({
                   <h3 className="text-lg font-semibold text-gray-800">
                     Print Details
                   </h3>
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
-                    {formData.prints.length} Print
-                    {formData.prints.length !== 1 ? "s" : ""}
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={manualChallan}
+                        onChange={(e) => setManualChallan(e.target.checked)}
+                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      Manual Challan
+                    </label>
+                    <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
+                      {formData.prints.length} Print
+                      {formData.prints.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
                 </div>
                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
-                    <div className="md:col-span-2">
+                    {/* <div className="md:col-span-2">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
                         Print ID *
                       </label>
@@ -539,7 +554,40 @@ const AddChallanModel = ({
                           </option>
                         ))}
                       </select>
+                    </div> */}
+
+                    <div className="md:col-span-2">
+                      <label className="mb-1 block text-sm font-semibold text-gray-700">
+                        Print ID {!manualChallan && "*"}
+                      </label>
+
+                      {manualChallan ? (
+                        <input
+                          type="text"
+                          name="pci_print_id"
+                          value=""
+                          placeholder="Manual challan - No Print ID"
+                          disabled
+                          className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-gray-500"
+                        />
+                      ) : (
+                        <select
+                          name="pci_print_id"
+                          value={currentPrint.pci_print_id ?? ""}
+                          onChange={handlePrintChange}
+                          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        >
+                          <option value="">Select Print ID</option>
+                          {printRecords?.map((print) => (
+                            <option key={print.print_id} value={print.print_id}>
+                              {print.print_id} - {print.creative} -{" "}
+                              {print.media_type}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </div>
+
                     <div className="md:col-span-2">
                       <label className="mb-1 block text-sm font-semibold text-gray-700">
                         Media *

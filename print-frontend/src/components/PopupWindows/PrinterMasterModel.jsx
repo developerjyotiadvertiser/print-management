@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import PrinterMasterTable from "../PrinterMasterTable";
+import { RiAddCircleFill } from "react-icons/ri";
 
 const PrinterMasterModel = ({
   isOpen,
@@ -62,13 +63,19 @@ const PrinterMasterModel = ({
       >
         {/* Header */}
         <div className="mb-5 flex items-center justify-between border-b pb-4">
-          <h2 className="text-xl font-semibold text-blue-800">
-            Printer Master
+          <h2 className="flex items-center gap-1 whitespace-nowrap text-xl font-semibold text-blue-800">
+            Printer Master (<span className="text-cyan-500">New Printer</span>+
+            <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-purple-600">
+              Printing Rates
+              <RiAddCircleFill className="shrink-0" size={16} />
+            </span>
+            )
           </h2>
+
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 transition hover:text-red-500"
+            className="shrink-0 text-gray-500 transition hover:text-red-500"
           >
             <IoClose className="text-2xl" />
           </button>

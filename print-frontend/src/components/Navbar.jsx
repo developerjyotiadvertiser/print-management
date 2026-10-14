@@ -59,14 +59,18 @@ const Navbar = () => {
           <div
             className={`relative flex items-center justify-between px-5 md:px-8 lg:px-10 py-3 overflow-hidden transition-all duration-300 lg:rounded-none lg:bg-white lg:shadow-none`}
           >
-            {/* Logo */}
-            <Link to="/">
-              <img
-                src={logo}
-                alt="Jyoti Advertisers Logo"
-                className="h-11 md:h-14 w-auto object-contain"
-              />
-            </Link>
+            <div className="flex items-center justify-between gap-2">
+              {/* Logo */}
+              <Link to="/">
+                <img
+                  src={logo}
+                  alt="Jyoti Advertisers Logo"
+                  className="h-11 md:h-14 w-auto object-contain"
+                />
+              </Link>
+              <p className="text-gray-500">User: {user?.user?.emp_name}</p>
+            </div>
+
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-4">
               {/* <ul className="flex items-center gap-8">
@@ -106,7 +110,7 @@ const Navbar = () => {
                     }}
                     className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
                   >
-                    Work Order
+                    Print + WO
                   </button>
                 </>
               )}
@@ -119,7 +123,7 @@ const Navbar = () => {
                     }}
                     className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
                   >
-                    Print
+                    HP Latex
                   </button>
                   <button
                     onClick={() => {
@@ -236,7 +240,7 @@ const Navbar = () => {
                     }}
                     className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
                   >
-                    Work Order
+                    Print + WO
                   </button>
                 </div>
 

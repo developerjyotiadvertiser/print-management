@@ -647,18 +647,23 @@ const WorkOrder = () => {
               <LiaFirstOrderAlt /> Add Order
             </button> */}
 
-            <button
-              onClick={() => setAddModel(true)}
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
-            >
-              {/* <FiPlus /> */}
-              <FaNetworkWired />
-              New Job
-            </button>
+            {user?.user?.emp_role !== "accountant" && (
+              <>
+                <button
+                  onClick={() => setAddModel(true)}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
+                >
+                  {/* <FiPlus /> */}
+                  <FaNetworkWired />
+                  New Job
+                </button>
+              </>
+            )}
+
             <button
               onClick={() => setPrinterMasterTable(true)}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
-              title="Printer Master"
+              title="Add Printer"
             >
               <BsFillPrinterFill />
             </button>

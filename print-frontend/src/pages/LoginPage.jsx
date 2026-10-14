@@ -52,6 +52,7 @@ const LoginPage = () => {
       setLoginData(loginRes.data);
       const otpRes = await axios.post(`${apiUrl}/api/auth/send-otp`, {
         email: "sales@jyotiadvertiser.com",
+        user: phone,
       });
 
       if (!otpRes.data?.success) {
@@ -74,6 +75,8 @@ const LoginPage = () => {
   // STEP 2:
   // Verify OTP and complete login
   const handleVerifyOtp = async (e) => {
+    console.log("phone 77", phone);
+
     e.preventDefault();
     if (!otp) {
       toast.error("Please enter OTP");
