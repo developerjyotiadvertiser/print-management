@@ -46,7 +46,6 @@ const UpdateMediaTypeModel = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -115,8 +114,6 @@ const UpdateMediaTypeModel = ({
         onClose();
       }
     } catch (error) {
-      console.log(error);
-
       toast.error(
         error.response?.data?.message || "Failed to update media type.",
       );

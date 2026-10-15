@@ -408,9 +408,13 @@ const AdminDashboard = () => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Remark
                 </th>
-                <th className="px-5 py-3 font-semibold text-gray-600 text-center">
-                  Actions
-                </th>
+                {user?.user?.emp_role === "admin" && (
+                  <>
+                    <th className="px-5 py-3 font-semibold text-gray-600 text-center">
+                      Actions
+                    </th>
+                  </>
+                )}
               </tr>
             </thead>
 
@@ -485,17 +489,18 @@ const AdminDashboard = () => {
                         {print?.remark_one || "-"}
                       </p>
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleUpdate(print)}
-                          className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
-                          title="Update Print Record"
-                        >
-                          <FiEdit size={16} />
-                        </button>
-                        {user?.user?.emp_role === "admin" && (
-                          <>
+                    {user?.user?.emp_role === "admin" && (
+                      <>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleUpdate(print)}
+                              className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+                              title="Update Print Record"
+                            >
+                              <FiEdit size={16} />
+                            </button>
+
                             <button
                               onClick={() => handleDelete(print?.print_id)}
                               className="p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
@@ -503,10 +508,10 @@ const AdminDashboard = () => {
                             >
                               <FiTrash2 size={16} />
                             </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
+                          </div>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))
               )}

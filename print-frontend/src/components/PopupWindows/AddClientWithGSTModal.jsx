@@ -280,8 +280,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
   if (!isOpen) return null;
 
-  console.log("formdata 294", formData);
-
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div

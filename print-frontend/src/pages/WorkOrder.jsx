@@ -622,7 +622,7 @@ const WorkOrder = () => {
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
-              Work Order Jobs
+              Printing Jobs
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
@@ -633,12 +633,20 @@ const WorkOrder = () => {
 
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={() => setPrinterMasterTable(true)}
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
+              title="Add Printer"
+            >
+              <BsFillPrinterFill /> Add Printer
+            </button>
+
+            <button
               onClick={() => {
                 navigate("/view-work-order");
               }}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f368e0] px-5 py-2 text-white transition hover:bg-[#b757aa]"
             >
-              <FaDatabase /> View Orders
+              <FaDatabase /> Work Order
             </button>
             {/* <button
               onClick={() => setIsFwoOpen(true)}
@@ -659,14 +667,6 @@ const WorkOrder = () => {
                 </button>
               </>
             )}
-
-            <button
-              onClick={() => setPrinterMasterTable(true)}
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
-              title="Add Printer"
-            >
-              <BsFillPrinterFill />
-            </button>
           </div>
         </div>
 

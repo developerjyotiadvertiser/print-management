@@ -31,8 +31,6 @@ const UpdateChallanModel = ({
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  console.log("33", selected);
-
   // Populate form when selected challan changes
   useEffect(() => {
     if (!isOpen || !selected) return;
@@ -325,8 +323,6 @@ const UpdateChallanModel = ({
         })),
       };
 
-      console.log("UPDATE PAYLOAD:", JSON.stringify(payload, null, 2));
-
       const response = await axios.put(
         `${apiUrl}/api/challan/update-challan/${formData.ch_id}`,
         payload,
@@ -570,7 +566,7 @@ const UpdateChallanModel = ({
                   onClick={handleAddPrint}
                   className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
                 >
-                  + Add Print
+                  + Add Challan
                 </button>
               </div>
 

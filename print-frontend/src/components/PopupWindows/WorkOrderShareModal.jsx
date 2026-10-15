@@ -6,32 +6,18 @@ import { FiDownload, FiMail, FiShare2, FiX, FiImage } from "react-icons/fi";
 
 const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
-
-  console.log("10 workitem", workItem);
-
-  // =========================================================
-  // STATE
-  // =========================================================
-
   const [imageUrl, setImageUrl] = useState("");
   const [imageBlob, setImageBlob] = useState(null);
-
   const [generating, setGenerating] = useState(false);
   const [sharing, setSharing] = useState(false);
-
-  // Email modal
   const [emailModal, setEmailModal] = useState(false);
-
   const [emailData, setEmailData] = useState({
     to: "developerjyotiadvertiser@gmail.com",
     subject: "",
     message: "",
   });
-
   const [emailAttachments, setEmailAttachments] = useState([]);
-
   const [loadingAttachments, setLoadingAttachments] = useState(false);
-
   const [sendingEmail, setSendingEmail] = useState(false);
 
   // =========================================================
@@ -46,55 +32,38 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 
   const formatDate = (date) => {
     if (!date) return "";
-
     // DD-MM-YYYY
     if (/^\d{2}-\d{2}-\d{4}/.test(date)) {
       return date.split(" ")[0];
     }
-
     // YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}/.test(date)) {
       const [datePart] = date.split(" ");
-
       const [year, month, day] = datePart.split("-");
-
       return `${day}-${month}-${year}`;
     }
 
     return date;
   };
 
-  // =========================================================
   // MEDIA ITEMS
-  // =========================================================
-
   const mediaItems = workItem?.media_items || [];
 
-  // =========================================================
   // TOTAL QUANTITY
-  // =========================================================
-
   const totalQuantity = mediaItems.reduce(
     (total, media) => total + Number(media?.woim_quantity || 0),
     0,
   );
 
-  // =========================================================
   // TOTAL AREA
-  // =========================================================
-
   const totalArea = mediaItems.reduce(
     (total, media) => total + Number(media?.woim_area || 0),
     0,
   );
 
-  // =========================================================
   // GET CREATIVE IMAGE URL
-  // =========================================================
-
   const getCreativeImageUrl = (media) => {
     const image = media?.woim_creative_image;
-
     if (!image) {
       return null;
     }
@@ -109,16 +78,11 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
       return `${apiUrl}${image}`;
     }
 
-    console.log("relative path 106", `${apiUrl}/${image}`);
-
     // Relative path
     return `${apiUrl}/${image}`;
   };
 
-  // =========================================================
   // GENERATE IMAGE
-  // =========================================================
-
   const generateImage = async () => {
     if (!workItem) {
       return;
@@ -126,12 +90,9 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 
     try {
       setGenerating(true);
-
       const element = document.getElementById("work-order-share-content");
-
       if (!element) {
         toast.error("Unable to generate work order image.");
-
         return;
       }
 
@@ -151,27 +112,21 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 
       if (!blob) {
         toast.error("Failed to generate work order image.");
-
         return;
       }
 
       const url = URL.createObjectURL(blob);
-
       setImageBlob(blob);
       setImageUrl(url);
     } catch (error) {
       console.error("Generate work order image error:", error);
-
       toast.error("Failed to generate work order image.");
     } finally {
       setGenerating(false);
     }
   };
 
-  // =========================================================
   // GENERATE IMAGE WHEN MODAL OPENS
-  // =========================================================
-
   useEffect(() => {
     if (!isOpen || !workItem) {
       return;
@@ -179,11 +134,8 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 
     setImageUrl("");
     setImageBlob(null);
-
     setEmailModal(false);
-
     setEmailAttachments([]);
-
     setEmailData({
       to: "developerjyotiadvertiser@gmail.com",
       subject: `Work Order - JC ${workItem?.woi_jc_number || ""}`,
@@ -191,7 +143,6 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     });
 
     generateImage();
-
     return () => {
       setImageUrl((oldUrl) => {
         if (oldUrl) {
@@ -203,10 +154,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     };
   }, [isOpen, workItem]);
 
-  // =========================================================
   // CLOSE MAIN MODAL
-  // =========================================================
-
   const handleClose = () => {
     if (sendingEmail) {
       return;
@@ -215,7 +163,6 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     if (imageUrl) {
       URL.revokeObjectURL(imageUrl);
     }
-
     emailAttachments.forEach((attachment) => {
       if (attachment.previewUrl) {
         URL.revokeObjectURL(attachment.previewUrl);
@@ -224,11 +171,8 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 
     setImageUrl("");
     setImageBlob(null);
-
     setEmailAttachments([]);
-
     setEmailModal(false);
-
     setEmailData({
       to: "developerjyotiadvertiser@gmail.com",
       subject: "",
@@ -238,44 +182,30 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     onClose();
   };
 
-  // =========================================================
   // DOWNLOAD IMAGE
-  // =========================================================
-
   const handleDownload = () => {
     if (!imageUrl) {
       toast.error("Work order image is not ready.");
-
       return;
     }
 
     const link = document.createElement("a");
-
     link.href = imageUrl;
-
     link.download = `${workItem?.woi_jc_number || "NA"}-${currentDate}.png`;
-
     document.body.appendChild(link);
-
     link.click();
-
     document.body.removeChild(link);
   };
 
-  // =========================================================
   // SHARE IMAGE
-  // =========================================================
-
   const handleShare = async () => {
     if (!imageBlob) {
       toast.error("Image is still generating.");
-
       return;
     }
 
     try {
       setSharing(true);
-
       const file = new File(
         [imageBlob],
         `Work_Order_JC_${workItem?.woi_jc_number || "NA"}.png`,
@@ -284,10 +214,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
         },
       );
 
-      // =====================================================
       // WEB SHARE API
-      // =====================================================
-
       if (
         navigator.share &&
         navigator.canShare &&
@@ -297,26 +224,19 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
       ) {
         await navigator.share({
           title: `Work Order - JC ${workItem?.woi_jc_number || ""}`,
-
           text: `Work Order - JC ${workItem?.woi_jc_number || ""}`,
-
           files: [file],
         });
 
         return;
       }
 
-      // =====================================================
       // FALLBACK
-      // =====================================================
-
       toast.error(
         "File sharing is not supported in this browser. Please download the image.",
       );
     } catch (error) {
       if (error?.name !== "AbortError") {
-        console.error("Share error:", error);
-
         toast.error("Unable to share image.");
       }
     } finally {
@@ -324,14 +244,10 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     }
   };
 
-  // =========================================================
   // PREPARE EMAIL ATTACHMENTS
-  // =========================================================
-
   const prepareEmailAttachments = async () => {
     if (!imageBlob) {
       toast.error("Work order image is not ready.");
-
       return;
     }
 
@@ -347,48 +263,34 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 
       const attachments = [];
 
-      // ===================================================
       // WORK ORDER IMAGE
-      // ===================================================
-
       const workOrderFileName = `Work_Order_JC_${
         workItem?.woi_jc_number || "NA"
       }.png`;
 
       attachments.push({
         name: workOrderFileName,
-
         blob: imageBlob,
-
         previewUrl: URL.createObjectURL(imageBlob),
-
         type: "work-order",
       });
 
-      // ===================================================
       // CREATIVE IMAGES
-      // ===================================================
-
       for (let index = 0; index < mediaItems.length; index++) {
         const media = mediaItems[index];
-
         const creativeImageUrl = getCreativeImageUrl(media);
-
         if (!creativeImageUrl) {
           continue;
         }
 
         try {
           const response = await fetch(creativeImageUrl);
-
           if (!response.ok) {
             console.error("Unable to fetch creative image:", creativeImageUrl);
-
             continue;
           }
 
           const blob = await response.blob();
-
           if (!blob || blob.size === 0) {
             continue;
           }
@@ -403,11 +305,8 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 
           attachments.push({
             name: `${creativeName}.${extension}`,
-
             blob,
-
             previewUrl: URL.createObjectURL(blob),
-
             type: "creative",
           });
         } catch (error) {
@@ -416,7 +315,6 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
       }
 
       setEmailAttachments(attachments);
-
       if (
         attachments.length === 1 &&
         mediaItems.some((media) => media?.woim_creative_image)
@@ -425,41 +323,30 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
       }
     } catch (error) {
       console.error("Prepare email attachments error:", error);
-
       toast.error("Unable to prepare email attachments.");
     } finally {
       setLoadingAttachments(false);
     }
   };
 
-  // =========================================================
   // OPEN EMAIL MODAL
-  // =========================================================
-
   const handleEmail = async () => {
     if (!imageBlob) {
       toast.error("Image is still generating.");
-
       return;
     }
 
     setEmailData({
       to: "developerjyotiadvertiser@gmail.com",
-
       subject: `Work Order - JC ${workItem?.woi_jc_number || ""}`,
-
       message: "Please find the work order and creative images attached.",
     });
 
     setEmailModal(true);
-
     await prepareEmailAttachments();
   };
 
-  // =========================================================
   // HANDLE EMAIL FIELD CHANGE
-  // =========================================================
-
   const handleEmailChange = (field, value) => {
     setEmailData((prev) => ({
       ...prev,
@@ -467,81 +354,58 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     }));
   };
 
-  // =========================================================
   // SEND EMAIL
-  // =========================================================
-
   const handleSendEmail = async () => {
     if (!imageBlob) {
       toast.error("Work order image is not ready.");
-
       return;
     }
 
     const recipientEmail = emailData.to.trim();
-
     if (!recipientEmail) {
       toast.error("Please enter recipient email.");
-
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     if (!emailRegex.test(recipientEmail)) {
       toast.error("Please enter a valid email address.");
-
       return;
     }
 
     if (loadingAttachments) {
       toast.error("Please wait while attachments are prepared.");
-
       return;
     }
 
     if (!emailAttachments.length) {
       toast.error("No attachments available.");
-
       return;
     }
 
     try {
       setSendingEmail(true);
-
       const formData = new FormData();
 
-      // ===================================================
       // RECIPIENT
-      // ===================================================
-
       formData.append("to", recipientEmail);
 
-      // ===================================================
       // SUBJECT
-      // ===================================================
-
       formData.append(
         "subject",
         emailData.subject.trim() ||
           `Work Order - JC ${workItem?.woi_jc_number || ""}`,
       );
 
-      // ===================================================
       // MESSAGE
-      // ===================================================
-
       formData.append(
         "message",
         emailData.message.trim() ||
           "Please find the work order and creative images attached.",
       );
 
-      // ===================================================
       // WORK ORDER IMAGE
-      // ===================================================
-
       const workOrderAttachment = emailAttachments.find(
         (item) => item.type === "work-order",
       );
@@ -554,10 +418,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
         );
       }
 
-      // ===================================================
       // CREATIVE IMAGES
-      // ===================================================
-
       const creativeAttachments = emailAttachments.filter(
         (item) => item.type === "creative",
       );
@@ -566,22 +427,15 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
         formData.append("creativeImages", attachment.blob, attachment.name);
       });
 
-      // ===================================================
       // API REQUEST
-      // ===================================================
-
       const { data } = await axios.post(
         `${apiUrl}/api/work-items/send-work-order-email`,
         formData,
       );
 
-      // ===================================================
       // SUCCESS
-      // ===================================================
-
       if (data?.success) {
         toast.success("Work order email sent successfully.");
-
         setEmailModal(false);
 
         // Revoke preview URLs
@@ -592,7 +446,6 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
         });
 
         setEmailAttachments([]);
-
         setEmailData({
           to: "developerjyotiadvertiser@gmail.com",
           subject: "",
@@ -602,8 +455,6 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
         toast.error(data?.message || "Failed to send work order email.");
       }
     } catch (error) {
-      console.error("Send work order email error:", error);
-
       toast.error(
         error?.response?.data?.message ||
           error?.message ||
@@ -614,14 +465,9 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     }
   };
 
-  // =========================================================
-  // CLOSE EMAIL MODAL
-  // =========================================================
-
   // Close on ESC
   useEffect(() => {
     if (!isOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
         handleClose();
@@ -629,7 +475,6 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
@@ -647,30 +492,20 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
     });
 
     setEmailAttachments([]);
-
     setEmailModal(false);
   };
 
-  // =========================================================
   // MAIN MODAL
-  // =========================================================
-
   if (!isOpen) {
     return null;
   }
 
   return (
     <>
-      {/* =====================================================
-          MAIN SHARE MODAL
-      ====================================================== */}
-
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+      {/* MAIN SHARE MODAL */}
+      <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-4">
         <div className="flex max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-          {/* =================================================
-              HEADER
-          ================================================== */}
-
+          {/* HEADER */}
           <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-800">
@@ -1126,11 +961,11 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                           CREATIVE
                       ====================================== */}
 
-                    {firstRow && (
-                      <td rowSpan={mediaItems.length} style={bodyStyleCenter}>
+                    {
+                      <td style={bodyStyleCenter}>
                         {media?.woim_creative || "-"}
                       </td>
-                    )}
+                    }
                   </tr>
                 );
               })

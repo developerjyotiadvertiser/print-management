@@ -41,8 +41,6 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
     });
   }, [selected]);
 
-  console.log("selected", selected);
-
   const getAllMediaTypes = async () => {
     try {
       const { data } = await axios.get(
@@ -144,8 +142,6 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
     }));
   };
 
-  console.log("formdata", formData);
-
   // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -211,8 +207,6 @@ const UpdatePrintModel = ({ isOpen, onClose, getAllPrintData, selected }) => {
   }, [isOpen, loading]);
 
   if (!isOpen) return null;
-
-  console.log("formData update", formData);
 
   return (
     <>

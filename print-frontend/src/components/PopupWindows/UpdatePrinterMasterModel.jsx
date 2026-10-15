@@ -8,7 +8,6 @@ const UpdatePrinterMasterModel = ({
   onPrintMasterClose,
   getAllPrinterMaster,
   selected,
-  mediaType,
 }) => {
   const modalRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -49,7 +48,6 @@ const UpdatePrinterMasterModel = ({
   // --------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     let updatedValue = value;
 
     // GST NUMBER
@@ -111,11 +109,8 @@ const UpdatePrinterMasterModel = ({
 
     return {
       printer_name: data?.tradeName || data?.legalNameOfBusiness || "",
-
       pm_pan_number: data?.gstIdentificationNumber?.slice(2, 12) || "",
-
       pm_address: printerAddress,
-
       pm_pincode: address?.pincode || "",
     };
   };
@@ -135,7 +130,6 @@ const UpdatePrinterMasterModel = ({
 
     try {
       setFetchingGST(true);
-
       const response = await axios.post(
         `${apiUrl}/api/client/fetch-gst-details`,
         {
@@ -172,7 +166,6 @@ const UpdatePrinterMasterModel = ({
       // MAP DETAILS
       // --------------------------------
       const details = mapGSTDetails(gstData);
-
       setFormData((prev) => ({
         ...prev,
         ...details,
@@ -180,14 +173,8 @@ const UpdatePrinterMasterModel = ({
       }));
 
       setGstFetched(true);
-
       toast.success("GST details fetched successfully");
     } catch (error) {
-      console.error(
-        "GST Details Error:",
-        error.response?.data || error.message,
-      );
-
       toast.error(
         error.response?.data?.message || "Failed to fetch GST details",
       );
@@ -222,15 +209,10 @@ const UpdatePrinterMasterModel = ({
 
       const payload = {
         printer_name: formData.printer_name?.toUpperCase(),
-
         pm_gst_number: formData.pm_gst_number?.toUpperCase(),
-
         pm_address: formData.pm_address,
-
         pm_pan_number: formData.pm_pan_number?.toUpperCase(),
-
         pm_pincode: formData.pm_pincode,
-
         pm_status: formData.pm_status,
       };
 
@@ -241,9 +223,7 @@ const UpdatePrinterMasterModel = ({
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         await getAllPrinterMaster();
-
         onPrintMasterClose();
       } else {
         toast.error(response.data.message || "Failed to update printer master");
@@ -262,7 +242,6 @@ const UpdatePrinterMasterModel = ({
   // --------------------------------
   const handleClose = () => {
     if (loading || fetchingGST) return;
-
     onPrintMasterClose();
   };
 
@@ -271,7 +250,6 @@ const UpdatePrinterMasterModel = ({
   // --------------------------------
   useEffect(() => {
     if (!isPrintMasterOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         handleClose();

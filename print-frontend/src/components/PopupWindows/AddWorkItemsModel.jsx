@@ -111,9 +111,8 @@ const AddWorkItemsModel = ({
 
       setEmployees(data?.data?.data || []);
     } catch (error) {
-      console.error("Error fetching printer media:", error);
       setEmployees([]);
-      toast.error("Failed to load printer media.");
+      toast.error("Failed to load printer media.", error);
     } finally {
       setLoading(false);
     }
@@ -197,11 +196,8 @@ const AddWorkItemsModel = ({
       ) {
         updated[index].woim_area = calculateArea(
           name === "woim_size_width" ? value : updated[index].woim_size_width,
-
           name === "woim_size_height" ? value : updated[index].woim_size_height,
-
           name === "woim_unit" ? value : updated[index].woim_unit,
-
           name === "woim_quantity" ? value : updated[index].woim_quantity,
         );
       }
@@ -275,13 +271,11 @@ const AddWorkItemsModel = ({
   // =====================================================
   const handleMediaImageChange = (index, e) => {
     const file = e.target.files?.[0];
-
     if (!file) {
       return;
     }
 
     const processedImage = processImageUpload(file);
-
     if (!processedImage) {
       e.target.value = "";
       return;
@@ -452,11 +446,8 @@ const AddWorkItemsModel = ({
       // Parent Work Item Data
       // -----------------------------------------
       payload.append("woi_jc_number", `JC-${formData.woi_jc_number}`);
-
       payload.append("woi_work_allot_date", formData.woi_work_allot_date);
-
       payload.append("woi_pm_id", formData.woi_pm_id);
-
       payload.append("woi_status", formData.woi_status);
 
       // =================================================
@@ -481,7 +472,6 @@ const AddWorkItemsModel = ({
       mediaItems.forEach((media, index) => {
         if (media.woim_creative_image) {
           payload.append("woi_creative_images", media.woim_creative_image);
-
           imageIndexes.push(index);
         }
       });
@@ -531,8 +521,6 @@ const AddWorkItemsModel = ({
         onItemClose();
       }
     } catch (error) {
-      console.error("Save Work Item Error:", error);
-
       toast.error(error.response?.data?.message || "Failed to add work item.");
     } finally {
       setLoading(false);
@@ -845,26 +833,6 @@ const MediaItemCard = ({
           </select>
         </div>
 
-        {/* HEIGHT */}
-
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">
-            Height *
-          </label>
-
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            name="woim_size_height"
-            value={media.woim_size_height}
-            onChange={(e) => onChange(index, e)}
-            placeholder="Height"
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
         {/* WIDTH */}
 
         <div>
@@ -880,6 +848,26 @@ const MediaItemCard = ({
             value={media.woim_size_width}
             onChange={(e) => onChange(index, e)}
             placeholder="Width"
+            required
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        {/* HEIGHT */}
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            Height *
+          </label>
+
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            name="woim_size_height"
+            value={media.woim_size_height}
+            onChange={(e) => onChange(index, e)}
+            placeholder="Height"
             required
             className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />

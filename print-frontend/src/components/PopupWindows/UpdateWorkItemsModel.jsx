@@ -2,15 +2,13 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { IoClose } from "react-icons/io5";
-import { FiPlus, FiTrash2, FiImage } from "react-icons/fi";
+import { FiTrash2, FiImage } from "react-icons/fi";
 
 const getTodayDate = () => {
   const today = new Date();
-
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
-
   return `${year}-${month}-${day}`;
 };
 
@@ -20,7 +18,6 @@ const getTodayDate = () => {
 
 const createEmptyMedia = (mediaName = "") => ({
   woim_id: null,
-
   woim_media: mediaName,
   woim_size_height: "",
   woim_size_width: "",
@@ -31,10 +28,8 @@ const createEmptyMedia = (mediaName = "") => ({
 
   // Existing image URL
   woim_creative_image: "",
-
   // New image File
   imageFile: null,
-
   // Preview URL
   imagePreview: "",
 });
@@ -43,12 +38,10 @@ const UpdateWorkItemsModel = ({
   isItemOpen,
   onItemClose,
   getAllWorkItems,
-  mediaType,
   selectedWorkItem,
 }) => {
   const modalRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
-
   const [formData, setFormData] = useState({
     woi_jc_number: "",
     woi_work_allot_date: getTodayDate(),
@@ -58,7 +51,6 @@ const UpdateWorkItemsModel = ({
   });
 
   const [mediaItems, setMediaItems] = useState([createEmptyMedia()]);
-
   const [loading, setLoading] = useState(false);
 
   // =========================================================
@@ -67,25 +59,20 @@ const UpdateWorkItemsModel = ({
 
   useEffect(() => {
     if (!isItemOpen || !selectedWorkItem) return;
-
     let jcNumber = selectedWorkItem?.woi_jc_number || "";
 
     // Remove JC- prefix
     if (jcNumber.startsWith("JC-")) {
       jcNumber = jcNumber.substring(3);
     }
-
     setFormData({
       woi_jc_number: jcNumber,
-
       woi_work_allot_date:
         selectedWorkItem?.woi_work_allot_date?.split("T")[0] || getTodayDate(),
-
       woi_printer_name: selectedWorkItem?.woi_printer_name || "",
 
       // Display the readable printer name
       printer_name: selectedWorkItem?.printer_name || "",
-
       woi_status: selectedWorkItem?.woi_status || "Allotted",
     });
 
@@ -118,9 +105,7 @@ const UpdateWorkItemsModel = ({
 
     const formattedMedia = existingMedia.map((media) => {
       const imagePath = media?.woim_creative_image || "";
-
       let imagePreview = "";
-
       if (imagePath) {
         const cleanPath = imagePath.replace(/^\/+/, "");
         imagePreview = `${apiUrl}/${cleanPath}`;
@@ -128,27 +113,16 @@ const UpdateWorkItemsModel = ({
 
       return {
         woim_id: media?.woim_id || null,
-
         woim_media: media?.woim_media || "",
-
         pmm_media: media?.pmm_media || "",
-
         woim_size_height: media?.woim_size_height ?? "",
-
         woim_size_width: media?.woim_size_width ?? "",
-
         woim_unit: media?.woim_unit || "",
-
         woim_quantity: media?.woim_quantity ?? "",
-
         woim_area: media?.woim_area ?? "",
-
         woim_creative: media?.woim_creative || "",
-
         woim_creative_image: imagePath,
-
         imageFile: null,
-
         imagePreview,
       };
     });
@@ -172,7 +146,6 @@ const UpdateWorkItemsModel = ({
 
   useEffect(() => {
     if (!isItemOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape" && !loading) {
         handleClose();
@@ -180,7 +153,6 @@ const UpdateWorkItemsModel = ({
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
@@ -192,7 +164,6 @@ const UpdateWorkItemsModel = ({
 
   const handleParentChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -205,7 +176,6 @@ const UpdateWorkItemsModel = ({
 
   const handleMediaChange = (index, e) => {
     const { name, value } = e.target;
-
     setMediaItems((prev) =>
       prev.map((item, itemIndex) =>
         itemIndex === index
@@ -246,7 +216,6 @@ const UpdateWorkItemsModel = ({
 
         let widthInFeet = Number(woim_size_width);
         let heightInFeet = Number(woim_size_height);
-
         const quantity = Number(woim_quantity);
 
         if (
@@ -264,9 +233,7 @@ const UpdateWorkItemsModel = ({
         }
 
         const area = widthInFeet * heightInFeet * quantity;
-
         const calculatedArea = area.toFixed(2);
-
         if (item.woim_area === calculatedArea) {
           return item;
         }
@@ -294,9 +261,7 @@ const UpdateWorkItemsModel = ({
 
   const handleAddMedia = () => {
     setMediaItems((prev) => {
-      // Existing first media ka media name use karega
       const selectedMedia = prev[0]?.woim_media || "";
-
       return [...prev, createEmptyMedia(selectedMedia)];
     });
   };
@@ -320,7 +285,6 @@ const UpdateWorkItemsModel = ({
 
   const handleImageChange = (index, e) => {
     const file = e.target.files?.[0];
-
     if (!file) return;
 
     // 20 MB
@@ -351,9 +315,7 @@ const UpdateWorkItemsModel = ({
 
         return {
           ...item,
-
           imageFile: file,
-
           imagePreview: previewUrl,
         };
       }),
@@ -377,11 +339,8 @@ const UpdateWorkItemsModel = ({
 
         return {
           ...item,
-
           imageFile: null,
-
           imagePreview: "",
-
           woim_creative_image: "",
         };
       }),
@@ -416,22 +375,18 @@ const UpdateWorkItemsModel = ({
         toast.error(`Please select media for item ${i + 1}.`);
         return;
       }
-
       if (!media.woim_size_height) {
         toast.error(`Please enter height for item ${i + 1}.`);
         return;
       }
-
       if (!media.woim_size_width) {
         toast.error(`Please enter width for item ${i + 1}.`);
         return;
       }
-
       if (!media.woim_unit) {
         toast.error(`Please select unit for item ${i + 1}.`);
         return;
       }
-
       if (!media.woim_quantity) {
         toast.error(`Please enter quantity for item ${i + 1}.`);
         return;
@@ -452,14 +407,11 @@ const UpdateWorkItemsModel = ({
       // -----------------------------------------------------
 
       formDataToSend.append("woi_jc_number", `JC-${formData.woi_jc_number}`);
-
       formDataToSend.append(
         "woi_work_allot_date",
         formData.woi_work_allot_date,
       );
-
       formDataToSend.append("woi_printer_name", formData.woi_printer_name);
-
       formDataToSend.append("woi_status", formData.woi_status);
 
       // =====================================================
@@ -468,19 +420,12 @@ const UpdateWorkItemsModel = ({
 
       const mediaPayload = mediaItems.map((media) => ({
         woim_id: media.woim_id || null,
-
         woim_media: media.woim_media,
-
         woim_size_height: media.woim_size_height,
-
         woim_size_width: media.woim_size_width,
-
         woim_unit: media.woim_unit,
-
         woim_quantity: media.woim_quantity,
-
         woim_area: media.woim_area,
-
         woim_creative: media.woim_creative,
 
         // Existing image path
@@ -501,7 +446,6 @@ const UpdateWorkItemsModel = ({
       mediaItems.forEach((media, index) => {
         if (media.imageFile) {
           formDataToSend.append("woi_creative_images", media.imageFile);
-
           imageIndexes.push(index);
         }
       });
@@ -531,12 +475,9 @@ const UpdateWorkItemsModel = ({
         );
 
         await getAllWorkItems();
-
         onItemClose();
       }
     } catch (error) {
-      console.error("Update Work Item Error:", error);
-
       toast.error(
         error.response?.data?.message || "Failed to update work item.",
       );
@@ -773,26 +714,6 @@ const UpdateWorkItemsModel = ({
                         />
                       </div>
 
-                      {/* Height */}
-
-                      <div>
-                        <label className="mb-1 block text-sm font-semibold text-gray-700">
-                          Height *
-                        </label>
-
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          name="woim_size_height"
-                          value={media.woim_size_height}
-                          onChange={(e) => handleMediaChange(index, e)}
-                          placeholder="Height"
-                          required
-                          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                      </div>
-
                       {/* Width */}
 
                       <div>
@@ -808,6 +729,26 @@ const UpdateWorkItemsModel = ({
                           value={media.woim_size_width}
                           onChange={(e) => handleMediaChange(index, e)}
                           placeholder="Width"
+                          required
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                      </div>
+
+                      {/* Height */}
+
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-gray-700">
+                          Height *
+                        </label>
+
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          name="woim_size_height"
+                          value={media.woim_size_height}
+                          onChange={(e) => handleMediaChange(index, e)}
+                          placeholder="Height"
                           required
                           className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />

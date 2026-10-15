@@ -20,9 +20,7 @@ const AddPrinterMasterModel = ({
 }) => {
   const modalRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
-
   const [formData, setFormData] = useState(initialFormData);
-
   const [loading, setLoading] = useState(false);
   const [fetchingGST, setFetchingGST] = useState(false);
   const [gstFetched, setGstFetched] = useState(false);
@@ -33,7 +31,6 @@ const AddPrinterMasterModel = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     let updatedValue = value;
 
     // GST NUMBER
@@ -43,7 +40,6 @@ const AddPrinterMasterModel = ({
       // GST changed -> clear fetched details
       if (updatedValue !== formData.pm_gst_number) {
         setGstFetched(false);
-
         setFormData((prev) => ({
           ...prev,
           pm_gst_number: updatedValue,
@@ -99,9 +95,7 @@ const AddPrinterMasterModel = ({
 
       // PAN is available inside GSTIN
       pm_pan_number: data?.gstIdentificationNumber?.slice(2, 12) || "",
-
       pm_address: printerAddress,
-
       pm_pincode: address?.pincode || "",
     };
   };
@@ -123,7 +117,6 @@ const AddPrinterMasterModel = ({
 
     try {
       setFetchingGST(true);
-
       const response = await axios.post(
         `${apiUrl}/api/client/fetch-gst-details`,
         {
@@ -171,14 +164,8 @@ const AddPrinterMasterModel = ({
       }));
 
       setGstFetched(true);
-
       toast.success("GST details fetched successfully");
     } catch (error) {
-      console.error(
-        "GST Details Error:",
-        error.response?.data || error.message,
-      );
-
       toast.error(
         error.response?.data?.message || "Failed to fetch GST details",
       );
@@ -193,7 +180,6 @@ const AddPrinterMasterModel = ({
 
   const handleClose = () => {
     if (loading || fetchingGST) return;
-
     resetForm();
     onItemClose();
   };
@@ -254,7 +240,6 @@ const AddPrinterMasterModel = ({
 
     try {
       setLoading(true);
-
       const payload = {
         printer_name: formData.printer_name?.toUpperCase(),
         pm_gst_number: formData.pm_gst_number?.toUpperCase(),

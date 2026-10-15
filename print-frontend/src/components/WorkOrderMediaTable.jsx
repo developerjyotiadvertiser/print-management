@@ -2,23 +2,22 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { useSelector } from "react-redux";
+import AddPrinterMediaModel from "./PopupWindows/AddPrinterMediaModel";
+import UpdatePrinterMediaModel from "./PopupWindows/UpdatePrinterMediaModel";
 
-const WorkOrderMediaTable = ({ selectedPrinter }) => {
+const WorkOrderMediaTable = ({ selectedPrinter, mediaType }) => {
   const user = useSelector((state) => state?.user?.currentUser);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
   const [updateModel, setUpdateModel] = useState(false);
   const [selected, setSelected] = useState();
-  const [mediaType, setMediaType] = useState([]);
-  const [isMediaTypeModalOpen, setIsMediaTypeModalOpen] = useState(false);
+  const [printMediaModel, setPrintMediaModel] = useState(false);
 
   const handleUpdate = (data) => {
     setUpdateModel(true);
     setSelected(data);
   };
-
-  console.log("27 selectedPrinter", selectedPrinter);
 
   // Fetch all media master
   const getAllMediaMaster = async () => {
@@ -60,6 +59,13 @@ const WorkOrderMediaTable = ({ selectedPrinter }) => {
   return (
     <>
       <div className="p-1 bg-white rounded-xl shadow-sm w-full">
+        <button
+          type="button"
+          onClick={() => setPrintMediaModel(true)}
+          className="mt-1 flex items-center gap-2 px-3 py-1 bg-cyan-500 rounded-lg text-white hover:bg-cyan-600 transition text-md font-bold mb-2"
+        >
+          + New Media
+        </button>
         {/* Table */}
         <div className="overflow-x-auto border border-gray-200 rounded-lg">
           <table className="w-full text-sm text-left">
@@ -140,6 +146,14 @@ const WorkOrderMediaTable = ({ selectedPrinter }) => {
                     {user && user?.user?.emp_role === "admin" && (
                       <td className="px-5 py-4 text-left">
                         <div className="flex items-center justify-start gap-2">
+                          {/* Update */}
+                          <button
+                            onClick={() => handleUpdate(media)}
+                            className="p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+                            title="Update Printer"
+                          >
+                            <FiEdit size={16} />
+                          </button>
                           {/* Delete */}
                           <button
                             onClick={() => handleDelete(media?.pmm_id)}
@@ -174,6 +188,22 @@ const WorkOrderMediaTable = ({ selectedPrinter }) => {
         mediaType={mediaType}
         getAllMediaType={getAllMediaType}
       /> */}
+
+      <AddPrinterMediaModel
+        isMediaOpen={printMediaModel}
+        onMediaClose={() => setPrintMediaModel(false)}
+        selected={selectedPrinter}
+        mediaType={mediaType}
+        getAllMediaMaster={getAllMediaMaster}
+      />
+
+      <UpdatePrinterMediaModel
+        isMediaOpen={updateModel}
+        onMediaClose={() => setUpdateModel(false)}
+        getAllMediaMaster={getAllMediaMaster}
+        selected={selected}
+        mediaType={mediaType}
+      />
     </>
   );
 };

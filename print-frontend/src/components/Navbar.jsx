@@ -59,7 +59,7 @@ const Navbar = () => {
           <div
             className={`relative flex items-center justify-between px-5 md:px-8 lg:px-10 py-3 overflow-hidden transition-all duration-300 lg:rounded-none lg:bg-white lg:shadow-none`}
           >
-            <div className="flex items-center justify-between gap-2">
+            <div className="">
               {/* Logo */}
               <Link to="/">
                 <img
@@ -68,103 +68,56 @@ const Navbar = () => {
                   className="h-11 md:h-14 w-auto object-contain"
                 />
               </Link>
-              <p className="text-gray-500">User: {user?.user?.emp_name}</p>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-4">
-              {/* <ul className="flex items-center gap-8">
-                {filteredNavItems.map((item) => (
-                  <li key={item.name}>
-                    <NavLink
-                      to={item.path}
-                      className="relative px-1 py-4 uppercase text-[13px] tracking-wider font-semibold transition-all duration-300"
+            <div>
+              <p className="text-blue-500 text-end py-2 font-semibold">
+                {user?.user?.emp_name}
+              </p>
+              {/* Desktop Navigation */}
+              <nav className="hidden lg:flex items-center gap-4">
+                {user && user?.user?.emp_role !== "employee" && (
+                  <>
+                    <button
+                      onClick={() => {
+                        navigate("/work-order-jobs");
+                      }}
+                      className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
                     >
-                      {({ isActive }) => (
-                        <>
-                          {isActive && (
-                            <span className="absolute left-1/2 -translate-x-1/2 -top-2 w-8 h-1 rounded-full bg-black shadow-[0_0_12px_5px_rgba(255,255,255,.9)]" />
-                          )}
+                      Print + WO
+                    </button>
+                  </>
+                )}
 
-                          <span
-                            className={`transition-all duration-300 ${
-                              isActive
-                                ? "text-black"
-                                : "text-black hover:text-gray-700"
-                            }`}
-                          >
-                            {item.name}
-                          </span>
-                        </>
-                      )}
-                    </NavLink>
-                  </li>
-                ))}
-              </ul> */}
+                {user?.user?.emp_role !== "accountant" && (
+                  <>
+                    <button
+                      onClick={() => {
+                        navigate("/");
+                      }}
+                      className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+                    >
+                      HP Latex
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate("/print-challan");
+                      }}
+                      className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
+                    >
+                      Challan
+                    </button>
+                  </>
+                )}
 
-              {user && user?.user?.emp_role !== "employee" && (
-                <>
-                  <button
-                    onClick={() => {
-                      navigate("/work-order-jobs");
-                    }}
-                    className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
-                  >
-                    Print + WO
-                  </button>
-                </>
-              )}
-
-              {user?.user?.emp_role !== "accountant" && (
-                <>
-                  <button
-                    onClick={() => {
-                      navigate("/");
-                    }}
-                    className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
-                  >
-                    HP Latex
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate("/print-challan");
-                    }}
-                    className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
-                  >
-                    Challan
-                  </button>
-                </>
-              )}
-
-              {/* {user?.user?.emp_role !== "employee" && (
-                <>
-                  <div></div>
-                  <button
-                    onClick={() => {
-                      navigate("/");
-                    }}
-                    className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
-                  >
-                    Print
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate("/print-challan");
-                    }}
-                    className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
-                  >
-                    Challan
-                  </button>
-                </>
-              )} */}
-
-              <button
-                onClick={logoutHandler}
-                className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
-              >
-                <FaPowerOff />
-              </button>
-            </nav>
+                <button
+                  onClick={logoutHandler}
+                  className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                >
+                  <FaPowerOff />
+                </button>
+              </nav>
+            </div>
 
             {/* Mobile Button */}
             <button

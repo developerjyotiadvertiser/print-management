@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import WorkOrderMediaTable from "../WorkOrderMediaTable";
 
-const PrinterMediaModel = ({ isMediaOpen, onMediaClose, selected }) => {
+const PrinterMediaModel = ({
+  isMediaOpen,
+  onMediaClose,
+  selected,
+  mediaType,
+}) => {
   const modalRef = useRef();
   const [loading, setLoading] = useState(false);
 
@@ -67,7 +72,7 @@ const PrinterMediaModel = ({ isMediaOpen, onMediaClose, selected }) => {
             <IoClose className="text-2xl" />
           </button>
         </div>
-        <WorkOrderMediaTable selectedPrinter={selected} />
+        <WorkOrderMediaTable selectedPrinter={selected} mediaType={mediaType} />
       </div>
     </div>
   );

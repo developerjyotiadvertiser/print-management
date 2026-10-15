@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { IoClose } from "react-icons/io5";
-import MediaTypeTable from "../MediaTypeTable";
 import MediaItemTable from "./MediaItemTable";
 
 const DeleteMediaItemsModel = ({

@@ -39,7 +39,6 @@ const PrinterMasterModel = ({
   // Close on ESC
   useEffect(() => {
     if (!isOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
         handleClose();

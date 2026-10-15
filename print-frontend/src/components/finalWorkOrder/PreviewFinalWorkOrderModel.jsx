@@ -459,7 +459,8 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
                           </td>
 
                           <td className="border border-gray-300 p-2">
-                            {area.toFixed(2)} Sq.Ft
+                            {area.toFixed(2)} Sq.Ft <br />({media?.pmm_price}
+                            /Sq.Ft)
                           </td>
 
                           <td className="border border-gray-300 p-2 text-right">

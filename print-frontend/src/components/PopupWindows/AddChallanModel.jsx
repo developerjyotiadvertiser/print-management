@@ -49,8 +49,6 @@ const AddChallanModel = ({
   const [selectedPrint, setSelectedPrint] = useState(null);
   const [manualChallan, setManualChallan] = useState(false);
 
-  console.log("manual 52", manualChallan);
-
   const handlePrintModel = (challan) => {
     setSelectedPrint(challan);
     setChallanPrintModel(true);
@@ -718,12 +716,12 @@ const AddChallanModel = ({
                       {editingIndex !== null ? (
                         <>
                           <FaEdit />
-                          Update Print
+                          Update Challan
                         </>
                       ) : (
                         <>
                           <FaPlus />
-                          Add Print
+                          Add Challan
                         </>
                       )}
                     </button>

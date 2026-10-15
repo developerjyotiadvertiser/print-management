@@ -36,8 +36,6 @@ const PrinterMasterTable = ({
   };
 
   const handleUpdate = (data) => {
-    console.log("clicked 18");
-
     setUpdatePrintMasterModel(true);
     setSelected(data);
   };
@@ -193,20 +191,22 @@ const PrinterMasterTable = ({
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
-                          onClick={() => handlePrinterMedia(employee)}
+                          // onClick={() => handlePrinterMedia(employee)}
+
+                          onClick={() => handleViewPrinterMedia(employee)}
                           className="p-2 rounded-lg text-purple-600 bg-purple-50 hover:bg-blue-100 transition"
                           title="Add Media"
                         >
                           {/* <MdPermMedia size={16} /> */}
                           <RiAddCircleFill size={16} />
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => handleViewPrinterMedia(employee)}
                           className="p-2 rounded-lg text-green-600 bg-green-50 hover:bg-blue-100 transition"
                           title="View Media"
                         >
                           <MdPermMedia size={16} />
-                        </button>
+                        </button> */}
 
                         {/* Update */}
                         <button
@@ -252,12 +252,12 @@ const PrinterMasterTable = ({
         mediaType={mediaType}
       />
 
-      <AddPrinterMediaModel
+      {/* <AddPrinterMediaModel
         isMediaOpen={printMediaModel}
         onMediaClose={() => setPrintMediaModel(false)}
         selected={selected}
         mediaType={mediaType}
-      />
+      /> */}
 
       <PrinterMediaModel
         isMediaOpen={printMediaViewModel}

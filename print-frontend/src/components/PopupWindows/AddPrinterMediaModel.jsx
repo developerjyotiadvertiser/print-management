@@ -8,6 +8,7 @@ const AddPrinterMediaModel = ({
   onMediaClose,
   selected,
   mediaType,
+  getAllMediaMaster,
 }) => {
   const modalRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -60,6 +61,7 @@ const AddPrinterMediaModel = ({
       } else {
         toast.error(response.data.message || "Failed to update printer media");
       }
+      getAllMediaMaster();
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to update printer media",
