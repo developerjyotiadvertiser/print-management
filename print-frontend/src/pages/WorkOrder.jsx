@@ -14,6 +14,7 @@ import {
   FaDatabase,
   FaImage,
   FaNetworkWired,
+  FaPlusSquare,
   FaShareAltSquare,
 } from "react-icons/fa";
 
@@ -661,8 +662,8 @@ const WorkOrder = () => {
                   onClick={() => setAddModel(true)}
                   className="flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
                 >
-                  {/* <FiPlus /> */}
-                  <FaNetworkWired />
+                  <FaPlusSquare />
+                  {/* <FaNetworkWired /> */}
                   New Job
                 </button>
               </>
@@ -922,7 +923,7 @@ const WorkOrder = () => {
                             <thead className="bg-gray-50">
                               <tr className="text-left text-xs font-semibold text-gray-500">
                                 <th className="px-3 py-2">Media</th>
-                                <th className="px-3 py-2">Size</th>
+                                <th className="px-3 py-2">Size(W*H)</th>
                                 <th className="px-3 py-2">Qty</th>
                                 <th className="px-3 py-2">Area</th>
                                 <th className="px-3 py-2">Creative</th>
@@ -941,8 +942,8 @@ const WorkOrder = () => {
                                   </td>
 
                                   <td className="whitespace-nowrap px-3 py-2 text-gray-600">
-                                    {media?.woim_size_height || "-"} ×{" "}
-                                    {media?.woim_size_width || "-"}{" "}
+                                    {media?.woim_size_width || "-"}×{" "}
+                                    {media?.woim_size_height || "-"}{" "}
                                     {media?.woim_unit || ""}
                                   </td>
 

@@ -506,7 +506,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
       <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-4">
         <div className="flex max-h-[95vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
           {/* HEADER */}
-          <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-800">
                 Share Work Order
@@ -535,7 +535,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
             {generating ? (
               <div className="flex min-h-[300px] items-center justify-center">
                 <div className="text-center">
-                  <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+                  <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border border-gray-100 border-t-blue-600" />
 
                   <p className="text-sm text-gray-600">
                     Preparing work order image...
@@ -561,14 +561,14 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
               ACTIONS
           ================================================== */}
 
-          <div className="flex flex-wrap justify-end gap-3 border-t border-gray-200 px-5 py-4">
+          <div className="flex flex-wrap justify-end gap-3 border-t border-gray-100 px-5 py-4">
             {/* DOWNLOAD */}
 
             <button
               type="button"
               onClick={handleDownload}
               disabled={!imageUrl || generating}
-              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg border border-gray-100 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FiDownload size={17} />
               Download
@@ -616,7 +616,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                 EMAIL HEADER
             ================================================== */}
 
-            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">
                   Send Work Order
@@ -659,7 +659,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                   disabled={sendingEmail}
                   autoFocus
                   readOnly
-                  className="h-11 w-full rounded-lg border border-gray-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
+                  className="h-11 w-full rounded-lg border border-gray-100 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
                 />
               </div>
 
@@ -719,7 +719,7 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                 {loadingAttachments ? (
                   <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">
                     <div className="text-center">
-                      <div className="mx-auto mb-2 h-7 w-7 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+                      <div className="mx-auto mb-2 h-7 w-7 animate-spin rounded-full border border-gray-300 border-t-blue-600" />
 
                       <p className="text-xs text-gray-500">
                         Preparing attachments...
@@ -901,15 +901,24 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
                           1
                         </td>
 
-                        <td rowSpan={mediaItems.length} style={bodyStyleCenter}>
+                        <td
+                          rowSpan={mediaItems.length}
+                          className="text-center border border-[#95a5a6]"
+                        >
                           {workItem?.woi_jc_number || "-"}
                         </td>
 
-                        <td rowSpan={mediaItems.length} style={bodyStyleCenter}>
+                        <td
+                          rowSpan={mediaItems.length}
+                          className="text-center border border-[#95a5a6]"
+                        >
                           {formatDate(workItem?.woi_work_allot_date)}
                         </td>
 
-                        <td rowSpan={mediaItems.length} style={bodyStyleCenter}>
+                        <td
+                          rowSpan={mediaItems.length}
+                          className="text-center border border-[#95a5a6]"
+                        >
                           {workItem?.printer_name || "-"}
                         </td>
                       </>
@@ -1122,32 +1131,23 @@ const WorkOrderShareModal = ({ isOpen, onClose, workItem }) => {
 // =========================================================
 
 const headerStyle = {
-  border: "1px solid #000000",
-
+  border: "0.5px solid #95a5a6",
   backgroundColor: "#8BCF45",
-
   padding: "8px 6px",
-
   textAlign: "center",
-
   fontWeight: "700",
-
   verticalAlign: "middle",
 };
 
 const bodyStyle = {
-  border: "1px solid #000000",
-
+  border: "0.5px solid #95a5a6",
   padding: "7px 6px",
-
   verticalAlign: "middle",
 };
 
 const bodyStyleCenter = {
   ...bodyStyle,
-
   textAlign: "center",
-
   fontWeight: "600",
 };
 

@@ -12,7 +12,6 @@ const AddMediaItemsModel = ({
 }) => {
   const modalRef = useRef();
   const apiUrl = import.meta.env.VITE_API_URL;
-
   const [formData, setFormData] = useState({
     mt_name: "",
     mt_status: "active",
@@ -35,7 +34,7 @@ const AddMediaItemsModel = ({
   // --------------------------------
   // CLOSE MODAL
   // --------------------------------
-  const handleClose = () => {
+  const handleMediaClose = () => {
     onItemClose();
   };
 
@@ -47,7 +46,7 @@ const AddMediaItemsModel = ({
 
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
-        handleClose();
+        handleMediaClose();
       }
     };
 
@@ -123,7 +122,7 @@ const AddMediaItemsModel = ({
 
             <button
               type="button"
-              onClick={handleClose}
+              onClick={handleMediaClose}
               disabled={loading}
               className="text-gray-500 transition hover:text-red-500 disabled:opacity-50"
             >
@@ -154,7 +153,7 @@ const AddMediaItemsModel = ({
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={handleClose}
+                onClick={handleMediaClose}
                 disabled={loading}
                 className="rounded-lg border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
               >

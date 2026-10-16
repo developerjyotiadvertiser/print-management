@@ -4,6 +4,7 @@ import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import AddPrinterMediaModel from "./PopupWindows/AddPrinterMediaModel";
 import UpdatePrinterMediaModel from "./PopupWindows/UpdatePrinterMediaModel";
+// import AddMediaItemsModel from "./PopupWindows/AddMediaItemsModel";
 
 const WorkOrderMediaTable = ({ selectedPrinter, mediaType }) => {
   const user = useSelector((state) => state?.user?.currentUser);
@@ -13,6 +14,7 @@ const WorkOrderMediaTable = ({ selectedPrinter, mediaType }) => {
   const [updateModel, setUpdateModel] = useState(false);
   const [selected, setSelected] = useState();
   const [printMediaModel, setPrintMediaModel] = useState(false);
+  const [isMediaItemModalOpen, setIsMediaItemModalOpen] = useState(false);
 
   const handleUpdate = (data) => {
     setUpdateModel(true);
@@ -59,13 +61,23 @@ const WorkOrderMediaTable = ({ selectedPrinter, mediaType }) => {
   return (
     <>
       <div className="p-1 bg-white rounded-xl shadow-sm w-full">
-        <button
-          type="button"
-          onClick={() => setPrintMediaModel(true)}
-          className="mt-1 flex items-center gap-2 px-3 py-1 bg-cyan-500 rounded-lg text-white hover:bg-cyan-600 transition text-md font-bold mb-2"
-        >
-          + New Media
-        </button>
+        <div className="flex">
+          <button
+            type="button"
+            onClick={() => setPrintMediaModel(true)}
+            className="mt-1 flex items-center gap-2 px-3 py-1 bg-cyan-500 rounded-lg text-white hover:bg-cyan-600 transition text-md font-bold mb-2"
+          >
+            + Printer Media
+          </button>
+          {/* <button
+            type="button"
+            onClick={() => setIsMediaItemModalOpen(true)}
+            className="mb-1 flex items-center gap-2 px-3 py-1 bg-green-500 rounded-lg text-white hover:bg-green-600 transition text-md font-bold"
+          >
+            +
+          </button> */}
+        </div>
+
         {/* Table */}
         <div className="overflow-x-auto border border-gray-200 rounded-lg">
           <table className="w-full text-sm text-left">
@@ -204,6 +216,14 @@ const WorkOrderMediaTable = ({ selectedPrinter, mediaType }) => {
         selected={selected}
         mediaType={mediaType}
       />
+
+      {/* <AddMediaItemsModel
+        isItemOpen={isMediaItemModalOpen}
+        onItemClose={() => setIsMediaItemModalOpen(false)}
+        getAllMediaMaster={getAllMediaMaster}
+        mediaType={mediaType}
+        getAllMediaType={getAllMediaType}
+      /> */}
     </>
   );
 };

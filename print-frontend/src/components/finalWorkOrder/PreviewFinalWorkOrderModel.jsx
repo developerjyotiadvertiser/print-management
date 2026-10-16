@@ -6,18 +6,15 @@ import jsPDF from "jspdf";
 const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
   const previewRef = useRef(null);
   const [downloading, setDownloading] = useState("");
-
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (!isOpen) return;
-
     const handleEscape = (event) => {
       if (event.key === "Escape") onClose?.();
     };
 
     document.addEventListener("keydown", handleEscape);
-
     return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
@@ -31,28 +28,20 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
 
   const formatDate = (date) => {
     if (!date) return "-";
-
     const parsedDate = new Date(date);
-
     if (Number.isNaN(parsedDate.getTime())) return date;
-
     return parsedDate.toLocaleDateString("en-IN");
   };
 
   const printer = workOrder;
-
   const orderNumber = workOrder.fwo_number || workOrder.fwo_id || "-";
-
   const subtotal = Number(workOrder.fwo_subtotal) || 0;
   const adjustment = Number(workOrder.fwo_adjustment_amount) || 0;
-
   const grandTotal =
     workOrder.fwo_grand_total != null
       ? Number(workOrder.fwo_grand_total)
       : Math.max(0, subtotal + adjustment);
-
   const paidAmount = Number(workOrder.fwo_paid_amount) || 0;
-
   const balanceAmount =
     workOrder.fwo_balance_amount != null
       ? Number(workOrder.fwo_balance_amount)
@@ -60,13 +49,11 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
 
   const workItems =
     workOrder.work_items || workOrder.woi_items || workOrder.items || [];
-
   const getMediaItems = (item) =>
     item.media_items || item.work_order_media || item.printer_media || [];
 
   const getImageUrl = (path) => {
     if (!path) return "";
-
     if (/^(https?:\/\/|data:)/i.test(path)) {
       return path;
     }
@@ -76,7 +63,6 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
 
   const getArea = (item) => {
     const media = getMediaItems(item);
-
     if (media.length) {
       return media.reduce(
         (sum, m) => sum + (Number(m.woim_area ?? m.woi_area ?? m.area) || 0),
@@ -89,13 +75,10 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
 
   const getAmount = (item) => {
     const media = getMediaItems(item);
-
     if (media.length) {
       return media.reduce((sum, m) => {
         const area = Number(m.woim_area ?? m.woi_area ?? m.area) || 0;
-
         const rate = Number(m.pmm_price ?? m.price ?? m.rate) || 0;
-
         return sum + area * rate;
       }, 0);
     }
