@@ -13,9 +13,7 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-// =====================================================
 // CREATE EMPTY MEDIA ITEM
-// =====================================================
 const createEmptyMedia = () => ({
   woim_pmm_id: "",
   woim_media: "",
@@ -29,9 +27,7 @@ const createEmptyMedia = () => ({
   imagePreview: "",
 });
 
-// =====================================================
 // CALCULATE AREA
-// =====================================================
 const calculateArea = (width, height, unit, quantity) => {
   if (!width || !height || !unit || !quantity) {
     return "";
@@ -76,9 +72,7 @@ const AddWorkItemsModel = ({
   const modalRef = useRef(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // =====================================================
   // FORM DATA
-  // =====================================================
   const [formData, setFormData] = useState({
     woi_jc_number: "",
     woi_work_allot_date: getTodayDate(),
@@ -87,11 +81,8 @@ const AddWorkItemsModel = ({
     woi_status: "Allotted",
   });
 
-  // =====================================================
   // MEDIA ITEMS
-  // =====================================================
   const [mediaItems, setMediaItems] = useState([createEmptyMedia()]);
-
   const [loading, setLoading] = useState(false);
   const [addPrinter, setAddPrinter] = useState(false);
   const [employees, setEmployees] = useState([]);
@@ -104,7 +95,6 @@ const AddWorkItemsModel = ({
 
     try {
       setLoading(true);
-
       const { data } = await axios.get(
         `${apiUrl}/api/printer-master/get-printer-media/${pm_id}`,
       );
@@ -118,21 +108,15 @@ const AddWorkItemsModel = ({
     }
   };
 
-  // =====================================================
   // HANDLE MAIN FORM CHANGE
-  // =====================================================
   const handleChange = async (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
 
-    // ==========================================
     // PRINTER SELECTED
-    // ==========================================
-
     if (name === "woi_pm_id") {
       const selectedPrinter = printerMaster?.find(
         (item) => String(item?.pm_id) === String(value),
@@ -152,29 +136,21 @@ const AddWorkItemsModel = ({
 
       // Fetch media belonging to this printer
       await getAllWorkOrderMediaMaster(selectedPrinter.pm_id);
-
       setMediaItems([createEmptyMedia()]);
     }
   };
 
-  // =====================================================
   // HANDLE MEDIA CHANGE
-  // =====================================================
   const handleMediaChange = (index, e) => {
     const { name, value } = e.target;
-
     setMediaItems((prev) => {
       const updated = [...prev];
-
       updated[index] = {
         ...updated[index],
         [name]: value,
       };
 
-      // ==========================================
       // MEDIA SELECTED
-      // ==========================================
-
       if (name === "woim_pmm_id") {
         const selectedMedia = employees?.find(
           (item) => String(item?.pmm_id) === String(value),
@@ -184,10 +160,7 @@ const AddWorkItemsModel = ({
         updated[index].woim_media = selectedMedia?.pmm_media || "";
       }
 
-      // ==========================================
       // AREA CALCULATION
-      // ==========================================
-
       if (
         name === "woim_size_width" ||
         name === "woim_size_height" ||
@@ -210,9 +183,7 @@ const AddWorkItemsModel = ({
     setMediaItems((prev) => [...prev, createEmptyMedia()]);
   };
 
-  // =====================================================
   // REMOVE MEDIA ITEM
-  // =====================================================
   const removeMediaItem = (index) => {
     if (mediaItems.length === 1) {
       toast.error("At least one media item is required.");
@@ -220,7 +191,6 @@ const AddWorkItemsModel = ({
     }
 
     const item = mediaItems[index];
-
     if (item.imagePreview) {
       URL.revokeObjectURL(item.imagePreview);
     }
@@ -228,47 +198,34 @@ const AddWorkItemsModel = ({
     setMediaItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // =====================================================
   // IMAGE PROCESSOR
-  // =====================================================
   const processImageUpload = (file) => {
-    // -----------------------------------------
     // Check file exists
-    // -----------------------------------------
     if (!file) {
       return null;
     }
 
-    // -----------------------------------------
     // Check image type
-    // -----------------------------------------
     if (!file.type.startsWith("image/")) {
       toast.error("Please select a valid image file.");
       return null;
     }
 
-    // -----------------------------------------
     // Maximum original image size = 20 MB
-    // -----------------------------------------
     if (file.size > 20 * 1024 * 1024) {
       toast.error("Image size should not exceed 20 MB.");
       return null;
     }
 
-    // -----------------------------------------
     // Create preview
-    // -----------------------------------------
     const previewUrl = URL.createObjectURL(file);
-
     return {
       file,
       previewUrl,
     };
   };
 
-  // =====================================================
   // HANDLE MEDIA IMAGE
-  // =====================================================
   const handleMediaImageChange = (index, e) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -299,13 +256,10 @@ const AddWorkItemsModel = ({
     });
   };
 
-  // =====================================================
   // REMOVE MEDIA IMAGE
-  // =====================================================
   const removeMediaImage = (index, inputRef) => {
     setMediaItems((prev) => {
       const updated = [...prev];
-
       if (updated[index].imagePreview) {
         URL.revokeObjectURL(updated[index].imagePreview);
       }
@@ -324,21 +278,16 @@ const AddWorkItemsModel = ({
     }
   };
 
-  // =====================================================
   // CLOSE MODAL
-  // =====================================================
   const handleClose = () => {
     if (!loading) {
       onItemClose();
     }
   };
 
-  // =====================================================
   // ESC KEY
-  // =====================================================
   useEffect(() => {
     if (!isItemOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape" && !loading) {
         handleClose();
@@ -346,15 +295,12 @@ const AddWorkItemsModel = ({
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
   }, [isItemOpen, loading]);
 
-  // =====================================================
   // RESET FORM
-  // =====================================================
   const resetForm = () => {
     // Revoke all image previews
     mediaItems.forEach((item) => {
@@ -375,9 +321,7 @@ const AddWorkItemsModel = ({
     setMediaItems([createEmptyMedia()]);
   };
 
-  // =====================================================
   // CLEANUP PREVIEWS ON UNMOUNT
-  // =====================================================
   useEffect(() => {
     return () => {
       mediaItems.forEach((item) => {
@@ -388,26 +332,19 @@ const AddWorkItemsModel = ({
     };
   }, []);
 
-  // =====================================================
   // SUBMIT
-  // =====================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // -----------------------------------------
     // Validate media items
-    // -----------------------------------------
     if (!mediaItems.length) {
       toast.error("Please add at least one media item.");
       return;
     }
 
-    // -----------------------------------------
     // Validate each media item
-    // -----------------------------------------
     for (let i = 0; i < mediaItems.length; i++) {
       const media = mediaItems[i];
-
       if (!media.woim_media) {
         toast.error(`Please select media for Media ${i + 1}.`);
         return;
@@ -436,24 +373,15 @@ const AddWorkItemsModel = ({
 
     try {
       setLoading(true);
-
-      // =================================================
-      // CREATE FORMDATA
-      // =================================================
       const payload = new FormData();
 
-      // -----------------------------------------
       // Parent Work Item Data
-      // -----------------------------------------
       payload.append("woi_jc_number", `JC-${formData.woi_jc_number}`);
       payload.append("woi_work_allot_date", formData.woi_work_allot_date);
       payload.append("woi_pm_id", formData.woi_pm_id);
       payload.append("woi_status", formData.woi_status);
 
-      // =================================================
       // MEDIA JSON
-      // =================================================
-
       const mediaData = mediaItems.map((media) => ({
         woim_pmm_id: media.woim_pmm_id,
         woim_media: media.woim_media,
@@ -468,7 +396,6 @@ const AddWorkItemsModel = ({
       payload.append("media_items", JSON.stringify(mediaData));
 
       const imageIndexes = [];
-
       mediaItems.forEach((media, index) => {
         if (media.woim_creative_image) {
           payload.append("woi_creative_images", media.woim_creative_image);
@@ -478,19 +405,13 @@ const AddWorkItemsModel = ({
 
       payload.append("image_indexes", JSON.stringify(imageIndexes));
 
-      // =================================================
       // API REQUEST
-      // =================================================
-
       const response = await axios.post(
         `${apiUrl}/api/work-items/save-work-items`,
         payload,
       );
 
-      // =================================================
       // SUCCESS
-      // =================================================
-
       if (response.data.success) {
         toast.success(response.data.message || "Work item added successfully.");
 
@@ -514,10 +435,7 @@ const AddWorkItemsModel = ({
           await getAllWorkItems();
         }
 
-        // Reset
         resetForm();
-
-        // Close
         onItemClose();
       }
     } catch (error) {
@@ -527,9 +445,7 @@ const AddWorkItemsModel = ({
     }
   };
 
-  // =====================================================
   // HIDE MODAL
-  // =====================================================
   if (!isItemOpen) {
     return null;
   }
@@ -541,13 +457,9 @@ const AddWorkItemsModel = ({
           ref={modalRef}
           className="max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
         >
-          {/* =========================================
-              HEADER
-          ========================================== */}
-
+          {/* HEADER */}
           <div className="mb-5 flex items-center justify-between border-b pb-4">
             <h2 className="text-xl font-semibold text-blue-800">Add New Job</h2>
-
             <button
               type="button"
               onClick={handleClose}
@@ -558,28 +470,19 @@ const AddWorkItemsModel = ({
             </button>
           </div>
 
-          {/* =========================================
-              FORM
-          ========================================== */}
-
+          {/* FORM */}
           <form onSubmit={handleSubmit}>
-            {/* =========================================
-                PARENT WORK ITEM
-            ========================================== */}
-
+            {/* PARENT WORK ITEM */}
             <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
               {/* JC NUMBER */}
-
               <div>
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
                   JC Number *
                 </label>
-
                 <div className="flex">
                   <span className="flex items-center rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 px-3 font-semibold text-gray-700">
                     JC-
                   </span>
-
                   <input
                     type="text"
                     name="woi_jc_number"
@@ -593,12 +496,10 @@ const AddWorkItemsModel = ({
               </div>
 
               {/* DATE */}
-
               <div>
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Work Allot Date *
                 </label>
-
                 <input
                   type="date"
                   name="woi_work_allot_date"
@@ -610,12 +511,10 @@ const AddWorkItemsModel = ({
               </div>
 
               {/* PRINTER */}
-
               <div>
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Printer Name *
                 </label>
-
                 <select
                   name="woi_pm_id"
                   value={formData.woi_pm_id}
@@ -624,14 +523,12 @@ const AddWorkItemsModel = ({
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value="">-select-</option>
-
                   {printerMaster?.map((item) => (
                     <option key={item?.pm_id} value={item?.pm_id}>
                       {item?.printer_name}
                     </option>
                   ))}
                 </select>
-
                 <button
                   type="button"
                   onClick={() => setAddPrinter(true)}
@@ -642,12 +539,10 @@ const AddWorkItemsModel = ({
               </div>
 
               {/* STATUS */}
-
               <div>
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Status *
                 </label>
-
                 <select
                   name="woi_status"
                   value={formData.woi_status}
@@ -656,23 +551,18 @@ const AddWorkItemsModel = ({
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value="Allotted">Allotted</option>
-
                   <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
             </div>
 
-            {/* =========================================
-                MEDIA SECTION
-            ========================================== */}
-
+            {/* MEDIA SECTION */}
             <div className="mt-8">
               <div className="mb-4 flex items-center justify-between border-b pb-3">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">
                     Media Items
                   </h3>
-
                   <p className="text-sm text-gray-500">
                     Add one or more media items for this work order.
                   </p>
@@ -689,10 +579,7 @@ const AddWorkItemsModel = ({
                 </button> */}
               </div>
 
-              {/* =========================================
-                  MEDIA ITEMS
-              ========================================== */}
-
+              {/* MEDIA ITEMS */}
               <div className="space-y-5">
                 {mediaItems.map((media, index) => {
                   return (
@@ -725,10 +612,7 @@ const AddWorkItemsModel = ({
               </button>
             </div>
 
-            {/* =========================================
-                BUTTONS
-            ========================================== */}
-
+            {/* BUTTONS */}
             <div className="mt-6 flex justify-end gap-3 border-t pt-5">
               <button
                 type="button"
@@ -738,7 +622,6 @@ const AddWorkItemsModel = ({
               >
                 Cancel
               </button>
-
               <button
                 type="submit"
                 disabled={loading}
@@ -755,10 +638,7 @@ const AddWorkItemsModel = ({
         </div>
       </div>
 
-      {/* =========================================
-          ADD PRINTER
-      ========================================== */}
-
+      {/* ADD PRINTER */}
       <AddPrinterMasterModel
         isItemOpen={addPrinter}
         onItemClose={() => setAddPrinter(false)}
@@ -768,10 +648,7 @@ const AddWorkItemsModel = ({
   );
 };
 
-// =====================================================
 // MEDIA ITEM CARD
-// =====================================================
-
 const MediaItemCard = ({
   index,
   media,
@@ -788,10 +665,8 @@ const MediaItemCard = ({
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm">
       {/* HEADER */}
-
       <div className="mb-4 flex items-center justify-between">
         <h4 className="font-semibold text-blue-700">Media {index + 1}</h4>
-
         {canRemove && (
           <button
             type="button"
@@ -806,15 +681,12 @@ const MediaItemCard = ({
       </div>
 
       {/* FIELDS */}
-
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         {/* MEDIA */}
-
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">
             Media *
           </label>
-
           <select
             name="woim_pmm_id"
             value={media.woim_pmm_id}
@@ -824,7 +696,6 @@ const MediaItemCard = ({
             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100"
           >
             <option value="">-select-</option>
-
             {printerMedia?.map((item) => (
               <option key={item?.pmm_id} value={item?.pmm_id}>
                 {item?.pmm_media}
@@ -834,12 +705,10 @@ const MediaItemCard = ({
         </div>
 
         {/* WIDTH */}
-
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">
             Width *
           </label>
-
           <input
             type="number"
             step="0.01"
@@ -854,12 +723,10 @@ const MediaItemCard = ({
         </div>
 
         {/* HEIGHT */}
-
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">
             Height *
           </label>
-
           <input
             type="number"
             step="0.01"
@@ -874,12 +741,10 @@ const MediaItemCard = ({
         </div>
 
         {/* UNIT */}
-
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">
             Size Unit *
           </label>
-
           <select
             name="woim_unit"
             value={media.woim_unit}
@@ -888,20 +753,16 @@ const MediaItemCard = ({
             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="">Select Unit</option>
-
             <option value="Feet">Feet</option>
-
             <option value="Inch">Inch</option>
           </select>
         </div>
 
         {/* QUANTITY */}
-
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">
             Quantity *
           </label>
-
           <input
             type="number"
             min="1"
@@ -915,12 +776,10 @@ const MediaItemCard = ({
         </div>
 
         {/* AREA */}
-
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">
             Total Area (SQFT) *
           </label>
-
           <input
             type="number"
             step="0.01"
@@ -933,12 +792,10 @@ const MediaItemCard = ({
         </div>
 
         {/* CREATIVE */}
-
         <div className="md:col-span-2">
           <label className="mb-1 block text-sm font-semibold text-gray-700">
             Creative
           </label>
-
           <input
             type="text"
             name="woim_creative"
@@ -950,13 +807,11 @@ const MediaItemCard = ({
         </div>
 
         {/* IMAGE */}
-
         <div className="md:col-span-2">
           <label className="mb-1 flex items-center gap-2 text-sm font-semibold text-gray-700">
             <FiImage />
             Creative Image
           </label>
-
           <input
             ref={fileInputRef}
             type="file"
@@ -967,7 +822,6 @@ const MediaItemCard = ({
           />
 
           {/* IMAGE PREVIEW */}
-
           {media.imagePreview && (
             <div className="relative mt-3 w-fit">
               <img
@@ -975,7 +829,6 @@ const MediaItemCard = ({
                 alt={`Creative ${index + 1}`}
                 className="h-32 w-32 rounded-lg border border-gray-300 object-cover shadow-sm"
               />
-
               <button
                 type="button"
                 disabled={loading}

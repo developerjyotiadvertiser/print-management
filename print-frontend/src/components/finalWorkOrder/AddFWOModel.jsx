@@ -73,7 +73,6 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
         setLoadingItems(true);
         setSelectedIds([]);
 
-        // Replace with your existing combined work-items GET endpoint.
         const { data } = await axios.get(
           `${apiUrl}/api/work-items/get-work-items-by-printer/${selectedPrinter}`,
         );
@@ -176,7 +175,6 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setFormData((previous) => ({
       ...previous,
       [name]: value,
@@ -230,7 +228,6 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
         onClose();
       }
     } catch (error) {
-      console.error("Error saving final work order:", error);
       alert(
         error.response?.data?.message || "Failed to save final work order.",
       );
@@ -264,7 +261,6 @@ const AddFWOModel = ({ isOpen, onClose, onSaved }) => {
 
   const renderMedia = (item) => {
     const mediaItems = item.media_items || [];
-
     if (!mediaItems.length) {
       return (
         <div className="text-sm text-gray-600">

@@ -25,9 +25,7 @@ const UpdatePrinterMasterModel = ({
   const [fetchingGST, setFetchingGST] = useState(false);
   const [gstFetched, setGstFetched] = useState(false);
 
-  // --------------------------------
   // LOAD SELECTED PRINTER DATA
-  // --------------------------------
   useEffect(() => {
     if (!selected) return;
 
@@ -43,9 +41,7 @@ const UpdatePrinterMasterModel = ({
     setGstFetched(!!selected?.pm_gst_number);
   }, [selected]);
 
-  // --------------------------------
   // HANDLE INPUT CHANGE
-  // --------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     let updatedValue = value;
@@ -87,9 +83,7 @@ const UpdatePrinterMasterModel = ({
     }));
   };
 
-  // --------------------------------
   // MAP GST DETAILS
-  // --------------------------------
   const mapGSTDetails = (data) => {
     const address =
       data?.principalPlaceOfBusinessFields?.principalPlaceOfBusinessAddress;

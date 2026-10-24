@@ -100,7 +100,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
       );
 
       if (!selectedMedia) return;
-
       setFormData((prev) => ({
         ...prev,
 
@@ -171,7 +170,6 @@ const AddPrintModel = ({ isOpen, onClose, getAllPrintData }) => {
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         handleClose();

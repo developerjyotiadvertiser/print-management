@@ -633,19 +633,23 @@ const WorkOrder = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setPrinterMasterTable(true)}
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-yellow-600 px-5 py-2 text-white transition hover:bg-yellow-700"
-              title="Add Printer"
-            >
-              <BsFillPrinterFill /> Add Printer
-            </button>
+            {user?.user?.emp_role !== "accountant" && (
+              <>
+                <button
+                  onClick={() => setPrinterMasterTable(true)}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#00b894] px-5 py-2 text-white transition hover:bg-[#156a58]"
+                  title="Add Printer"
+                >
+                  <BsFillPrinterFill /> Add Printer
+                </button>
+              </>
+            )}
 
             <button
               onClick={() => {
                 navigate("/view-work-order");
               }}
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f368e0] px-5 py-2 text-white transition hover:bg-[#b757aa]"
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#00b894] px-5 py-2 text-white transition hover:bg-[#156a58]"
             >
               <FaDatabase /> Work Order
             </button>
@@ -660,7 +664,7 @@ const WorkOrder = () => {
               <>
                 <button
                   onClick={() => setAddModel(true)}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
+                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#00b894] px-5 py-2 text-white transition hover:bg-[#156a58]"
                 >
                   <FaPlusSquare />
                   {/* <FaNetworkWired /> */}
@@ -903,7 +907,8 @@ const WorkOrder = () => {
                     {/* DATE */}
 
                     <td className="whitespace-nowrap px-4 py-4 text-gray-700">
-                      {formatDate(item?.woi_work_allot_date) || "-"}
+                      {/* {formatDate(item?.woi_work_allot_date) || "-"} */}
+                      {item?.woi_work_allot_date || "-"}
                     </td>
 
                     {/* PRINTER */}
@@ -958,7 +963,7 @@ const WorkOrder = () => {
                                   </td>
 
                                   <td
-                                    className="max-w-[160px] truncate px-3 py-2 text-gray-600"
+                                    className="max-w-40 truncate px-3 py-2 text-gray-600"
                                     title={media?.woim_creative || ""}
                                   >
                                     {media?.woim_creative || "-"}
@@ -1031,15 +1036,18 @@ const WorkOrder = () => {
 
                         {item?.woi_status !== "WO_Issued" && (
                           <>
+                            {user?.user?.emp_role !== "accountant" && (
+                              <>
+                                <button
+                                  onClick={() => handleUpdate(item)}
+                                  className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
+                                  title="Update Work Item"
+                                >
+                                  <FiEdit size={16} />
+                                </button>
+                              </>
+                            )}
                             {/* UPDATE */}
-
-                            <button
-                              onClick={() => handleUpdate(item)}
-                              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
-                              title="Update Work Item"
-                            >
-                              <FiEdit size={16} />
-                            </button>
 
                             {/* DELETE */}
 
@@ -1116,7 +1124,7 @@ const WorkOrder = () => {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`min-w-[38px] rounded-lg border px-3 py-2 text-sm transition ${
+                      className={`min-w-9.5 rounded-lg border px-3 py-2 text-sm transition ${
                         currentPage === page
                           ? "border-blue-600 bg-blue-600 text-white"
                           : "border-gray-300 text-gray-700 hover:bg-gray-50"

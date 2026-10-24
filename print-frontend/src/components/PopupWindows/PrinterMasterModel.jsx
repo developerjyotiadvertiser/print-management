@@ -22,7 +22,6 @@ const PrinterMasterModel = ({
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         handleClose();
@@ -46,7 +45,6 @@ const PrinterMasterModel = ({
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };

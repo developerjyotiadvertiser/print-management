@@ -31,24 +31,18 @@ const AddPrinterMediaModel = ({
     }
   }, [selected]);
 
-  // --------------------------------
   // HANDLE INPUT CHANGE
-  // --------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // --------------------------------
   // SUBMIT
-  // --------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
       const response = await axios.post(
@@ -72,16 +66,13 @@ const AddPrinterMediaModel = ({
     }
   };
 
-  // --------------------------------
   // CLOSE MODAL
-  // --------------------------------
   const handlePrintMediaClose = () => {
     onMediaClose();
   };
 
-  // --------------------------------
   // CLOSE OUTSIDE
-  // --------------------------------
+
   // useEffect(() => {
   //   if (!isMediaOpen) return;
 
@@ -112,7 +103,6 @@ const AddPrinterMediaModel = ({
             <h2 className="text-xl font-semibold text-blue-800">
               Add Printer Media
             </h2>
-
             <button
               type="button"
               onClick={handlePrintMediaClose}
@@ -173,7 +163,6 @@ const AddPrinterMediaModel = ({
                 <label className="mb-1 block text-sm font-semibold text-gray-700">
                   Media Price (Per SQ FT)*
                 </label>
-
                 <input
                   type="text"
                   name="pmm_price"
@@ -196,7 +185,6 @@ const AddPrinterMediaModel = ({
               >
                 Cancel
               </button>
-
               <button
                 type="submit"
                 disabled={loading}

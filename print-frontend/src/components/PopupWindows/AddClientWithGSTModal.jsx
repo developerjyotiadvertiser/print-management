@@ -21,29 +21,20 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
   const [urv, setUrv] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // --------------------------------------------------
   // Reset Form
-  // --------------------------------------------------
-
   const resetForm = () => {
     setFormData({ ...initialFormData });
     setGstFetched(false);
   };
 
-  // --------------------------------------------------
   // Close Modal
-  // --------------------------------------------------
-
   const handleClose = () => {
     if (loading || fetchingGST) return;
     resetForm();
     onClose();
   };
 
-  // --------------------------------------------------
   // Close Modal on Outside Click and Escape
-  // --------------------------------------------------
-
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (e) => {
@@ -61,21 +52,15 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
     document.addEventListener("mousedown", handleClickOutside);
 
     // document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-
       // document.removeEventListener("keydown", handleEscKey);
     };
   }, [isOpen, loading, fetchingGST]);
 
-  // --------------------------------------------------
   // Handle Input Changes
-  // --------------------------------------------------
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     let updatedValue = value;
 
     // GST Number
@@ -84,7 +69,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
       if (updatedValue !== formData.gst_number) {
         setGstFetched(false);
-
         setFormData((prev) => ({
           ...prev,
           gst_number: updatedValue,
@@ -119,14 +103,10 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
     }));
   };
 
-  // --------------------------------------------------
   // Map GST Response
-  // --------------------------------------------------
-
   const mapGSTDetails = (data) => {
     const address =
       data?.principalPlaceOfBusinessFields?.principalPlaceOfBusinessAddress;
-
     const clientAddress = [
       address?.buildingNumber,
       address?.buildingName,
@@ -142,19 +122,14 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
     return {
       client_name: data?.tradeName || data?.legalNameOfBusiness || "",
-
       // PAN is available inside GSTIN
       pan_number: data?.gstIdentificationNumber?.slice(2, 12) || "",
-
       client_address: clientAddress,
       pincode: address?.pincode || "",
     };
   };
 
-  // --------------------------------------------------
   // Fetch GST Details Through Backend API
-  // --------------------------------------------------
-
   const handleFetchGST = async () => {
     const gstNumber = formData.gst_number.trim().toUpperCase();
 
@@ -167,7 +142,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
     try {
       setFetchingGST(true);
-
       const response = await axios.post(
         `${apiUrl}/api/client/fetch-gst-details`,
         {
@@ -197,7 +171,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
       }
 
       const details = mapGSTDetails(gstData);
-
       setFormData((prev) => ({
         ...prev,
         ...details,
@@ -208,11 +181,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
       toast.success("GST details fetched successfully");
     } catch (error) {
-      console.error(
-        "GST Details Error:",
-        error.response?.data || error.message,
-      );
-
       toast.error(
         error.response?.data?.message || "Failed to fetch GST details",
       );
@@ -221,10 +189,7 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
     }
   };
 
-  // --------------------------------------------------
   // Save Client
-  // --------------------------------------------------
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -255,7 +220,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
     try {
       setLoading(true);
-
       const response = await axios.post(
         `${apiUrl}/api/client/save-client`,
         formData,
@@ -263,9 +227,7 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         await getAllClientData();
-
         resetForm();
         onClose();
       } else {
@@ -452,7 +414,6 @@ const AddClientWithGSTModal = ({ isOpen, onClose, getAllClientData }) => {
 
             <button
               type="submit"
-              //   disabled={loading || fetchingGST || !gstFetched}
               disabled={loading || fetchingGST}
               className={`rounded-lg px-6 py-2.5 text-white ${
                 loading || fetchingGST

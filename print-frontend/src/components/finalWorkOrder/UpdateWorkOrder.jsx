@@ -10,17 +10,14 @@ const UpdateWorkOrder = ({
 }) => {
   const modalRef = useRef(null);
   const apiUrl = import.meta.env.VITE_API_URL;
-
   const [printers, setPrinters] = useState([]);
   const [workItems, setWorkItems] = useState([]);
   const [selectedPrinter, setSelectedPrinter] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
-
   const [loadingPrinters, setLoadingPrinters] = useState(false);
   const [loadingItems, setLoadingItems] = useState(false);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
-
   const [formData, setFormData] = useState({
     fwo_date: new Date().toLocaleDateString("en-CA"),
     fwo_adjustment_amount: 0,
@@ -31,28 +28,18 @@ const UpdateWorkOrder = ({
     fwo_remarks: "",
   });
 
-  console.log("33 selectedOrder", selectedOrder);
-
   useEffect(() => {
     if (!isOrderOpen || !selectedOrder) return;
-
     setSelectedPrinter(String(selectedOrder.fwo_pm_id ?? ""));
-
     setFormData({
       fwo_date: selectedOrder.fwo_date
         ? String(selectedOrder.fwo_date).slice(0, 10)
         : new Date().toLocaleDateString("en-CA"),
-
       fwo_adjustment_amount: selectedOrder.fwo_adjustment_amount ?? 0,
-
       fwo_paid_amount: selectedOrder.fwo_paid_amount ?? 0,
-
       fwo_status: selectedOrder.fwo_status ?? "Draft",
-
       fwo_payment_status: selectedOrder.fwo_payment_status ?? "Unpaid",
-
       fwo_bill_received: selectedOrder.fwo_bill_received ?? "not-received",
-
       fwo_remarks: selectedOrder.fwo_remarks ?? "",
     });
 
@@ -84,13 +71,10 @@ const UpdateWorkOrder = ({
           `${apiUrl}/api/printer-master/get-all-printer-master`,
         );
 
-        console.log("55 FWO", data?.data?.data);
-
         const result = data?.data?.data || [];
         setPrinters(Array.isArray(result) ? result : []);
       } catch (error) {
         console.error("Error fetching printers:", error);
-        // alert("Unable to load printers.");
       } finally {
         setLoadingPrinters(false);
       }
@@ -108,12 +92,9 @@ const UpdateWorkOrder = ({
     const fetchWorkItems = async () => {
       try {
         setLoadingItems(true);
-
         const { data } = await axios.get(
           `${apiUrl}/api/work-items/get-work-items-by-printer/${selectedPrinter}`,
         );
-
-        console.log("111 data", data?.data?.data);
 
         const items = data?.data?.data || [];
 
@@ -126,8 +107,6 @@ const UpdateWorkOrder = ({
         );
 
         setWorkItems(workOrderItems);
-
-        console.log("125 workItems", workOrderItems);
 
         // Automatically select existing work items
         setSelectedIds(workOrderItems.map((item) => Number(item.woi_id)));
@@ -153,13 +132,9 @@ const UpdateWorkOrder = ({
     );
   };
 
-  console.log("124 workItems", workItems);
-
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
-
     if (!query) return workItems;
-
     return workItems.filter((item) =>
       [item.woi_jc_number, item.woi_creative, item.woi_printer_name]
         .filter(Boolean)
@@ -167,16 +142,11 @@ const UpdateWorkOrder = ({
     );
   }, [workItems, search]);
 
-  console.log("137 filteredItems", filteredItems);
-
   const selectedItems = useMemo(
     () => workItems.filter((item) => selectedIds.includes(item.woi_id)),
     [workItems, selectedIds],
   );
 
-  // IMPORTANT:
-  // Replace getItemArea() and getItemRate() with the actual fields
-  // returned by your work-items/media API.
   const getItemArea = (item) => {
     const mediaItems = item.media_items ?? item.work_order_media ?? [];
 
@@ -192,10 +162,7 @@ const UpdateWorkOrder = ({
   };
 
   const getItemRate = (item) => {
-    console.log("162 item", item);
-
     const mediaItems = item.media_items || [];
-
     if (mediaItems.length > 0) {
       return mediaItems.reduce(
         (sum, media) =>
@@ -206,7 +173,6 @@ const UpdateWorkOrder = ({
       );
     }
 
-    // This fallback assumes the item contains a per-square-foot rate.
     return getItemArea(item) * Number(item.pmm_price || 0);
   };
 
@@ -219,7 +185,6 @@ const UpdateWorkOrder = ({
   const grandTotal = Math.max(0, subtotal + adjustment);
   const paidAmount = Number(formData.fwo_paid_amount) || 0;
   const balanceAmount = grandTotal - paidAmount;
-
   const paymentStatus =
     paidAmount <= 0 ? "Unpaid" : paidAmount >= grandTotal ? "Paid" : "Partial";
 
@@ -231,7 +196,6 @@ const UpdateWorkOrder = ({
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setFormData((previous) => ({
       ...previous,
       [name]: value,
@@ -258,7 +222,6 @@ const UpdateWorkOrder = ({
 
     try {
       setSaving(true);
-
       const payload = {
         fwo_date: formData.fwo_date,
         fwo_pm_id: Number(selectedPrinter),
@@ -274,7 +237,6 @@ const UpdateWorkOrder = ({
         woi_ids: selectedIds,
       };
 
-      // Replace with the route registered in your backend.
       const response = await axios.put(
         `${apiUrl}/api/final-work-order/update-final-work-order/${selectedOrder?.fwo_id}`,
         payload,
@@ -286,7 +248,6 @@ const UpdateWorkOrder = ({
         onOrderClose();
       }
     } catch (error) {
-      console.error("Error updating final work order:", error);
       alert(
         error.response?.data?.message || "Failed to update final work order.",
       );
@@ -302,7 +263,6 @@ const UpdateWorkOrder = ({
 
   useEffect(() => {
     if (!isOrderOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
         handleClose();
@@ -310,7 +270,6 @@ const UpdateWorkOrder = ({
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
@@ -319,10 +278,7 @@ const UpdateWorkOrder = ({
   if (!isOrderOpen) return null;
 
   const renderMedia = (item) => {
-    console.log("266 item render", item);
-
     const mediaItems = item.media_items || [];
-
     if (!mediaItems.length) {
       return (
         <div className="text-sm text-gray-600">
@@ -528,8 +484,8 @@ const UpdateWorkOrder = ({
                   No available work items for this printer.
                 </div>
               ) : (
-                <div className="max-h-[360px] overflow-auto">
-                  <table className="w-full min-w-[1000px] text-left text-sm">
+                <div className="max-h-90 overflow-auto">
+                  <table className="w-full min-w-250 text-left text-sm">
                     <thead className="sticky top-0 z-10 bg-gray-100 text-gray-600">
                       <tr>
                         <th className="w-12 px-4 py-3">

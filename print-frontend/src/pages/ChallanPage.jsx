@@ -346,14 +346,14 @@ const ChallanPage = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setMasterModel(true)}
-              className="flex items-center gap-2 px-8 py-2 rounded-lg text-white bg-cyan-600 hover:bg-cyan-700 transition cursor-pointer"
+              className="flex items-center gap-2 px-8 py-2 rounded-lg text-white bg-[#e67e22] font-semibold hover:bg-[#f39c12] transition cursor-pointer"
             >
               <FiPlus />
               Client Master
             </button>
             <button
               onClick={() => setAddModel(true)}
-              className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 transition cursor-pointer"
+              className="flex items-center gap-2 px-8 py-2 rounded-lg text-white bg-[#e67e22] font-semibold hover:bg-[#f39c12] transition cursor-pointer"
             >
               <FiPlus />
               Add Challan

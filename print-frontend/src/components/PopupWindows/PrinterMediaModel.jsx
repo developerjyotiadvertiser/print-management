@@ -20,7 +20,6 @@ const PrinterMediaModel = ({
   // Close when clicking outside
   useEffect(() => {
     if (!isMediaOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         handleClose();
@@ -37,7 +36,6 @@ const PrinterMediaModel = ({
   // Close on ESC
   useEffect(() => {
     if (!isMediaOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
         handleClose();
@@ -45,7 +43,6 @@ const PrinterMediaModel = ({
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };

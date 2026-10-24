@@ -306,19 +306,11 @@ const AddChallanModel = ({
 
       if (response.data.success) {
         toast.success(response.data.message);
-
-        // Refresh challan list
         await getAllChallanData();
-
-        // Get newly created challan from API response
         const newChallan = response.data?.data?.data;
-
-        // Reset form
         setFormData(initialFormData);
         setCurrentPrint(initialPrint);
         setEditingIndex(null);
-
-        // Close Add Challan modal
         onClose();
 
         // Open Print Challan modal
@@ -344,7 +336,6 @@ const AddChallanModel = ({
 
   useEffect(() => {
     if (!isOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape" && !loading) {
         handleClose();
@@ -352,7 +343,6 @@ const AddChallanModel = ({
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };

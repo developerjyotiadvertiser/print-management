@@ -25,10 +25,7 @@ const AddPrinterMasterModel = ({
   const [fetchingGST, setFetchingGST] = useState(false);
   const [gstFetched, setGstFetched] = useState(false);
 
-  // --------------------------------
   // HANDLE INPUT CHANGE
-  // --------------------------------
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     let updatedValue = value;
@@ -36,7 +33,6 @@ const AddPrinterMasterModel = ({
     // GST NUMBER
     if (name === "pm_gst_number") {
       updatedValue = value.toUpperCase().slice(0, 15);
-
       // GST changed -> clear fetched details
       if (updatedValue !== formData.pm_gst_number) {
         setGstFetched(false);
@@ -69,10 +65,7 @@ const AddPrinterMasterModel = ({
     }));
   };
 
-  // --------------------------------
   // MAP GST DETAILS
-  // --------------------------------
-
   const mapGSTDetails = (data) => {
     const address =
       data?.principalPlaceOfBusinessFields?.principalPlaceOfBusinessAddress;
@@ -100,10 +93,7 @@ const AddPrinterMasterModel = ({
     };
   };
 
-  // --------------------------------
   // FETCH GST DETAILS
-  // --------------------------------
-
   const handleFetchGST = async () => {
     const gstNumber = formData.pm_gst_number.trim().toUpperCase();
 
@@ -130,20 +120,12 @@ const AddPrinterMasterModel = ({
       }
 
       const gstData = response.data.data;
-
-      // --------------------------------
-      // VERIFY RETURNED GSTIN
-      // --------------------------------
-
       if (gstData?.gstIdentificationNumber?.toUpperCase() !== gstNumber) {
         toast.error("GST number does not match API response");
         return;
       }
 
-      // --------------------------------
       // CHECK GST STATUS
-      // --------------------------------
-
       if (gstData?.gstnStatus?.toLowerCase() !== "active") {
         toast.error(
           `GST registration status: ${gstData?.gstnStatus || "Unknown"}`,
@@ -151,12 +133,8 @@ const AddPrinterMasterModel = ({
         return;
       }
 
-      // --------------------------------
       // MAP DETAILS
-      // --------------------------------
-
       const details = mapGSTDetails(gstData);
-
       setFormData((prev) => ({
         ...prev,
         ...details,
@@ -174,29 +152,20 @@ const AddPrinterMasterModel = ({
     }
   };
 
-  // --------------------------------
   // CLOSE MODAL
-  // --------------------------------
-
   const handleClose = () => {
     if (loading || fetchingGST) return;
     resetForm();
     onItemClose();
   };
 
-  // --------------------------------
   // RESET FORM
-  // --------------------------------
-
   const resetForm = () => {
     setFormData({ ...initialFormData });
     setGstFetched(false);
   };
 
-  // --------------------------------
   // CLOSE OUTSIDE
-  // --------------------------------
-
   useEffect(() => {
     if (!isItemOpen) return;
 
@@ -207,16 +176,12 @@ const AddPrinterMasterModel = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isItemOpen, loading, fetchingGST]);
 
-  // --------------------------------
   // SUBMIT
-  // --------------------------------
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -283,7 +248,6 @@ const AddPrinterMasterModel = ({
 
         <div className="mb-5 flex items-center justify-between border-b pb-4">
           <h2 className="text-xl font-semibold text-blue-800">Add Printer</h2>
-
           <button
             type="button"
             onClick={handleClose}
@@ -296,12 +260,10 @@ const AddPrinterMasterModel = ({
 
         <form onSubmit={handleSubmit}>
           {/* GST NUMBER */}
-
           <div className="mt-4">
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               GST Number
             </label>
-
             <div className="flex gap-2">
               <input
                 type="text"
@@ -313,7 +275,6 @@ const AddPrinterMasterModel = ({
                 disabled={fetchingGST || loading}
                 className="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-2.5 uppercase focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-
               <button
                 type="button"
                 onClick={handleFetchGST}
@@ -323,14 +284,12 @@ const AddPrinterMasterModel = ({
                 {fetchingGST ? "Fetching..." : "Fetch"}
               </button>
             </div>
-
             <p className="mt-1 text-xs text-gray-500">
               Enter GST number and fetch registered printer details.
             </p>
           </div>
 
           {/* GST FETCH SUCCESS */}
-
           {gstFetched && (
             <div className="mt-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
               GST details fetched successfully
@@ -338,12 +297,10 @@ const AddPrinterMasterModel = ({
           )}
 
           {/* PRINTER NAME */}
-
           <div className="mt-4">
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Name *
             </label>
-
             <input
               type="text"
               name="printer_name"
@@ -356,12 +313,10 @@ const AddPrinterMasterModel = ({
           </div>
 
           {/* ADDRESS */}
-
           <div className="mt-2">
             <label className="mb-1 block text-sm font-semibold text-gray-700">
               Address *
             </label>
-
             <textarea
               name="pm_address"
               value={formData.pm_address}
@@ -374,13 +329,11 @@ const AddPrinterMasterModel = ({
           </div>
 
           {/* PAN + PINCODE */}
-
           <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 PAN Number
               </label>
-
               <input
                 type="text"
                 name="pm_pan_number"
@@ -396,7 +349,6 @@ const AddPrinterMasterModel = ({
               <label className="mb-1 block text-sm font-semibold text-gray-700">
                 Pincode *
               </label>
-
               <input
                 type="text"
                 name="pm_pincode"
@@ -411,7 +363,6 @@ const AddPrinterMasterModel = ({
           </div>
 
           {/* BUTTONS */}
-
           <div className="mt-6 flex justify-end gap-3">
             <button
               type="button"
@@ -421,7 +372,6 @@ const AddPrinterMasterModel = ({
             >
               Cancel
             </button>
-
             <button
               type="submit"
               disabled={loading || fetchingGST}

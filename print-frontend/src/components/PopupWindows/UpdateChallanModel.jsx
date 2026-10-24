@@ -284,7 +284,6 @@ const UpdateChallanModel = ({
   // Update Challan
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.ch_id) {
       toast.error("Challan ID is missing");
       return;

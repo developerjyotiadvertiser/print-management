@@ -36,11 +36,9 @@ const MediaItemTable = ({ getAllMediaType, mediaType }) => {
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Sr. No.
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600">
                   Media Item
                 </th>
-
                 <th className="px-5 py-3 font-semibold text-gray-600 text-center">
                   Action
                 </th>
@@ -71,14 +69,12 @@ const MediaItemTable = ({ getAllMediaType, mediaType }) => {
                   <tr key={index} className="hover:bg-gray-50 transition">
                     {/* Sr. No. */}
                     <td className="px-5 py-4 text-gray-500">{index + 1}</td>
-
                     {/* Media */}
                     <td className="px-5 py-4">
                       <div className="font-medium text-gray-800">
                         {media?.mt_name || "-"}
                       </div>
                     </td>
-
                     {/* Action */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-center gap-2">

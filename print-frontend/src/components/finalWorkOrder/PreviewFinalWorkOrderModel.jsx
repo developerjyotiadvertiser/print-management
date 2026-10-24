@@ -156,7 +156,6 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
       link.click();
       link.remove();
     } catch (error) {
-      console.error("Image download error:", error);
       alert(`Unable to download image: ${error.message}`);
     } finally {
       setDownloading("");
@@ -166,7 +165,6 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
   const downloadPDF = async () => {
     try {
       setDownloading("pdf");
-
       const canvas = await capturePreview();
       const imageData = canvas.toDataURL("image/png");
 
@@ -179,7 +177,6 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
       const margin = 10;
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-
       const contentWidth = pageWidth - margin * 2;
       const contentHeight = (canvas.height * contentWidth) / canvas.width;
       const usableHeight = pageHeight - margin * 2;
@@ -216,7 +213,6 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
 
       pdf.save(`Work-Order-${orderNumber}.pdf`);
     } catch (error) {
-      console.error("PDF download error:", error);
       alert(`Unable to download PDF: ${error.message}`);
     } finally {
       setDownloading("");
@@ -303,7 +299,7 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
                   <p className="text-[10px] font-semibold text-gray-500">
                     Printer Name
                   </p>
-                  <p className="break-words text-[11px] font-medium text-gray-800">
+                  <p className="wrap-break-words text-[11px] font-medium text-gray-800">
                     {printer?.printer_name?.toUpperCase() || "-"}
                   </p>
                 </div>
@@ -323,7 +319,7 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
                   <p className="text-[10px] font-semibold text-gray-500">
                     Address
                   </p>
-                  <p className="break-words text-[11px] leading-4 text-gray-700">
+                  <p className="wrap-break-words text-[11px] leading-4 text-gray-700">
                     {printer?.pm_address?.toUpperCase() || "-"}
                   </p>
                 </div>
@@ -474,25 +470,10 @@ const PreviewFinalWorkOrderModel = ({ isOpen, onClose, workOrder }) => {
                   <span>₹{formatAmount(subtotal)}</span>
                 </div>
 
-                {/* <div className="flex justify-between gap-4">
-                  <span className="text-gray-600">Adjustment</span>
-                  <span>₹{formatAmount(adjustment)}</span>
-                </div> */}
-
                 <div className="flex justify-between gap-4 border-t-2 border-gray-800 pt-3 text-base font-bold">
                   <span>Grand Total</span>
                   <span>₹{formatAmount(grandTotal)}</span>
                 </div>
-
-                {/* <div className="flex justify-between gap-4">
-                  <span className="text-gray-600">Paid Amount</span>
-                  <span>₹{formatAmount(paidAmount)}</span>
-                </div> */}
-
-                {/* <div className="flex justify-between gap-4 font-bold text-red-600">
-                  <span>Balance Amount</span>
-                  <span>₹{formatAmount(balanceAmount)}</span>
-                </div> */}
               </div>
             </div>
             <div className="mt-2 grid grid-cols-4 gap-4  border-t border-gray-300 pt-3">

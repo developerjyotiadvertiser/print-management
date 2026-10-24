@@ -28,7 +28,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
-
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         handleClose();
@@ -53,7 +52,6 @@ const AddEmployeeModel = ({ isOpen, onClose, getEmployees }) => {
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };

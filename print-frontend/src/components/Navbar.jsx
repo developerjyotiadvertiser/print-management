@@ -82,7 +82,7 @@ const Navbar = () => {
                       onClick={() => {
                         navigate("/work-order-jobs");
                       }}
-                      className="rounded-lg bg-green-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 cursor-pointer"
+                      className="rounded-lg bg-[#156a58] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#00b894] cursor-pointer"
                     >
                       Print + WO
                     </button>
@@ -93,9 +93,9 @@ const Navbar = () => {
                   <>
                     <button
                       onClick={() => {
-                        navigate("/");
+                        navigate("/dashboard");
                       }}
-                      className="rounded-lg bg-[#1465ec] px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+                      className="rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 cursor-pointer"
                     >
                       HP Latex
                     </button>
@@ -103,7 +103,7 @@ const Navbar = () => {
                       onClick={() => {
                         navigate("/print-challan");
                       }}
-                      className="rounded-lg bg-yellow-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700 cursor-pointer"
+                      className="rounded-lg bg-[#d35400] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#f39c12] cursor-pointer"
                     >
                       Challan
                     </button>

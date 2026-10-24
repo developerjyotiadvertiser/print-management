@@ -266,7 +266,7 @@ const AdminDashboard = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
-              Print Work Details
+              Latex Printing Details
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Showing {filteredPrintRecords.length} of {printRecords.length}{" "}
@@ -281,7 +281,7 @@ const AdminDashboard = () => {
                   onClick={() => {
                     setMasterModel(true);
                   }}
-                  className="rounded-lg  px-5 py-2 text-sm font-semibold  transition text-white bg-cyan-600 hover:bg-cyan-700 cursor-pointer"
+                  className="rounded-lg  px-5 py-2 text-md font-semibold  transition text-white bg-blue-500 hover:bg-blue-700 cursor-pointer"
                 >
                   + Media
                 </button>
@@ -290,10 +290,9 @@ const AdminDashboard = () => {
                   onClick={() => {
                     setAddModel(true);
                   }}
-                  className="flex items-center gap-2 px-8 py-2 rounded-lg text-gray-900 bg-yellow-200 hover:bg-yellow-300 transition cursor-pointer"
+                  className="flex items-center gap-2 px-8 font-semibold py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-700 transition cursor-pointer text-md"
                 >
-                  <FiPlus />
-                  Add New Record
+                  {/* <FiPlus /> */}+ New Record
                 </button>
               </div>
             </>

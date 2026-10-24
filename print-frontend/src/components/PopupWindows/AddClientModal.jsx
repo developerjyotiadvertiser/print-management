@@ -57,7 +57,6 @@ const AddClientModal = ({ isOpen, onClose, getAllClientData }) => {
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };

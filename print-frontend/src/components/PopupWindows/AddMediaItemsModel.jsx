@@ -19,31 +19,23 @@ const AddMediaItemsModel = ({
 
   const [loading, setLoading] = useState(false);
 
-  // --------------------------------
   // HANDLE INPUT CHANGE
-  // --------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // --------------------------------
   // CLOSE MODAL
-  // --------------------------------
   const handleMediaClose = () => {
     onItemClose();
   };
 
-  // --------------------------------
   // CLOSE ON ESC
-  // --------------------------------
   useEffect(() => {
     if (!isItemOpen) return;
-
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
         handleMediaClose();
@@ -51,15 +43,12 @@ const AddMediaItemsModel = ({
     };
 
     document.addEventListener("keydown", handleEscKey);
-
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
   }, [isItemOpen, loading]);
 
-  // --------------------------------
   // RESET FORM
-  // --------------------------------
   const resetForm = () => {
     setFormData({
       mt_name: "",
@@ -67,16 +56,11 @@ const AddMediaItemsModel = ({
     });
   };
 
-  // --------------------------------
   // SUBMIT
-  // --------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
-      // Only send fields required by media_master
       const payload = {
         mt_name: formData.mt_name?.toLocaleUpperCase(),
         mt_status: formData.mt_status,
@@ -89,10 +73,8 @@ const AddMediaItemsModel = ({
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         await getAllMediaMaster();
         getAllMediaType();
-
         if (onMediaTypeAdded) {
           onMediaTypeAdded(response.data.data);
         }

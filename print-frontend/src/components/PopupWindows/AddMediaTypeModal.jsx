@@ -33,24 +33,18 @@ const AddMediaTypeModal = ({
   const [isMediaItemModalOpen, setIsMediaItemModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  // --------------------------------
   // HANDLE INPUT CHANGE
-  // --------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // --------------------------------
   // CALCULATE SIZE IN SQ.FT
-  // --------------------------------
   useEffect(() => {
     const { mm_width, mm_height, mm_unit } = formData;
-
     if (!mm_width || !mm_height || !mm_unit) {
       setFormData((prev) => ({
         ...prev,
@@ -69,24 +63,20 @@ const AddMediaTypeModal = ({
     }
 
     const area = widthInFeet * heightInFeet;
-
     setFormData((prev) => ({
       ...prev,
       mm_size: area.toFixed(2),
     }));
   }, [formData.mm_width, formData.mm_height, formData.mm_unit]);
 
-  // --------------------------------
   // CLOSE MODAL
-  // --------------------------------
   const handleClose = () => {
     if (loading) return;
     onMediaClose();
   };
 
-  // --------------------------------
   // CLOSE ON ESC
-  // --------------------------------
+
   // useEffect(() => {
   //   if (!isMediaOpen) return;
 
@@ -103,9 +93,7 @@ const AddMediaTypeModal = ({
   //   };
   // }, [isMediaOpen, loading]);
 
-  // --------------------------------
   // RESET FORM
-  // --------------------------------
   const resetForm = () => {
     setFormData({
       mm_media: "",
@@ -119,9 +107,7 @@ const AddMediaTypeModal = ({
     });
   };
 
-  // --------------------------------
   // SUBMIT
-  // --------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -153,9 +139,7 @@ const AddMediaTypeModal = ({
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         await getAllMediaMaster();
-
         if (onMediaTypeAdded) {
           onMediaTypeAdded(response.data.data);
         }

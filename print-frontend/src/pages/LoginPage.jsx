@@ -97,7 +97,7 @@ const LoginPage = () => {
       // OTP verified successfully
       dispatch(setUser(loginData));
       toast.success("Login successfully");
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
